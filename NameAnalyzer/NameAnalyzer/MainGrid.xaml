@@ -1,0 +1,211 @@
+<Grid
+    x:Class="NameAnalyzer.MainGrid"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:NameAnalyzer.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helper="using:WinUI3Utilities"
+    xmlns:local="using:NameAnalyzer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:system="using:System"
+    mc:Ignorable="d">
+    <Grid.Resources>
+        <Thickness x:Key="PropertyNameMargin">4,4</Thickness>
+        <converters:StringIsNotEmptyToBoolConverter x:Key="StringIsNotEmptyToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:StringIsNotEmptyToVisibilityConverter x:Key="StringIsNotEmptyToVisibilityConverter" />
+        <converters:NameInfoLabelTypeToStringConverter x:Key="NameInfoLabelTypeToStringConverter" />
+        <converters:IntToStringForItemNumberConverter x:Key="IntToStringForItemNumberConverter" />
+        <Style x:Key="NameInfoLabelStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="{StaticResource PropertyNameMargin}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="NameInfoBlockStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="IsTextSelectionEnabled" Value="True" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="{StaticResource PropertyNameMargin}" />
+        </Style>
+        <Style x:Key="SelectedLabelBlockStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="{StaticResource PropertyNameMargin}" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </Grid.Resources>
+
+    <Grid.RowDefinitions>
+        <!--  自动调整高度  -->
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <!--  占满剩余高度  -->
+        <RowDefinition Height="*" />
+        <RowDefinition Height="400" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    <Border
+        x:Name="TitleBar"
+        Grid.Row="0"
+        Grid.Column="0"
+        Grid.ColumnSpan="2"
+        Height="32"
+        Margin="10,0"
+        VerticalAlignment="Top"
+        IsHitTestVisible="True">
+        <StackPanel Orientation="Horizontal">
+            <!--  图标，可替换为别的图片  -->
+            <Image
+                Width="16"
+                Height="16"
+                Source="..\Assets\Square44x44Logo.png" />
+            <TextBlock
+                x:Name="TitleTextBlock"
+                Margin="20,0"
+                VerticalAlignment="Center"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind helper:CurrentContext.Title}" />
+        </StackPanel>
+    </Border>
+    <StackPanel
+        Grid.Row="1"
+        Grid.Column="0"
+        Orientation="Horizontal">
+        <NumberBox
+            Margin="5,0,0,0"
+            VerticalAlignment="Center"
+            Maximum="{x:Bind _vm.MaxLevel, Mode=OneWay}"
+            Minimum="0"
+            SmallChange="1"
+            SpinButtonPlacementMode="Inline"
+            ToolTipService.ToolTip="Level"
+            Value="{x:Bind _vm.SelectedLevel, Mode=TwoWay}" />
+        <ComboBox
+            Margin="15"
+            VerticalAlignment="Center"
+            ItemsSource="{x:Bind _vm.TypeListSource, Mode=OneWay}"
+            SelectedIndex="{x:Bind _vm.SelectedTypeIndex, Mode=TwoWay}"
+            ToolTipService.ToolTip="Type" />
+        <CheckBox
+            VerticalAlignment="Center"
+            IsChecked="{x:Bind _vm.OnlyShowWarnedItems, Mode=TwoWay}"
+            ToolTipService.ToolTip="Only Show Warned Items" />
+    </StackPanel>
+
+    <CommandBar
+        Grid.Row="1"
+        Grid.Column="1"
+        OverflowButtonVisibility="Collapsed">
+        <AppBarSeparator />
+        <AppBarButton
+            Icon="Important"
+            Tapped="WarningButtonTapped"
+            ToolTipService.ToolTip="All Warnings"
+            Visibility="{x:Bind _vm.WarningMessage, Mode=OneWay, Converter={StaticResource StringIsNotEmptyToVisibilityConverter}}" />
+        <AppBarButton
+            Icon="OpenFile"
+            Tapped="SelectFileTapped"
+            ToolTipService.ToolTip="Open Single File" />
+        <AppBarButton
+            Icon="OpenLocal"
+            Tapped="SelectFolderTapped"
+            ToolTipService.ToolTip="Open Folder" />
+        <AppBarButton
+            Icon="Cancel"
+            Tapped="OpenParseExceptionLogTapped"
+            ToolTipService.ToolTip="Parsing Exception Log"
+            Visibility="{x:Bind _vm.MessageDialogText, Mode=OneWay, Converter={StaticResource StringIsNotEmptyToVisibilityConverter}}" />
+    </CommandBar>
+    <ScrollViewer
+        Grid.Row="3"
+        Grid.Column="0"
+        Grid.ColumnSpan="2">
+        <ListView ItemsSource="{x:Bind _vm.NameListSource, Mode=OneWay}" SelectedIndex="{x:Bind _vm.SelectedNameIndex, Mode=TwoWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:NameItem">
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon
+                            Margin="0,0,5,0"
+                            Symbol="Important"
+                            Visibility="{x:Bind IsError, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <TextBlock Text="{x:Bind Name}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </ScrollViewer>
+    <Grid
+        Grid.Row="4"
+        Grid.Column="0"
+        Grid.ColumnSpan="2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Style="{StaticResource SelectedLabelBlockStyle}" Text="{x:Bind _vm.SelectionShowText, Mode=OneWay}" />
+            <TextBlock
+                Grid.Row="1"
+                Style="{StaticResource SelectedLabelBlockStyle}"
+                Text="{x:Bind _vm.ItemNumber, Converter={StaticResource IntToStringForItemNumberConverter}, Mode=OneWay}" />
+        </Grid>
+        <NavigationView
+            Grid.Column="1"
+            CompactPaneLength="0"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            MenuItemsSource="{x:Bind _vm.NameInfoLabelsSource, Mode=OneWay}"
+            PaneDisplayMode="Top"
+            SelectedItem="{x:Bind _vm.SelectedNameInfoLabel, Mode=TwoWay}">
+            <NavigationView.MenuItemTemplate>
+                <DataTemplate x:DataType="local:NameInfoLabel">
+                    <TextBlock Style="{StaticResource NameInfoLabelStyle}" Text="{x:Bind Type, Converter={StaticResource NameInfoLabelTypeToStringConverter}}" />
+                </DataTemplate>
+            </NavigationView.MenuItemTemplate>
+            <ScrollViewer Padding="20">
+                <TextBlock
+                    x:Name="NameInfoBlock"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource NameInfoBlockStyle}" />
+            </ScrollViewer>
+        </NavigationView>
+    </Grid>
+    <ContentDialog
+        x:Name="MessageDialog"
+        Grid.Row="0"
+        Grid.Column="0"
+        CloseButtonText="Close"
+        PrimaryButtonClick="OpenParsingLogInExplorer"
+        PrimaryButtonText="Open log">
+        <ContentDialog.Title>
+            <StackPanel Orientation="Horizontal">
+                <SymbolIcon Margin="0,0,5,0" Symbol="Cancel" />
+                <TextBlock Text="Parsing Exception" />
+            </StackPanel>
+        </ContentDialog.Title>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto">
+            <TextBlock Text="{x:Bind _vm.MessageDialogText, Mode=OneWay}" />
+        </ScrollViewer>
+    </ContentDialog>
+    <InfoBar
+        Title="Some Warnings Happen"
+        Grid.Row="2"
+        Grid.Column="0"
+        Grid.ColumnSpan="2"
+        IsOpen="{x:Bind _vm.WarningMessage, Mode=OneWay, Converter={StaticResource StringIsNotEmptyToBoolConverter}}"
+        Severity="Warning">
+        <InfoBar.ActionButton>
+            <Button Click="WarningButtonTapped">
+                <SymbolIcon Symbol="Important" />
+            </Button>
+        </InfoBar.ActionButton>
+    </InfoBar>
+</Grid>
