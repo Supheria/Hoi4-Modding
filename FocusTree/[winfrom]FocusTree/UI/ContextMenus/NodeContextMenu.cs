@@ -1,9 +1,11 @@
-﻿namespace FocusTree.UI.Controls
+﻿using FocusTree.UI.Graph;
+
+namespace FocusTree.UI.Controls
 {
     class NodeContextMenu : ContextMenuStrip
     {
-        private GraphDisplayer Display;
-        public NodeContextMenu(GraphDisplayer display, Point showPoint)
+        private GraphDisplay Display;
+        public NodeContextMenu(GraphDisplay display, Point showPoint)
         {
             Display = display;
             if (GraphBox.ReadOnly)
@@ -90,7 +92,7 @@
             string info = string.Empty;
             if (Display.SelectedNode != null)
             {
-                var focus = Display.SelectedNode.Value;
+                var focus = Display.SelectedNode;
                 info = $"{focus.Name}, {focus.Duration}日\n{focus.Description}";
             }
             Display.DrawInfo(info);
@@ -104,7 +106,7 @@
         private void MenuItem_removeNode_Click(object sender, EventArgs e)
         {
             if (Display.SelectedNode == null) { return; }
-            GraphBox.RemoveFocusNode(Display.SelectedNode.Value);
+            GraphBox.RemoveFocusNode(Display.SelectedNode);
             Display.RefreshGraphBox();
         }
         private void MenuItem_checkout_Click(object sender, EventArgs e)

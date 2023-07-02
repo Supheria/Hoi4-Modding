@@ -1,50 +1,60 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace FocusTree.Graph
+namespace FocusTree.Graph.Lattice
 {
     /// <summary>
     /// 栅格化坐标
     /// </summary>
-    public struct LatticedPoint
+    public class LatticedPoint
     {
         /// <summary>
         /// 所在栅格列数
         /// </summary>
-        int ColNumber;
+        private int _colNumber;
         /// <summary>
         /// 所在栅格行数
         /// </summary>
-        int RowNumber;
+        private int _rowNumber;
+
         /// <summary>
         /// 所在栅格列数
         /// </summary>
-        public int Col { get => ColNumber; set => ColNumber = value; }
+        public int Col
+        {
+            get => _colNumber; 
+            set => _colNumber = value;
+        }
+
         /// <summary>
         /// 所在栅格行数
         /// </summary>
-        public int Row { get => RowNumber; set => RowNumber = value; }
+        public int Row
+        {
+            get => _rowNumber; 
+            set => _rowNumber = value;
+        }
         public LatticedPoint()
         {
-            ColNumber = 0;
-            RowNumber = 0;
+            _colNumber = 0;
+            _rowNumber = 0;
         }
         public LatticedPoint(int col, int row)
         {
-            ColNumber = col;
-            RowNumber = row;
+            _colNumber = col;
+            _rowNumber = row;
         }
+
         /// <summary>
         /// 使用真实坐标创建，将坐标转换为栅格化坐标
         /// </summary>
-        /// <param name="cursor"></param>
         public LatticedPoint(Point realPoint)
         {
-            var widthDiff = realPoint.X - Lattice.OriginLeft;
-            var heightDiff = realPoint.Y - Lattice.OriginTop;
-            ColNumber = widthDiff / LatticeCell.Length;
-            RowNumber = heightDiff / LatticeCell.Length;
-            if (widthDiff < 0) { ColNumber--; }
-            if (heightDiff < 0) { RowNumber--; }
+            var widthDiff = realPoint.X - LatticeGrid.OriginLeft;
+            var heightDiff = realPoint.Y - LatticeGrid.OriginTop;
+            _colNumber = widthDiff / LatticeCell.Length;
+            _rowNumber = heightDiff / LatticeCell.Length;
+            if (widthDiff < 0) { _colNumber--; }
+            if (heightDiff < 0) { _rowNumber--; }
         }
         /// <summary>
         /// 行列数是否都相等
@@ -66,12 +76,12 @@ namespace FocusTree.Graph
         /// <param name="obj"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override readonly bool Equals([NotNullWhen(true)] object obj) => obj is LatticedPoint && Equals((LatticedPoint)obj);
-        public readonly bool Equals(LatticedPoint other) => this == other;
+        public override bool Equals([NotNullWhen(true)] object? obj) => obj is LatticedPoint point && Equals(point);
+        public bool Equals(LatticedPoint other) => this == other;
         /// <summary>
         /// 已重写 GetHashCode
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => HashCode.Combine(ColNumber, RowNumber);
+        public override int GetHashCode() => HashCode.Combine(Col, Row);
     }
 }

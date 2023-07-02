@@ -21,7 +21,7 @@ namespace FocusTree.IO
         /// </summary>
         /// <param name="path">xml文件路径</param>
         /// <returns>FGraph</returns>
-        public static T LoadFromXml<T>(string path) where T : IXmlSerializable
+        public static T? LoadFromXml<T>(string path) where T : IXmlSerializable
         {
             try
             {
@@ -33,7 +33,7 @@ namespace FocusTree.IO
             }
             catch (Exception ex)
             {
-                throw new Exception($"[2304130225]无法读取{path}。\n{ex.Message}");
+                throw new($"[2304130225]无法读取{path}。\n{ex.Message}");
             }
         }
     }

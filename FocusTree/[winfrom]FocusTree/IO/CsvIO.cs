@@ -29,7 +29,7 @@ namespace FocusTree.IO
         /// </summary>
         /// <param name="filePath">Csv文件路径</param>
         /// <returns>string[][] csv纯文本表格</returns>
-        private static string[][] ReadCsv(string filePath)
+        private static IEnumerable<string[]> ReadCsv(string filePath)
         {
             // csv 读取设置
             var settings = new CSVSettings
@@ -57,7 +57,7 @@ namespace FocusTree.IO
             var data = ReadCsv(path);
 
             // 上一次循环处理的节点 <id>
-            TreeNode<int> last = null;
+            TreeNode<int>? last = null;
 
             // 循环处理到的行数
             var rowCount = 0;
@@ -114,11 +114,11 @@ namespace FocusTree.IO
                         // 已经没有更上级的节点，当前节点就是顶级节点
                         last = last.Parent; // lastNode指向自己的父节点
                     } // 当指向的父节点是新节点所在列的父节点时结束循环
-                    while (last != null && level - 1 != last.Level);
+                    while (last is not null && level - 1 != last.Level);
                     // 这个是同级节点
                     var newNode = new TreeNode<int>(rowCount, level); // lastNode指向新的节点
                     nodes.Add(focusData);
-                    if (last == null) // 新节点是根节点时直接添加
+                    if (last is null) // 新节点是根节点时直接添加
                     {
                         last = newNode;
                     }
@@ -138,7 +138,7 @@ namespace FocusTree.IO
     {
         public T Value;
         public int Level;
-        public TreeNode<T> Parent { get; set; }
+        public TreeNode<T>? Parent { get; set; }
         public HashSet<TreeNode<T>> Children { get; private set; } = new();
         public TreeNode(T value, int level)
         {

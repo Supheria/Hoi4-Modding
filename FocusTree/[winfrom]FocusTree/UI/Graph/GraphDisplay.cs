@@ -1,17 +1,19 @@
 //#define MOUSE_DRAG_FREE
+
 using FocusTree.Data.Focus;
 using FocusTree.Graph;
+using FocusTree.Graph.Lattice;
 using FocusTree.IO.FileManage;
 using FocusTree.UI.Controls;
 using FocusTree.UI.NodeToolDialogs;
 
-namespace FocusTree.UI
+namespace FocusTree.UI.Graph
 {
-    public class GraphDisplayer : PictureBox
+    public class GraphDisplay : PictureBox
     {
         #region ---- 关联控件 ----
 
-        public readonly new GraphForm Parent;
+        public new readonly GraphForm Parent;
         /// <summary>
         /// 工具对话框集（给父窗口下拉菜单“窗口”用）
         /// </summary>
@@ -22,15 +24,15 @@ namespace FocusTree.UI
         /// <summary>
         /// 国策信息对话框
         /// </summary>
-        NodeInfoDialog NodeInfo
+        private NodeInfoDialog NodeInfo
         {
-            get { return (NodeInfoDialog)ToolDialogs["国策信息"]; }
-            init { ToolDialogs["国策信息"] = value; }
+            get => (NodeInfoDialog)ToolDialogs["国策信息"];
+            init => ToolDialogs["国策信息"] = value;
         }
         /// <summary>
         /// 节点信息浮标
         /// </summary>
-        readonly ToolTip NodeInfoTip = new();
+        private readonly ToolTip _nodeInfoTip = new();
 
         #endregion
 
@@ -41,26 +43,27 @@ namespace FocusTree.UI
         /// </summary>
         public FocusData? SelectedNode
         {
-            get => selectedNode;
+            get => _selectedNode;
             private set
             {
-                selectedNode = value;
-                PrevSelectNode = null;
+                _selectedNode = value;
+                _prevSelectNode = null;
             }
         }
-        FocusData? selectedNode;
+
+        private FocusData? _selectedNode;
         /// <summary>
         /// 预选中的节点
         /// </summary>
-        FocusData? PrevSelectNode;
+        private FocusData? _prevSelectNode;
         /// <summary>
         /// 图像拖动指示器
         /// </summary>
-        bool DragGraph_Flag = false;
+        private bool _dragGraphFlag = false;
         /// <summary>
         /// 拖动节点指示器
         /// </summary>
-        bool DragNode_Flag = false;
+        private bool _dragNodeFlag = false;
 
         #endregion
 
@@ -69,19 +72,21 @@ namespace FocusTree.UI
         /// <summary>
         /// 信息展示条区域
         /// </summary>
-        Rectangle InfoBrandRect { get => new(Left, Bottom - 100, Width, 75); }
+        private Rectangle InfoBrandRect => new(Left, Bottom - 100, Width, 75);
+
         /// <summary>
         /// 鼠标移动灵敏度（值越大越迟顿）
         /// </summary>
 #if MOUSE_DRAG_FREE
         static int MouseMoveSensibility = 1;
 #else
-        static int MouseMoveSensibility = 20;
+        private const int MouseMoveSensibility = 20;
+
 #endif
         /// <summary>
         /// 拖动事件使用的鼠标参照坐标
         /// </summary>
-        Point DragMouseFlagPoint = new(0, 0);
+        private Point _dragMouseFlagPoint = new(0, 0);
         /// <summary>
         /// 格元放置边界
         /// </summary>
@@ -119,12 +124,12 @@ namespace FocusTree.UI
 
         #region ---- 初始化 ----
 
-        public GraphDisplayer(GraphForm mainForm)
+        public GraphDisplay(GraphForm mainForm)
         {
             base.Parent = Parent = mainForm;
             NodeInfo = new NodeInfoDialog(this);
 
-            SizeChanged += GraphDisplayer_SizeChanged;
+            SizeChanged += GraphDisplay_SizeChanged;
             MouseDown += OnMouseDown;
             MouseMove += OnMouseMove;
             MouseUp += OnMouseUp;
@@ -144,14 +149,10 @@ namespace FocusTree.UI
             OnRefresh.Clear();
             foreach (var focus in GraphBox.FocusList)
             {
-                foreach (var requires in focus.Requires)
-                {
-                    foreach (var requireId in requires)
-                    {
-                        var require = GraphBox.GetFocus(requireId);
-                        OnRefresh += (1, (image) => GraphDrawer.DrawRequireLine(image, focus.LatticedPoint, require.LatticedPoint));
-                    }
-                }
+                foreach (var require in focus.Requires.SelectMany(requires => requires.Select(GraphBox.GetFocus)))
+                    OnRefresh += (1,
+                        (image) => GraphDrawer.DrawRequireLine(image, focus.LatticedPoint, require.LatticedPoint));
+
                 OnRefresh += (0, (image) => GraphDrawer.DrawFocusNodeNormal(image, focus));
             }
         }
@@ -169,15 +170,15 @@ namespace FocusTree.UI
                 new SolidBrush(Color.FromArgb(255, Color.WhiteSmoke))
                 );
         }
-        private void DrawInfo(string info, Brush BackBrush, Brush FrontBrush)
+        private void DrawInfo(string info, Brush backBrush, Brush frontBrush)
         {
             var g = Graphics.FromImage(Image);
             Rectangle infoRect = new(Bounds.Left, Bounds.Bottom - 100, Bounds.Width, 66);
-            g.FillRectangle(BackBrush, infoRect);
+            g.FillRectangle(backBrush, infoRect);
             g.DrawString(
                 info,
                 new Font(GraphDrawer.InfoFont, 25, FontStyle.Bold, GraphicsUnit.Pixel),
-                FrontBrush,
+                frontBrush,
                 infoRect,
                 GraphDrawer.NodeFontFormat);
         }
@@ -186,11 +187,11 @@ namespace FocusTree.UI
 
         #region ---- 事件 ----
 
-        private void GraphDisplayer_SizeChanged(object sender, EventArgs e)
+        private void GraphDisplay_SizeChanged(object sender, EventArgs e)
         {
             Image?.Dispose();
             Image = new Bitmap(ClientRectangle.Width, ClientRectangle.Height);
-            Lattice.DrawRect = LatticeBound;
+            LatticeGrid.DrawRect = LatticeBound;
             Refresh();
         }
 
@@ -200,71 +201,73 @@ namespace FocusTree.UI
         {
             if (CheckPrevSelect())
             {
-                if (args.Button == MouseButtons.Left)
+                switch (args.Button)
                 {
-                    NodeLeftClicked(PrevSelectNode.Value);
-                }
-                else if (args.Button == MouseButtons.Right)
-                {
-                    NodeRightClicked();
+                    case MouseButtons.Left:
+                        NodeLeftClicked();
+                        break;
+                    case MouseButtons.Right:
+                        NodeRightClicked();
+                        break;
                 }
             }
             else
             {
-                if (args.Button == MouseButtons.Left)
+                switch (args.Button)
                 {
-                    GraphLeftClicked(args.Location);
-                }
-                else if (args.Button == MouseButtons.Right)
-                {
-                    OpenGraphContextMenu(args.Button);
-                    Parent.UpdateText("打开图像选项");
-                }
-                else if (args.Button == MouseButtons.Middle)
-                {
-                    OpenGraphContextMenu(args.Button);
-                    Parent.UpdateText("打开备份选项");
+                    case MouseButtons.Left:
+                        GraphLeftClicked(args.Location);
+                        break;
+                    case MouseButtons.Right:
+                        OpenGraphContextMenu(args.Button);
+                        Parent.UpdateText("打开图像选项");
+                        break;
+                    case MouseButtons.Middle:
+                        OpenGraphContextMenu(args.Button);
+                        Parent.UpdateText("打开备份选项");
+                        break;
                 }
             }
         }
         private void GraphLeftClicked(Point startPoint)
         {
-            DragGraph_Flag = true;
-            DragMouseFlagPoint = startPoint;
+            _dragGraphFlag = true;
+            _dragMouseFlagPoint = startPoint;
             Invalidate();
             Parent.UpdateText("拖动图像");
         }
-        Bitmap LineMapCache;
-        Bitmap BackgroundCache;
-        private void NodeLeftClicked(FocusData focus)
+
+        private Bitmap? _lineMapCache;
+        private Bitmap? _backgroundCache;
+        private void NodeLeftClicked()
         {
-            DragNode_Flag = true;
-            LineMapCache = new(Image.Width, Image.Height);
-            BackgroundCache = new(Image.Width, Image.Height);
+            _dragNodeFlag = true;
+            _lineMapCache = new(Image.Width, Image.Height);
+            _backgroundCache = new(Image.Width, Image.Height);
             DrawBackLattice = true;
             Refresh();
-            OnRefresh.Invoke(LineMapCache, 1);
-            Background.Redraw(BackgroundCache);
-            Lattice.Draw(BackgroundCache);
-            OnRefresh.Invoke(BackgroundCache, 0);
-            var info = $"{focus.Name}, {focus.Duration}日\n{focus.Description}";
+            OnRefresh.Invoke(_lineMapCache, 1);
+            Background.Redraw(_backgroundCache);
+            LatticeGrid.Draw(_backgroundCache);
+            OnRefresh.Invoke(_backgroundCache, 0);
+            var info = $"{_prevSelectNode?.Name}, {_prevSelectNode?.Duration}日\n{_prevSelectNode?.Description}";
             DrawInfo(info);
             Parent.UpdateText("选择节点");
         }
         private void NodeRightClicked()
         {
             CloseAllNodeToolDialogs();
-            NodeInfoTip.Hide(this);
-            SelectedNode = PrevSelectNode;
+            _nodeInfoTip.Hide(this);
+            SelectedNode = _prevSelectNode;
             CameraLocateSelectedNode(false);
-            new NodeContextMenu(this, Cursor.Position);
+            _ = new NodeContextMenu(this, Cursor.Position);
             Parent.UpdateText("打开节点选项");
         }
         private void OpenGraphContextMenu(MouseButtons button)
         {
-            SelectedNode = PrevSelectNode;
-            NodeInfoTip.Hide(this);
-            new GraphContextMenu(this, Cursor.Position, button);
+            SelectedNode = _prevSelectNode;
+            _nodeInfoTip.Hide(this);
+            _ = new GraphContextMenu(this, Cursor.Position, button);
         }
 
         //---- OnMouseDoubleClick ----//
@@ -303,11 +306,11 @@ namespace FocusTree.UI
 
         private void OnMouseMove(object sender, MouseEventArgs args)
         {
-            if (args.Button == MouseButtons.Left && DragGraph_Flag)
+            if (args.Button == MouseButtons.Left && _dragGraphFlag)
             {
                 DragGraph(args.Location);
             }
-            else if (args.Button == MouseButtons.Left && DragNode_Flag)
+            else if (args.Button == MouseButtons.Left && _dragNodeFlag)
             {
                 DragNode(args.Location);
             }
@@ -320,18 +323,18 @@ namespace FocusTree.UI
         }
         private void DragGraph(Point newPoint)
         {
-            var diffInWidth = newPoint.X - DragMouseFlagPoint.X;
-            var diffInHeight = newPoint.Y - DragMouseFlagPoint.Y;
+            var diffInWidth = newPoint.X - _dragMouseFlagPoint.X;
+            var diffInHeight = newPoint.Y - _dragMouseFlagPoint.Y;
             if (Math.Abs(diffInWidth) > MouseMoveSensibility || Math.Abs(diffInHeight) > MouseMoveSensibility)
             {
 #if MOUSE_DRAG_FREE
                 Lattice.OriginLeft += (newPoint.X - DragMouseFlagPoint.X) / MouseMoveSensibility;
                 Lattice.OriginTop += (newPoint.Y - DragMouseFlagPoint.Y) / MouseMoveSensibility;
 #else
-                Lattice.OriginLeft += (newPoint.X - DragMouseFlagPoint.X) / MouseMoveSensibility * LatticeCell.Length;
-                Lattice.OriginTop += (newPoint.Y - DragMouseFlagPoint.Y) / MouseMoveSensibility * LatticeCell.Length;
+                LatticeGrid.OriginLeft += (newPoint.X - _dragMouseFlagPoint.X) / MouseMoveSensibility * LatticeCell.Length;
+                LatticeGrid.OriginTop += (newPoint.Y - _dragMouseFlagPoint.Y) / MouseMoveSensibility * LatticeCell.Length;
 #endif
-                DragMouseFlagPoint = newPoint;
+                _dragMouseFlagPoint = newPoint;
                 Refresh();
                 DrawNodeMapInfo();
             }
@@ -347,31 +350,31 @@ namespace FocusTree.UI
         private void DragNode(Point newPoint)
         {
             if (GraphBox.ReadOnly) { return; }
-            NodeInfoTip.Hide(this);
+            _nodeInfoTip.Hide(this);
             LatticedPointCursorOn = new(newPoint);
             LatticeCell cell = new(LatticedPointCursorOn);
             var cellPart = cell.GetPartPointOn(newPoint);
             if (cellPart == LastCellPart) { return; }
-            ImageDrawer.DrawImageOn(BackgroundCache, (Bitmap)Image, LastPartRealRect, true);
-            ImageDrawer.DrawImageOn(LineMapCache, (Bitmap)Image, LastPartRealRect, true);
+            ImageDrawer.DrawImageOn(_backgroundCache, (Bitmap)Image, LastPartRealRect, true);
+            ImageDrawer.DrawImageOn(_lineMapCache, (Bitmap)Image, LastPartRealRect, true);
             LastCellPart = cellPart;
             if (GraphBox.PointInAnyFocusNode(newPoint, out var focus))
             {
                 if (FirstDrag)
                 {
-                    FocusNodeToDrag = focus.Value;
+                    FocusNodeToDrag = focus;
                     FirstDrag = false;
                 }
-                GraphDrawer.DrawFocusNodeSelected((Bitmap)Image, focus.Value);
+                GraphDrawer.DrawFocusNodeSelected((Bitmap)Image, focus);
                 LastPartRealRect = cell.NodeRealRect;
             }
             else
             {
                 GraphDrawer.DrawSelectedCellPart((Bitmap)Image, LatticedPointCursorOn, cellPart);
                 LastPartRealRect = cell.CellPartsRealRect[cellPart];
-                ImageDrawer.DrawImageOn(LineMapCache, (Bitmap)Image, LastPartRealRect, true);
+                ImageDrawer.DrawImageOn(_lineMapCache, (Bitmap)Image, LastPartRealRect, true);
             }
-            Parent.Text = $"CellSideLength {LatticeCell.Length}, o: {Lattice.OriginLeft}, {Lattice.OriginTop}, cursor: {newPoint}, cellPart: {LastCellPart}";
+            Parent.Text = $"CellSideLength {LatticeCell.Length}, o: {LatticeGrid.OriginLeft}, {LatticeGrid.OriginTop}, cursor: {newPoint}, cellPart: {LastCellPart}";
             Invalidate();
         }
 
@@ -379,27 +382,27 @@ namespace FocusTree.UI
         {
             if (!GraphBox.PointInAnyFocusNode(location, out var focus))
             {
-                NodeInfoTip.Hide(this);
+                _nodeInfoTip.Hide(this);
                 return;
             }
-            NodeInfoTip.BackColor = Color.FromArgb(0, Color.AliceBlue);
-            NodeInfoTip.Show($"{focus.Value.Name}\nID: {focus.Value.Id}", this, location.X + 10, location.Y);
+            _nodeInfoTip.BackColor = Color.FromArgb(0, Color.AliceBlue);
+            _nodeInfoTip.Show($"{focus?.Name}\nID: {focus?.Id}", this, location.X + 10, location.Y);
         }
 
         //---- OnMouseUp ----//
 
         private void OnMouseUp(object sender, MouseEventArgs args)
         {
-            if (DragGraph_Flag)
+            if (_dragGraphFlag)
             {
-                DragGraph_Flag = false;
+                _dragGraphFlag = false;
             }
-            if (DragNode_Flag)
+            if (_dragNodeFlag)
             {
-                LineMapCache.Dispose();
-                BackgroundCache.Dispose();
+                _lineMapCache?.Dispose();
+                _backgroundCache?.Dispose();
                 FirstDrag = true;
-                DragNode_Flag = false;
+                _dragNodeFlag = false;
                 LastCellPart = LatticeCell.Parts.Leave;
                 DrawBackLattice = false;
                 FocusNodeToDrag.LatticedPoint = LatticedPointCursorOn;
@@ -419,12 +422,12 @@ namespace FocusTree.UI
 
         private void OnMouseWheel(object sender, MouseEventArgs args)
         {
-            var drWidth = Lattice.DrawRect.Width;
-            var drHeight = Lattice.DrawRect.Height;
+            var drWidth = LatticeGrid.DrawRect.Width;
+            var drHeight = LatticeGrid.DrawRect.Height;
             var diffInWidth = args.Location.X - Width / 2;
             var diffInHeight = args.Location.Y - Height / 2;
-            Lattice.OriginLeft += diffInWidth / LatticeCell.Length * drWidth / 200;
-            Lattice.OriginTop += diffInHeight / LatticeCell.Length * drHeight / 200;
+            LatticeGrid.OriginLeft += diffInWidth / LatticeCell.Length * drWidth / 200;
+            LatticeGrid.OriginTop += diffInHeight / LatticeCell.Length * drHeight / 200;
             LatticeCell.Length += args.Delta / 100 * Math.Max(drWidth, drHeight) / 200;
             Refresh();
             Parent.UpdateText("打开节点选项");
@@ -438,8 +441,7 @@ namespace FocusTree.UI
         private bool CheckPrevSelect()
         {
             var clickPos = PointToClient(Cursor.Position);
-            if (!GraphBox.PointInAnyFocusNode(clickPos, out PrevSelectNode)) { return false; }
-            return true;
+            return GraphBox.PointInAnyFocusNode(clickPos, out _prevSelectNode);
         }
         private void CloseAllNodeToolDialogs()
         {
@@ -455,29 +457,30 @@ namespace FocusTree.UI
         /// </summary>
         public void CameraLocatePanorama()
         {
-            if (GraphBox.IsNull) { return; }
+            if (GraphBox.Graph is null)
+                return;
             var gRect = GraphBox.MetaRect;
             //
             // 自适应大小
             //
-            if (Lattice.DrawRect.Width < (gRect.Width) * LatticeCell.LengthMin)
+            if (LatticeGrid.DrawRect.Width < (gRect.Width) * LatticeCell.LengthMin)
             {
                 LatticeCell.Length = LatticeCell.LengthMin;
-                Parent.Width = (gRect.Width + 1) * LatticeCell.LengthMin + Parent.Width - Lattice.DrawRect.Width;
+                Parent.Width = (gRect.Width + 1) * LatticeCell.LengthMin + Parent.Width - LatticeGrid.DrawRect.Width;
             }
-            if (Lattice.DrawRect.Height < (gRect.Height) * LatticeCell.LengthMin)
+            if (LatticeGrid.DrawRect.Height < (gRect.Height) * LatticeCell.LengthMin)
             {
                 LatticeCell.Length = LatticeCell.LengthMin;
-                Parent.Height = (gRect.Height + 1) * LatticeCell.LengthMin + Parent.Height - Lattice.DrawRect.Height;
+                Parent.Height = (gRect.Height + 1) * LatticeCell.LengthMin + Parent.Height - LatticeGrid.DrawRect.Height;
             }
             Background.DrawNew(Image);
-            Lattice.DrawRect = LatticeBound;
+            LatticeGrid.DrawRect = LatticeBound;
             //
             //
             //
-            LatticeCell.Length = Math.Min(Lattice.DrawRect.Width / (gRect.Width + 1), Lattice.DrawRect.Height / (gRect.Height + 1));
-            Lattice.OriginLeft = (Lattice.DrawRect.Left + Lattice.DrawRect.Width / 2) - (gRect.Left + gRect.Width * LatticeCell.Length / 2);
-            Lattice.OriginTop = (Lattice.DrawRect.Top + Lattice.DrawRect.Height / 2) - (gRect.Top + gRect.Height * LatticeCell.Length / 2);
+            LatticeCell.Length = Math.Min(LatticeGrid.DrawRect.Width / (gRect.Width + 1), LatticeGrid.DrawRect.Height / (gRect.Height + 1));
+            LatticeGrid.OriginLeft = (LatticeGrid.DrawRect.Left + LatticeGrid.DrawRect.Width / 2) - (gRect.Left + gRect.Width * LatticeCell.Length / 2);
+            LatticeGrid.OriginTop = (LatticeGrid.DrawRect.Top + LatticeGrid.DrawRect.Height / 2) - (gRect.Top + gRect.Height * LatticeCell.Length / 2);
             Refresh();
         }
         /// <summary>
@@ -487,17 +490,18 @@ namespace FocusTree.UI
         /// <param name="zoom">是否聚焦</param>
         public void CameraLocateSelectedNode(bool zoom)
         {
-            if (SelectedNode == null || GraphBox.IsNull) { return; }
+            if (SelectedNode is null || GraphBox.Graph is null)
+                return;
             if (zoom)
             {
                 LatticeCell.Length = LatticeCell.LengthMax;
             }
-            LatticeCell cell = new(SelectedNode.Value.LatticedPoint);
+            LatticeCell cell = new(SelectedNode.LatticedPoint);
             var halfNodeWidth = LatticeCell.NodeWidth / 2;
             var halfNodeHeight = LatticeCell.NodeHeight / 2;
-            Lattice.OriginLeft += (Lattice.DrawRect.Left + Lattice.DrawRect.Width / 2) - (cell.NodeRealLeft + halfNodeWidth);
-            Lattice.OriginTop += (Lattice.DrawRect.Top + Lattice.DrawRect.Height / 2) - (cell.NodeRealTop + halfNodeHeight);
-            Lattice.DrawRect = LatticeBound;
+            LatticeGrid.OriginLeft += (LatticeGrid.DrawRect.Left + LatticeGrid.DrawRect.Width / 2) - (cell.NodeRealLeft + halfNodeWidth);
+            LatticeGrid.OriginTop += (LatticeGrid.DrawRect.Top + LatticeGrid.DrawRect.Height / 2) - (cell.NodeRealTop + halfNodeHeight);
+            LatticeGrid.DrawRect = LatticeBound;
             Refresh();
             Cursor.Position = PointToScreen(new Point(
                 cell.NodeRealLeft + halfNodeWidth,
@@ -533,7 +537,7 @@ namespace FocusTree.UI
         public new void Refresh()
         {
             Background.Redraw(Image);
-            if (DrawBackLattice) { Lattice.Draw(Image); }
+            if (DrawBackLattice) { LatticeGrid.Draw(Image); }
             OnRefresh.Invoke((Bitmap)Image);
             Invalidate();
         }

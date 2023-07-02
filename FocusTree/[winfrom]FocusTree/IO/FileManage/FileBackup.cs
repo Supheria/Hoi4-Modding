@@ -9,16 +9,19 @@ namespace FocusTree.IO.FileManage
         /// <summary>
         /// 根目录
         /// </summary>
-        readonly static DirectoryInfo RootDirectoryInfo = Directory.CreateDirectory("backup");
+        private static readonly DirectoryInfo RootDirectoryInfo = Directory.CreateDirectory("backup");
         /// <summary>
         /// 根目录名称
         /// </summary>
-        public static string RootDirectoryName { get { return RootDirectoryInfo.FullName; } }
+        public static string RootDirectoryName => RootDirectoryInfo.FullName;
+
         /// <summary>
         /// 对象根目录
         /// </summary>
-        private static string DirectoryName<T>(this T obj) where T : IBackupable
+        private static string DirectoryName<T>(this T obj) where T : IBackupable?
         {
+            if (obj is null)
+                return "";
             var dir = Path.Combine(RootDirectoryName, obj.FileManageDirName);
             Directory.CreateDirectory(dir);
             return dir;
@@ -29,8 +32,10 @@ namespace FocusTree.IO.FileManage
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns>root\obj's Root\objHash\dateTime</returns>
-        private static string BackupPath<T>(this T obj) where T : IBackupable
+        private static string? BackupPath<T>(this T obj) where T : IBackupable?
         {
+            if (obj is null)
+                return null;
             var objHash = obj.GetHashString();
             return Path.Combine(obj.DirectoryName(), objHash, $"BK{DateTime.Now:yyyyMMddHHmmss}");
         }
@@ -40,7 +45,7 @@ namespace FocusTree.IO.FileManage
         /// <typeparam name="T"></typeparam>
         /// <param name="path">要获取备份路径的文件路径</param>
         /// <returns></returns>
-        private static string BackupPath<T>(string path) where T : IBackupable
+        private static string? BackupPath<T>(string path) where T : IBackupable
         {
             var obj = XmlIO.LoadFromXml<T>(path);
             return obj.BackupPath();
@@ -55,16 +60,14 @@ namespace FocusTree.IO.FileManage
             {
                 var bkPath = BackupPath<T>(path);
                 var bkDir = Path.GetDirectoryName(bkPath);
-                if (Directory.Exists(bkDir))
-                {
+                if (!Directory.Exists(bkDir) || !File.Exists(bkPath)) 
                     return;
-                }
                 Directory.CreateDirectory(bkDir);
                 File.Copy(path, bkPath, true);
             }
             catch (Exception ex)
             {
-                throw new Exception($"[2303051407]无法备份{path}。\n{ex.Message}");
+                throw new($"[2303051407]无法备份{path}。\n{ex.Message}");
             }
         }
         /// <summary>
@@ -75,43 +78,36 @@ namespace FocusTree.IO.FileManage
         public static List<(string, string)> GetBackupsList<T>(this T obj, string path) where T : IBackupable
         {
             List<(string, string)> result = new();
-            string objRootDir;
-            if (obj.IsBackupFile(path))
+            var objRootDir = Path.GetDirectoryName(obj.IsBackupFile(path)
+                ? Path.GetDirectoryName(path)
+                : Path.GetDirectoryName(obj.BackupPath()));
+            if (!Directory.Exists(objRootDir)) 
+                return result;
+            var dirs = new DirectoryInfo(objRootDir).GetDirectories();
+            Array.Sort(dirs, (x, y) => x.LastWriteTime.CompareTo(y.LastWriteTime));
+            result.Add((path, Path.GetFileNameWithoutExtension(path)));
+            var bkPathOfPath = BackupPath<T>(path);
+            foreach (var bkdir in dirs)
             {
-                objRootDir = Path.GetDirectoryName(Path.GetDirectoryName(path));
-            }
-            else
-            {
-                objRootDir = Path.GetDirectoryName(Path.GetDirectoryName(obj.BackupPath()));
-            }
-            if (Directory.Exists(objRootDir))
-            {
-                var dirs = new DirectoryInfo(objRootDir).GetDirectories();
-                Array.Sort(dirs, delegate (DirectoryInfo x, DirectoryInfo y) { return x.LastWriteTime.CompareTo(y.LastWriteTime); });
-                result.Add((path, Path.GetFileNameWithoutExtension(path)));
-                var bkPathOfPath = BackupPath<T>(path);
-                foreach (var bkdir in dirs)
+                var dir = bkdir.GetFiles().FirstOrDefault();
+                if (dir == null)
                 {
-                    var dir = bkdir.GetFiles().FirstOrDefault();
-                    if (dir == null)
-                    {
-                        bkdir.Delete(true);
-                        continue;
-                    }
-                    string bkPath = dir.FullName;
-                    var testbkdir = Path.GetDirectoryName(BackupPath<T>(bkPath));
-                    if (testbkdir != bkdir.FullName)
-                    {
-                        bkdir.Delete(true);
-                        continue;
-                    }
-                    if (testbkdir == Path.GetDirectoryName(bkPathOfPath))
-                    {
-                        continue;
-                    }
-                    var match = Regex.Match(Path.GetFileName(bkPath), "^BK(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$");
-                    result.Add((bkPath, $"{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value} {match.Groups[4].Value}:{match.Groups[5].Value}:{match.Groups[6].Value}"));
+                    bkdir.Delete(true);
+                    continue;
                 }
+                var bkPath = dir.FullName;
+                var testbkdir = Path.GetDirectoryName(BackupPath<T>(bkPath));
+                if (testbkdir != bkdir.FullName)
+                {
+                    bkdir.Delete(true);
+                    continue;
+                }
+                if (testbkdir == Path.GetDirectoryName(bkPathOfPath))
+                {
+                    continue;
+                }
+                var match = Regex.Match(Path.GetFileName(bkPath), "^BK(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$");
+                result.Add((bkPath, $"{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value} {match.Groups[4].Value}:{match.Groups[5].Value}:{match.Groups[6].Value}"));
             }
             return result;
         }
@@ -143,12 +139,14 @@ namespace FocusTree.IO.FileManage
             p.StartInfo.Arguments = @" /select, " + zipPath;
             p.Start();
         }
+
         /// <summary>
         /// 查询文件是否是备份文件：位于备份子根目录下且具有备份文件名格式
         /// </summary>
+        /// <param name="obj"></param>
         /// <param name="path">要查询的文件路径</param>
         /// <returns></returns>
-        public static bool IsBackupFile<T>(this T obj, string path) where T : IBackupable
+        public static bool IsBackupFile<T>(this T obj, string path) where T : IBackupable?
         {
             var match = Regex.Match(Path.GetFileName(path), "^BK(\\d){4}((\\d){2}){5}$");
             return match.Success && obj.DirectoryName() == Path.GetDirectoryName(Path.GetDirectoryName(path));

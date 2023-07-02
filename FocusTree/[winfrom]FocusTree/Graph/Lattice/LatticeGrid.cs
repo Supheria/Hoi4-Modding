@@ -1,12 +1,12 @@
 ﻿#define DEBUG
 
 
-namespace FocusTree.Graph
+namespace FocusTree.Graph.Lattice
 {
     /// <summary>
     /// 栅格
     /// </summary>
-    static class Lattice
+    static class LatticeGrid
     {
         #region ==== 基本参数 ====
 
@@ -38,12 +38,7 @@ namespace FocusTree.Graph
         /// <summary>
         /// 坐标辅助线绘制用笔
         /// </summary>
-        public static Pen GuidePen = new Pen(Color.FromArgb(200, Color.Red), 1.75f);
-
-        #endregion
-
-        #region ==== 指示器 ====
-
+        public static Pen GuidePen = new(Color.FromArgb(200, Color.Red), 1.75f);
 
         #endregion
 
@@ -128,7 +123,8 @@ namespace FocusTree.Graph
         /// <param name="p1">直线的端点</param>
         /// <param name="p2">直线的另一端点</param>
         /// <param name="lineWidth">直线的宽度</param>
-        /// <param name="lineRect">在绘图区域内的横纵直线的矩形</param>
+        /// <param name="endMin"></param>
+        /// <param name="endMax"></param>
         /// <returns></returns>
         public static bool CrossLineWithin(PointF p1, PointF p2, float lineWidth, out PointF endMin, out PointF endMax)
         {

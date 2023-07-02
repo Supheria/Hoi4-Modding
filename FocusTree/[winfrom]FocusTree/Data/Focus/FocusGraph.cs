@@ -1,4 +1,5 @@
 #define DEBUG
+using System.Diagnostics.CodeAnalysis;
 using FocusTree.Graph;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
@@ -6,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Schema;
+using FocusTree.Graph.Lattice;
 
 namespace FocusTree.Data.Focus
 {
@@ -36,12 +38,12 @@ namespace FocusTree.Data.Focus
         /// <summary>
         /// 名称
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; private set; } = "";
 
         /// <summary>
         /// 所有节点的子链接（使用前调用 CreateNodeLinks ）
         /// </summary>
-        Dictionary<int, List<int>> _nodeLinks;
+        private Dictionary<int, List<int>> _nodeLinks = new();
 
         #endregion
 
@@ -71,13 +73,8 @@ namespace FocusTree.Data.Focus
                 return false;
             }
             // 在所有的节点依赖组合中删除此节点
-            foreach (var focus in _focusCatalog.Values)
-            {
-                foreach (var require in focus.Requires)
-                {
-                    require.Remove(id);
-                }
-            }
+            foreach (var require in _focusCatalog.Values.SelectMany(focus => focus.Requires))
+                require.Remove(id);
             // 从节点表中删除此节点
             _focusCatalog.Remove(id);
             return true;
@@ -321,7 +318,7 @@ namespace FocusTree.Data.Focus
         /// <param name="latticedPoint"></param>
         /// <param name="focus"></param>
         /// <returns>如果有则返回true，id为节点id；否则返回false，id为-1</returns>
-        public bool ContainLatticedPoint(LatticedPoint latticedPoint, out FocusData? focus)
+        public bool ContainLatticedPoint(LatticedPoint latticedPoint, [NotNullWhen(true)] out FocusData? focus)
         {
             focus = null;
             foreach (var f in _focusCatalog.Values.Where(f => latticedPoint == f.LatticedPoint))
@@ -366,7 +363,7 @@ namespace FocusTree.Data.Focus
         /// 序列化预留方法，默认返回 null
         /// </summary>
         /// <returns></returns>
-        public XmlSchema GetSchema()
+        public XmlSchema? GetSchema()
         {
             return null;
         }
@@ -375,9 +372,9 @@ namespace FocusTree.Data.Focus
             _focusCatalog = new();
             do
             {
-                if (reader.Name == "State" && reader.NodeType == XmlNodeType.Element)
+                if (reader is { Name: "State", NodeType: XmlNodeType.Element })
                 {
-                    Name = reader.GetAttribute("Name");
+                    Name = reader.GetAttribute("Name") ?? "";
                 }
 
                 if (reader.Name != "Nodes")
@@ -386,7 +383,7 @@ namespace FocusTree.Data.Focus
                     continue;
                 do
                 {
-                    if (reader.Name == "Nodes" && reader.NodeType == XmlNodeType.EndElement)
+                    if (reader is { Name: "Nodes", NodeType: XmlNodeType.EndElement })
                         break;
                     if (reader.Name != "Node")
                         continue;
@@ -413,12 +410,10 @@ namespace FocusTree.Data.Focus
 
             // <Nodes>
             writer.WriteStartElement("Nodes");
-            foreach (var focus in _focusCatalog.Values)
+            foreach (var node in _focusCatalog.Values.Select(focus => new FocusNode(focus)))
             {
-                FocusNode node = new(focus);
                 // <Node>
                 node.WriteXml(writer);
-                // </Node>
             }
             // </Nodes>
             writer.WriteEndElement();
@@ -441,7 +436,7 @@ namespace FocusTree.Data.Focus
         }
         public string GetHashString()
         {
-            var cachePath = FileCache.GetCachePath(this, "hashtest");
+            var cachePath = FileCache.GetCachePath(this, "hash test");
             XmlIO.SaveToXml(this, cachePath);
             var data = new FileStream(cachePath, FileMode.Open);
             var sha = MD5.Create();

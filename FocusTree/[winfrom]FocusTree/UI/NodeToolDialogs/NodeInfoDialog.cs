@@ -1,15 +1,17 @@
+using System.Drawing.Text;
 using FocusTree.Data;
+using FocusTree.UI.Graph;
 
 namespace FocusTree.UI.NodeToolDialogs
 {
     public partial class NodeInfoDialog : ToolDialog, IHistoryable
     {
-        bool DoFontScale = false;
-        bool DoTextEditCheck = false;
+        private bool _doFontScale = false;
+        private bool _doTextEditCheck = false;
 
         #region ==== 初始化和更新 ====
 
-        internal NodeInfoDialog(GraphDisplayer display)
+        internal NodeInfoDialog(GraphDisplay display)
         {
             Display = display;
             InitializeComponent();
@@ -18,7 +20,7 @@ namespace FocusTree.UI.NodeToolDialogs
             Resize += InfoDialog_Resize;
 
             var font = new Font("仿宋", 20, FontStyle.Regular, GraphicsUnit.Pixel);
-            var richBoxes = textBoxList.SkipWhile(x => x.Name == "FocusName" || x.Name == "Duration").ToList();
+            var richBoxes = textBoxList.SkipWhile(x => x.Name is "FocusName" or "Duration").ToList();
             richBoxes.ForEach(x => x.Font = font);
             richBoxes.ForEach(x => x.KeyDown += RichTextBox_KeyDown);
             richBoxes.ForEach(x => x.MouseWheel += RichTextBox_MouseWheel);
@@ -32,18 +34,16 @@ namespace FocusTree.UI.NodeToolDialogs
 
         private void InfoDialog_VisibleChanged(object sender, EventArgs e)
         {
-            if (Display.SelectedNode == null)
-            {
+            if (Display.SelectedNode is null)
                 return;
-            }
-            var focus = Display.SelectedNode.Value;
+            var focus = Display.SelectedNode;
             Text = $"id: {focus.Id}";
             FocusName.Text = focus.Name;
             Duration.Text = $"{focus.Duration}";
             Descript.Text = focus.Description;
             Effects.Text = string.Join('\n', focus.RawEffects);
 
-            AllowDrop = GraphBox.ReadOnly ? false : true;
+            AllowDrop = !GraphBox.ReadOnly;
             FocusName.ReadOnly = GraphBox.ReadOnly;
             Duration.ReadOnly = GraphBox.ReadOnly;
             ButtonEvent.Text = GraphBox.ReadOnly ? "开始" : "保存";
@@ -60,7 +60,7 @@ namespace FocusTree.UI.NodeToolDialogs
 
         private void Text_LostFocus(object sender, EventArgs e)
         {
-            if (DoTextEditCheck == false)
+            if (_doTextEditCheck == false)
             {
                 return;
             }
@@ -77,7 +77,7 @@ namespace FocusTree.UI.NodeToolDialogs
 
         private void Text_TextChanged(object sender, EventArgs e)
         {
-            DoTextEditCheck = true;
+            _doTextEditCheck = true;
         }
 
         private void ButtonEvent_Click(object sender, EventArgs e)
@@ -117,19 +117,18 @@ namespace FocusTree.UI.NodeToolDialogs
 
         private void TextBox_KeyUp(object sender, KeyEventArgs e)
         {
-            DoFontScale = false;
+            _doFontScale = false;
         }
         private void RichTextBox_MouseWheel(object sender, MouseEventArgs e)
         {
-            if (DoFontScale)
-            {
-                var richBox = sender as RichTextBox;
-                ScaleFontSize(richBox.ZoomFactor + e.Delta * 0.00001f);
-            }
+            if (!_doFontScale)
+                return;
+            var richBox = sender as RichTextBox;
+            ScaleFontSize(richBox.ZoomFactor + e.Delta * 0.00001f);
         }
         private void ScaleFontSize(float zoomFactor)
         {
-            List<RichTextBox> richBoxes = textBoxList.SkipWhile(x => x.Name == "FocusName" || x.Name == "Duration").ToList().Cast<RichTextBox>().ToList();
+            var richBoxes = textBoxList.SkipWhile(x => x.Name is "FocusName" or "Duration").ToList().Cast<RichTextBox>().ToList();
             var textBox = richBoxes.FirstOrDefault();
             zoomFactor = zoomFactor < Height * 0.0015f ? Height * 0.0015f :
                 zoomFactor > Height * 0.002f ? Height * 0.002f : zoomFactor;
@@ -139,7 +138,7 @@ namespace FocusTree.UI.NodeToolDialogs
         {
             if (e.KeyCode == Keys.ControlKey)
             {
-                DoFontScale = true;
+                _doFontScale = true;
             }
         }
         protected override void DrawClient()
@@ -149,7 +148,7 @@ namespace FocusTree.UI.NodeToolDialogs
                 return;
             }
             SuspendLayout();
-            int padding = 12;
+            const int padding = 12;
             var fontSize = Height * 0.03f;
             //
             // FocusName
@@ -220,9 +219,9 @@ namespace FocusTree.UI.NodeToolDialogs
             //
             // draw picture box image
             //
-            if (FocusIcon.Image != null) { FocusIcon.Image.Dispose(); }
-            if (DurationUnit.Image != null) { DurationUnit.Image.Dispose(); }
-            if (EffectsTitle.Image != null) { EffectsTitle.Image.Dispose(); }
+            FocusIcon.Image?.Dispose();
+            DurationUnit.Image?.Dispose();
+            EffectsTitle.Image?.Dispose();
             //FocusIcon.Image = Image.FromFile("C:\\Non_E\\documents\\GitHub\\FocusTree\\FocusTree\\FocusTree\\Resources\\FocusTree.ico");
             DurationUnit.Image = new Bitmap(DurationUnit.Width, DurationUnit.Height);
             EffectsTitle.Image = new Bitmap(EffectsTitle.Width, EffectsTitle.Height);
@@ -231,7 +230,14 @@ namespace FocusTree.UI.NodeToolDialogs
             g1.Clear(BackColor);
             g2.Clear(BackColor);
             var brush = new SolidBrush(Color.Black);
-            var stringFormat = new StringFormat();
+            var stringFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Near,
+                FormatFlags = (StringFormatFlags)0,
+                HotkeyPrefix = HotkeyPrefix.None,
+                LineAlignment = StringAlignment.Near,
+                Trimming = StringTrimming.None
+            };
             stringFormat.Alignment = StringAlignment.Near;
             stringFormat.LineAlignment = StringAlignment.Center;
             g1.DrawString(
@@ -253,11 +259,6 @@ namespace FocusTree.UI.NodeToolDialogs
             g2.Flush(); g2.Dispose();
             ResumeLayout();
         }
-        /// <summary>
-        /// 将关闭窗体设置为隐藏窗体
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
 
         #endregion
 
@@ -373,7 +374,7 @@ namespace FocusTree.UI.NodeToolDialogs
         System.Windows.Forms.RichTextBox Descript = new();
         System.Windows.Forms.PictureBox EffectsTitle = new();
         System.Windows.Forms.RichTextBox Effects = new();
-        List<System.Windows.Forms.TextBoxBase> textBoxList;
+        List<System.Windows.Forms.TextBoxBase> textBoxList = new();
 
         #endregion
 

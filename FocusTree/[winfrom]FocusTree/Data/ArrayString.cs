@@ -37,10 +37,11 @@ namespace FocusTree.Data
         /// </summary>
         /// <param name="str">字段</param>
         /// <returns></returns>
-        public static string[] Reader(string str)
+        public static string[] Reader(string? str)
         {
-            if (str == null) { return Array.Empty<string>(); }
-            return str.Split(Splitter).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+            return str is null
+                ? Array.Empty<string>()
+                : str.Split(Splitter).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
         }
     }
 }

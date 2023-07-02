@@ -1,6 +1,4 @@
-﻿using FocusTree.IO;
-
-namespace FocusTree.UI
+﻿namespace FocusTree.UI.Graph
 {
     partial class GraphForm
     {

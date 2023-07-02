@@ -1,14 +1,16 @@
-﻿namespace FocusTree.UI.Controls
+﻿using FocusTree.UI.Graph;
+
+namespace FocusTree.UI.Controls
 {
     class GraphContextMenu : ContextMenuStrip
     {
         public MouseButtons ButtonTag;
-        private GraphDisplayer Display;
+        private GraphDisplay Display;
 
         private ToolStripMenuItem menuItem_edit_undo = new();
         private ToolStripMenuItem menuItem_edit_redo = new();
 
-        public GraphContextMenu(GraphDisplayer display, Point showPoint, MouseButtons button)
+        public GraphContextMenu(GraphDisplay display, Point showPoint, MouseButtons button)
         {
             ButtonTag = button;
             Display = display;

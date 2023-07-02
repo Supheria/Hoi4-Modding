@@ -1,10 +1,11 @@
 ﻿using FocusTree.Graph;
+using FocusTree.UI.Graph;
 
 namespace FocusTree.UI.NodeToolDialogs
 {
     public partial class ToolDialog : Form
     {
-        internal GraphDisplayer Display;
+        internal GraphDisplay Display;
         /// <summary>
         /// 初始宽高比
         /// </summary>
@@ -60,7 +61,7 @@ namespace FocusTree.UI.NodeToolDialogs
                 MessageBox.Show("没有选中的节点。");
                 return;
             }
-            LatticeCell cell = new(Display.SelectedNode.Value.LatticedPoint);
+            LatticeCell cell = new(Display.SelectedNode.LatticedPoint);
             var rect = cell.NodeRealRect;
             var point = new Point(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
             Location = Display.PointToScreen(point);

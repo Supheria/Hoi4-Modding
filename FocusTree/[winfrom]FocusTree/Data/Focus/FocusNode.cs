@@ -60,7 +60,7 @@ namespace FocusTree.Data.Focus
 
             while (reader.Read())
             {
-                if (reader.Name == "Node" && reader.NodeType == XmlNodeType.EndElement)
+                if (reader is { Name: "Node", NodeType: XmlNodeType.EndElement })
                 {
                     break;
                 }
