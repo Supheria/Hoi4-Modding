@@ -3,7 +3,7 @@
 
 >+ Hoi4 Original Game Version 1.12.13
 >+ the number of \*.txt is *3693*, \*.gfx is *294*, \*.gui is *414*
->+ [raw exception log](../_test/exception%20log.txt)
+>+ [raw exception log](../basic_syntax_test/exception%20log.txt)
 
 <br>
 
