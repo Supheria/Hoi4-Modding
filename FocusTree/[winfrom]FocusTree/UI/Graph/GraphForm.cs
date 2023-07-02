@@ -458,15 +458,15 @@ namespace FocusTree.UI.Graph
             GraphBox.Reload();
         }
 
-        private void GraphFrom_Menu_tool_rawEffectFormatter_Click(object sender, EventArgs e)
+        private void GraphFrom_Menu_tool_testDialog_testInfo_Click(object sender, EventArgs e)
+        {
+            Program.TestInfo.Show();
+        }
+
+        private void GraphFrom_Menu_tool_testDialog_rawEffectFormatter_Click(object sender, EventArgs e)
         {
             var test = new TestFormatter();
             test.Show();
-        }
-
-        private void GraphFrom_Menu_tool_testInfo_Click(object sender, EventArgs e)
-        {
-            Program.TestInfo.Show();
         }
     }
 }

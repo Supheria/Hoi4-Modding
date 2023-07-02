@@ -103,10 +103,11 @@ namespace FocusTree.UI.Graph
             catch (Exception e)
             {
                 Graph = null;
-                MessageBox.Show(e.Message);
+                Program.TestInfo.Append(e.Message);
+                Program.TestInfo.Show();
             }
             Graph?.NewHistory();
-            Program.TestInfo.renew();
+            Program.TestInfo.Renew();
         }
 
         /// <summary>
@@ -126,10 +127,11 @@ namespace FocusTree.UI.Graph
             catch (Exception e)
             {
                 Graph = null;
-                MessageBox.Show(e.Message);
+                Program.TestInfo.Append(e.Message);
+                Program.TestInfo.Show();
             }
             Graph?.NewHistory();
-            Program.TestInfo.renew();
+            Program.TestInfo.Renew();
         }
         /// <summary>
         /// 如果元图已修改，则备份源文件并保存到源文件
@@ -166,7 +168,7 @@ namespace FocusTree.UI.Graph
             XmlIO.SaveToXml(Graph, filePath);
             Graph?.NewHistory();
             FilePath = filePath;
-            Program.TestInfo.renew();
+            Program.TestInfo.Renew();
         }
         /// <summary>
         /// 重做

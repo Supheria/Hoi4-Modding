@@ -30,7 +30,8 @@
         {
             Info = new RichTextBox();
             menuStrip1 = new MenuStrip();
-            ToolStripMenuItemOpen = new ToolStripMenuItem();
+            ToolStripMenuItemLook = new ToolStripMenuItem();
+            ToolStripMenuItemLook_Wrap = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -46,19 +47,27 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(24, 24);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { ToolStripMenuItemOpen });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { ToolStripMenuItemLook });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1257, 32);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
-            // ToolStripMenuItemOpen
+            // ToolStripMenuItemLook
             // 
-            ToolStripMenuItemOpen.Name = "ToolStripMenuItemOpen";
-            ToolStripMenuItemOpen.Size = new Size(62, 28);
-            ToolStripMenuItemOpen.Text = "打开";
-            ToolStripMenuItemOpen.Click += ToolStripMenuItemOpen_Click;
+            ToolStripMenuItemLook.DropDownItems.AddRange(new ToolStripItem[] { ToolStripMenuItemLook_Wrap });
+            ToolStripMenuItemLook.Name = "ToolStripMenuItemLook";
+            ToolStripMenuItemLook.Size = new Size(62, 28);
+            ToolStripMenuItemLook.Text = "查看";
+            // 
+            // ToolStripMenuItemLook_Wrap
+            // 
+            ToolStripMenuItemLook_Wrap.CheckOnClick = true;
+            ToolStripMenuItemLook_Wrap.Name = "ToolStripMenuItemLook_Wrap";
+            ToolStripMenuItemLook_Wrap.Size = new Size(270, 34);
+            ToolStripMenuItemLook_Wrap.Text = "自动换行";
+            ToolStripMenuItemLook_Wrap.Click += ToolStripMenuItemLook_Wrap_Click;
             // 
             // TestInfo
             // 
@@ -81,6 +90,7 @@
 
         private RichTextBox Info;
         private MenuStrip menuStrip1;
-        private ToolStripMenuItem ToolStripMenuItemOpen;
+        private ToolStripMenuItem ToolStripMenuItemLook;
+        private ToolStripMenuItem ToolStripMenuItemLook_Wrap;
     }
 }
