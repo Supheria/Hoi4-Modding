@@ -1,6 +1,6 @@
-using System.Drawing.Text;
 using FocusTree.Data;
 using FocusTree.UI.Graph;
+using System.Drawing.Text;
 
 namespace FocusTree.UI.NodeToolDialogs
 {

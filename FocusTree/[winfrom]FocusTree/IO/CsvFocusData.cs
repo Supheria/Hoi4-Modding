@@ -26,7 +26,7 @@ namespace FocusTree.IO
         /// <summary>
         /// 国策效果
         /// </summary>
-        public string RawEffectsCohesion { get; } = "";
+        public List<string> RawEffects { get; } = new();
         /// <summary>
         /// 国策描述
         /// </summary>
@@ -61,7 +61,7 @@ namespace FocusTree.IO
                 // 天数
                 Duration = int.Parse(match.Groups[2].Value);
                 // 效果
-                RawEffectsCohesion = match.Groups[3].Value;
+                RawEffects = match.Groups[3].Value.Split('。', StringSplitOptions.RemoveEmptyEntries).ToList();
                 // 描述
                 Description = match.Groups[4].Value;
                 // 备注

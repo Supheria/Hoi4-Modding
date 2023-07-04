@@ -32,6 +32,7 @@
             menuStrip1 = new MenuStrip();
             ToolStripMenuItemLook = new ToolStripMenuItem();
             ToolStripMenuItemLook_Wrap = new ToolStripMenuItem();
+            ToolStripMenuItemLook_Clear = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -56,7 +57,7 @@
             // 
             // ToolStripMenuItemLook
             // 
-            ToolStripMenuItemLook.DropDownItems.AddRange(new ToolStripItem[] { ToolStripMenuItemLook_Wrap });
+            ToolStripMenuItemLook.DropDownItems.AddRange(new ToolStripItem[] { ToolStripMenuItemLook_Wrap, ToolStripMenuItemLook_Clear });
             ToolStripMenuItemLook.Name = "ToolStripMenuItemLook";
             ToolStripMenuItemLook.Size = new Size(62, 28);
             ToolStripMenuItemLook.Text = "查看";
@@ -68,6 +69,13 @@
             ToolStripMenuItemLook_Wrap.Size = new Size(270, 34);
             ToolStripMenuItemLook_Wrap.Text = "自动换行";
             ToolStripMenuItemLook_Wrap.Click += ToolStripMenuItemLook_Wrap_Click;
+            // 
+            // ToolStripMenuItemLook_Clear
+            // 
+            ToolStripMenuItemLook_Clear.Name = "ToolStripMenuItemLook_Clear";
+            ToolStripMenuItemLook_Clear.Size = new Size(270, 34);
+            ToolStripMenuItemLook_Clear.Text = "清空";
+            ToolStripMenuItemLook_Clear.Click += ToolStripMenuItemLook_Clear_Click;
             // 
             // TestInfo
             // 
@@ -92,5 +100,6 @@
         private MenuStrip menuStrip1;
         private ToolStripMenuItem ToolStripMenuItemLook;
         private ToolStripMenuItem ToolStripMenuItemLook_Wrap;
+        private ToolStripMenuItem ToolStripMenuItemLook_Clear;
     }
 }

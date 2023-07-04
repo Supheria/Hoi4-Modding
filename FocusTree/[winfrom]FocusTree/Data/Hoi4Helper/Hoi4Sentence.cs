@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿using System.DirectoryServices.ActiveDirectory;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using FocusTree.IO;
 using static FocusTree.Data.Hoi4Helper.PublicSign;
 
 namespace FocusTree.Data.Hoi4Helper
@@ -12,50 +14,11 @@ namespace FocusTree.Data.Hoi4Helper
         /// <summary>
         /// 主句属性
         /// </summary>
-        Hoi4SentenceStruct _main;
+        private readonly Hoi4SentenceStruct _main;
         /// <summary>
         /// 子句
         /// </summary>
         public List<Hoi4Sentence> SubSentences { get; private set; } = new();
-
-        #endregion
-
-        #region ==== 变量获取器 ====
-
-        /// <summary>
-        /// 执行动作
-        /// </summary>
-        public Motions Motion { get => _main.Motion; set => _main.Motion = value; }
-        ///// <summary>
-        ///// 执行对象类型
-        ///// </summary>
-        //public Types? ValueType
-        //{
-        //    get
-        //    {
-        //        var type = GetEnumValue<Types>(Main.ValueType);
-        //        return type == null ? null : (Types)type;
-        //    }
-        //    set { Main.ValueType = value == null ? string.Empty : value.Value.ToString(); }
-        //}
-        ///// <summary>
-        ///// 执行对象
-        ///// </summary>
-        //public string Value
-        //{
-        //    get { return Main.Value; }
-        //    set { Main.Value = value; }
-        //}
-        public Types TriggerType { get => _main.TriggerType; set => _main.TriggerType = value; }
-
-        /// <summary>
-        /// 动作触发者
-        /// </summary>
-        public List<string> Triggers
-        {
-            get => _main.Triggers.ToList(); 
-            set => _main.Triggers = value.ToArray();
-        }
 
         #endregion
 
@@ -74,17 +37,17 @@ namespace FocusTree.Data.Hoi4Helper
         public Hoi4Sentence(
             Motions motion,
             Types? valueType,
-            string value,
+            string? value,
             Types? triggerType,
-            string[] triggers,
-            List<Hoi4Sentence> subSentences
-            )
+            string[]? triggers,
+            List<Hoi4Sentence>? subSentences
+        )
         {
             _main = new()
             {
                 Motion = motion,
                 ValueType = valueType ?? Types.None,
-                Value = value ?? string.Empty,
+                Value = value ?? "",
                 TriggerType = triggerType ?? Types.None,
                 Triggers = triggers ?? Array.Empty<string>()
             };
@@ -107,89 +70,44 @@ namespace FocusTree.Data.Hoi4Helper
             SubSentences = new();
 
             //==== 读取主句属性 ====//
-            _main.Motion = (Motions)GetEnumValue<Motions>(reader.GetAttribute("Motion"));
+            _main.Motion = XmlHelper.GetEnumValue<Motions>(reader.GetAttribute("Motion")) as Motions? ?? Motions.None;
             var typePair = reader.GetAttribute("Type");
             var valuePair = reader.GetAttribute("Value");
-            ReadTypePair(typePair);
-            ReadValuePair(valuePair);
+            XmlHelper.ReadPair(typePair, ref _main.ValueType, ref _main.TriggerType,
+                str => XmlHelper.GetEnumValue<Types>(str) as Types? ?? Types.None,
+                str => XmlHelper.GetEnumValue<Types>(str) as Types? ?? Types.None);
+            XmlHelper.ReadPair(valuePair, ref _main.Value, ref _main.Triggers, str => str, XmlHelper.ReadArrayString);
 
-            //==== 尝试查找并读取子句====//
-            if (reader.ReadToDescendant("Sentence") == false) { return; }
-            // 进入子句后直到遇到结束标签结束
-            do
+            XmlHelper.ReadCollection(reader, SubSentences, "Sentence", "Sentence", r =>
             {
-                if (reader.Name == "Sentence")
-                {
-                    if (reader.NodeType == XmlNodeType.EndElement) { return; }
-                    Hoi4Sentence sentence = new();
-                    sentence.ReadXml(reader);
-                    SubSentences.Add(sentence);
-                }
-            } while (reader.Read());
+                var sentence = new Hoi4Sentence();
+                sentence.ReadXml(r);
+                return sentence;
+            });
         }
         public void WriteXml(XmlWriter writer)
         {
             //==== 序列化主句 ====//
 
-            // <Sentence>
-            writer.WriteStartElement("Sentence");
-
             writer.WriteAttributeString("Motion", _main.Motion.ToString());
-            writer.WriteAttributeString("Type", WriteTypePair());
-            writer.WriteAttributeString("Value", WriteValuePair());
+            writer.WriteAttributeString("Type",
+                XmlHelper.WritePair(_main.ValueType.ToString(), _main.TriggerType.ToString()));
+            writer.WriteAttributeString("Value",
+                XmlHelper.WritePair(_main.Value, XmlHelper.WriteArrayString(_main.Triggers)));
 
             //==== 序列化子句 ====//
 
-            if (SubSentences.Count > 0)
-            {
-                foreach (var subSentence in SubSentences)
-                {
-                    subSentence.WriteXml(writer);
-                }
-            }
-
-            // </Sentence>
-            writer.WriteEndElement();
+            foreach (var subSentence in SubSentences)
+                subSentence.WriteXml(writer);
         }
 
         private string WriteTypePair()
         {
             return $"({_main.ValueType}),({_main.TriggerType})";
         }
-
-        private void ReadTypePair(string pair)
-        {
-            if (pair != null)
-            {
-                var match = Regex.Match(pair.Trim(), "\\((.*)\\),\\((.*)\\)");
-                if (match.Success)
-                {
-                    _main.ValueType = (Types)GetEnumValue<Types>(match.Groups[1].Value);
-                    _main.TriggerType = (Types)GetEnumValue<Types>(match.Groups[2].Value);
-                    return;
-                }
-            }
-            _main.ValueType = _main.TriggerType = Types.None;
-        }
         private string WriteValuePair()
         {
-            return $"({_main.Value}),({ArrayString.Writer(_main.Triggers)})";
-        }
-
-        private void ReadValuePair(string pair)
-        {
-            if (pair != null)
-            {
-                var match = Regex.Match(pair.Trim(), "\\((.*)\\),\\((.*)\\)");
-                if (match.Success)
-                {
-                    _main.Value = match.Groups[1].Value;
-                    _main.Triggers = ArrayString.Reader(match.Groups[2].Value);
-                    return;
-                }
-            }
-            _main.Value = string.Empty;
-            _main.Triggers = new string[0];
+            return $"({_main.Value}),({XmlHelper.WriteArrayString(_main.Triggers)})";
         }
 
         #endregion
@@ -202,7 +120,7 @@ namespace FocusTree.Data.Hoi4Helper
         /// <returns></returns>
         public override string ToString()
         {
-            var sb = new StringBuilder().AppendLine($"Motion=\"{Motion}\", Type=\"{WriteTypePair()}\", Value=\"{WriteValuePair()}\"");
+            var sb = new StringBuilder().AppendLine($"Motion=\"{_main.Motion}\", Type=\"{WriteTypePair()}\", Value=\"{WriteValuePair()}\"");
             foreach (var sub in SubSentences)
             {
                 sb.AppendLine(sub.ToString(1));
@@ -213,9 +131,9 @@ namespace FocusTree.Data.Hoi4Helper
         public string ToString(int tabTime)
         {
             var sb = new StringBuilder();
-            for (var i  = 0; i < tabTime;  i++) 
+            for (var i = 0; i < tabTime; i++)
                 sb.Append('\t');
-            sb.Append($"Motion=\"{Motion}\", Type=\"{WriteTypePair()}\", Value=\"{WriteValuePair()}\"");
+            sb.Append($"Motion=\"{_main.Motion}\", Type=\"{WriteTypePair()}\", Value=\"{WriteValuePair()}\"");
             foreach (var sub in SubSentences)
             {
                 sb.Append($"\n{sub.ToString(tabTime + 1)}");

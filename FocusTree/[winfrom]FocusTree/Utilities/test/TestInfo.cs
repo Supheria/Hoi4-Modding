@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using FocusTree.Data.Focus;
-using FocusTree.IO;
 
 namespace FocusTree.Utilities.test
 {
@@ -77,6 +75,11 @@ namespace FocusTree.Utilities.test
                 DoWrap = false;
                 Info.WordWrap = false;
             }
+        }
+
+        private void ToolStripMenuItemLook_Clear_Click(object sender, EventArgs e)
+        {
+            Info.Text = "";
         }
     }
 }

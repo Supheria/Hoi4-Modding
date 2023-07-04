@@ -3,9 +3,10 @@
     public static class PublicSign
     {
         /// <summary>
-        /// 语义分割符
+        /// 元素分割符
         /// </summary>
-        public static char Splitter = '|';
+        public static char PublicSplitter { get; set; } = '|';
+
         /// <summary>
         /// 执行动作
         /// </summary>
@@ -14,15 +15,11 @@
         {
             None = 0,
 
-            #region ==== 动作时机 ====
-            /// <summary>
-            /// 国策完成后开始实施
-            /// </summary>
-            AfterDone = 0b1,
+            #region ==== 额外动作时机：不添加此项则默认为国策完成后开始实施 ====
             /// <summary>
             /// 开启国策后立即实施
             /// </summary>
-            Instantly = AfterDone << 1,
+            Instantly = 0b1,
 
             #endregion
 
@@ -198,24 +195,6 @@
             AbleToStartResolution = Availability | (AbleToJoinCamp ^ Availability) << 1,
 
             #endregion
-        }
-
-        /// <summary>
-        /// 通过枚举名获取对应枚举值
-        /// </summary>
-        /// <typeparam name="T">枚举类型</typeparam>
-        /// <param name="name">枚举名</param>
-        /// <returns>枚举名存在则以 object 返回枚举对象，否则返回null</returns>
-        public static object GetEnumValue<T>(string name)
-        {
-            try
-            {
-                return Enum.Parse(typeof(T), name);
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

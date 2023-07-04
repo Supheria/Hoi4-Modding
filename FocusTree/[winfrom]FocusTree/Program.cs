@@ -1,9 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 //Console.WriteLine("Hello, World!");
 //#define MAIN
-using FocusTree.Data.Focus;
-using FocusTree.IO;
-using FocusTree.UI;
 using FocusTree.UI.Graph;
 using FocusTree.Utilities.test;
 

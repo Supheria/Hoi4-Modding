@@ -1,7 +1,8 @@
 ﻿#define FORMAT_TEST
 #define RAW_EFFECTS
-using System.Xml;
 using FocusTree.Data.Hoi4Helper;
+using System.Xml;
+using FocusTree.IO;
 
 namespace FocusTree.Data.Focus
 {
@@ -40,7 +41,7 @@ namespace FocusTree.Data.Focus
         {
             FData = new();
         }
-        public void ReadXml(XmlReader reader)
+        public void ReadXml(XmlReader reader, string nodeName)
         {
             Effects = new();
             FData = new()
@@ -52,7 +53,7 @@ namespace FocusTree.Data.Focus
                 Description = reader.GetAttribute("Description") ?? FData.Description,
                 Ps = reader.GetAttribute("Ps.") ?? FData.Ps,
             };
-            var pair = ArrayString.Reader(reader.GetAttribute("Point"));
+            var pair = XmlHelper.ReadArrayString(reader.GetAttribute("Point"));
             if (pair is not { Length: 2 })
                 FData.LatticedPoint = new(0, 0);
             else
@@ -60,27 +61,37 @@ namespace FocusTree.Data.Focus
 
             while (reader.Read())
             {
-                if (reader is { Name: "Node", NodeType: XmlNodeType.EndElement })
-                {
+                if (reader.Name == nodeName && reader.NodeType is XmlNodeType.EndElement) 
                     break;
-                }
-
                 switch (reader.Name)
                 {
 #if FORMAT_TEST
                     //==== 读取 Effects ====//
                     case "Effects":
-                        ReadEffects(reader);
-                        break;
+                        XmlHelper.ReadCollection(reader, _effects, "Effects", "Sentence", r =>
+                        {
+                            Hoi4Sentence sentence = new();
+                            sentence.ReadXml(r);
+                            return sentence;
+                        });
+                        continue;
 #endif
                     //==== 读取 Requires ====//
                     case "Requires":
-                        ReadRequires(reader, FData.Requires);
-                        break;
+                        XmlHelper.ReadCollection(reader, FData.Requires, "Requires", "Require", r =>
+                        {
+                            r.Read();
+                            return XmlHelper.ReadArrayString(r.Value).Select(int.Parse).ToHashSet();
+                        });
+                        continue;
                     //==== 读取 RawEffects ====//
                     case "RawEffects":
-                        ReadRawEffects(reader, FData.RawEffects);
-                        break;
+                        XmlHelper.ReadCollection(reader, FData.RawEffects, "RawEffects", "Effect", r =>
+                        {
+                            r.Read();
+                            return r.Value;
+                        });
+                        continue;
                 }
             }
 #if FORMAT_TEST
@@ -108,85 +119,9 @@ namespace FocusTree.Data.Focus
                 }
             }
         }
-        /// <summary>
-        /// 读取效果
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <exception cref="Exception"></exception>
-        private void ReadEffects(XmlReader reader)
-        {
-            // 子节点探针
-            if (reader.ReadToDescendant("Sentence") == false) { return; }
-            do
-            {
-                switch (reader.Name)
-                {
-                    case "Effects" when reader.NodeType == XmlNodeType.EndElement:
-                        return;
-                    case "Sentence":
-                        {
-                            Hoi4Sentence sentence = new();
-                            sentence.ReadXml(reader);
-                            _effects.Add(sentence);
-                            break;
-                        }
-                }
-            } while (reader.Read());
-            throw new("[2304060212] 读取 Effects 时未能找到结束标签");
-        }
 
-        /// <summary>
-        /// 读取节点依赖
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="requires"></param>
-        /// <exception cref="Exception"></exception>
-        private static void ReadRequires(XmlReader reader, ICollection<HashSet<int>> requires)
-        {
-            if (reader.ReadToDescendant("Require") == false) { return; }
-            do
-            {
-                switch (reader.Name)
-                {
-                    case "Requires" when reader.NodeType == XmlNodeType.EndElement:
-                        return;
-                    case "Require" when reader.NodeType == XmlNodeType.Element:
-                        reader.Read();
-                        requires.Add(ArrayString.Reader(reader.Value).Select(int.Parse).ToHashSet());
-                        break;
-                }
-            } while (reader.Read());
-            throw new("[2302191020] 读取 Requires 时未能找到结束标签");
-        }
-
-        /// <summary>
-        /// 读取原始效果语句
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="rawEffects"></param>
-        /// <exception cref="Exception"></exception>
-        private static void ReadRawEffects(XmlReader reader, ICollection<string> rawEffects)
-        {
-            if (reader.ReadToDescendant("Effect") == false) { return; }
-            do
-            {
-                switch (reader.Name)
-                {
-                    case "RawEffects" when reader.NodeType == XmlNodeType.EndElement:
-                        return;
-                    case "Effect" when reader.NodeType == XmlNodeType.Element:
-                        reader.Read();
-                        rawEffects.Add(reader.Value);
-                        break;
-                }
-            } while (reader.Read());
-            throw new("[2304082217] 读取 RawEffects 时未能找到结束标签");
-        }
         public void WriteXml(XmlWriter writer)
         {
-            // <Node>
-            writer.WriteStartElement("Node");
-
             writer.WriteAttributeString("ID", FData.Id.ToString());
             writer.WriteAttributeString("Name", FData.Name);
             writer.WriteAttributeString("Star", FData.BeginWithStar.ToString());
@@ -194,43 +129,22 @@ namespace FocusTree.Data.Focus
             writer.WriteAttributeString("Description", FData.Description);
             writer.WriteAttributeString("Ps.", FData.Ps);
             var point = FData.LatticedPoint;
-            writer.WriteAttributeString("Point", ArrayString.Writer(new string[] { point.Col.ToString(), point.Row.ToString() }));
+            writer.WriteAttributeString("Point", XmlHelper.WriteArrayString(new[] { point.Col.ToString(), point.Row.ToString() }));
 #if RAW_EFFECTS
-            // <RawEffects>
-            writer.WriteStartElement("RawEffects");
-            foreach (var effect in FData.RawEffects)
-            {
-                writer.WriteElementString("Effect", effect);
-            }
-            // </RawEffects>
-            writer.WriteEndElement();
+            XmlHelper.WriteCollection(writer, FData.RawEffects, "RawEffects", "Effect",
+                (w, str) => w.WriteValue(str));
 #endif
 #if FORMAT_TEST
             FormatRawEffects(FData.RawEffects, FData.Id);
-            // <Effects>
-            writer.WriteStartElement("Effects");
-            foreach (var sentence in _effects)
-            {
-                sentence.WriteXml(writer);
-            }
-            // </Effects>
-            writer.WriteEndElement();
+            XmlHelper.WriteCollection(writer, _effects, "Effects", "Sentence", (w, sentence) => sentence.WriteXml(w));
 #endif
-            // <Requires>
-            writer.WriteStartElement("Requires");
-            foreach (var require in FData.Requires.Where(require => require.ToArray().Length > 0))
+            XmlHelper.WriteCollection(writer, FData.Requires, "Requires", "Require", (w, require) =>
             {
-                // <Require>
-                writer.WriteElementString("Require", ArrayString.Writer(require.Select(x => x.ToString()).ToArray()));
-                // </Require>
-            }
-            // </Requires>
-            writer.WriteEndElement();
-
-            // </Node>
-            writer.WriteEndElement();
+                if (require.ToArray().Length > 0)
+                    w.WriteValue(XmlHelper.WriteArrayString(require.Select(x => x.ToString()).ToArray()));
+            });
         }
 
-#endregion
+        #endregion
     }
 }

@@ -1,13 +1,13 @@
 //#define DEBUG
 
-using System.Diagnostics;
-using System.IO.Compression;
 using FocusTree.Data.Focus;
 using FocusTree.Graph;
 using FocusTree.Graph.Lattice;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
 using FocusTree.Utilities.test;
+using System.Diagnostics;
+using System.IO.Compression;
 
 namespace FocusTree.UI.Graph
 {
@@ -263,13 +263,13 @@ namespace FocusTree.UI.Graph
             if (folderBrowser.ShowDialog() == DialogResult.Cancel) { return; }
             GraphFrom_ProgressBar.Maximum = fileNames.Length;
             GraphFrom_ProgressBar.Value = 0;
-            int suc = 0;
+            var suc = 0;
             foreach (var fileName in fileNames)
             {
                 try
                 {
                     var graph = XmlIO.LoadFromXml<FocusGraph>(fileName);
-                    graph.ReorderNodeIds();
+                    graph?.ReorderNodeIds();
                     XmlIO.SaveToXml(graph, Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
                     suc++;
                     GraphFrom_ProgressBar.PerformStep();
@@ -456,6 +456,8 @@ namespace FocusTree.UI.Graph
         private void GraphFrom_Menu_file_reopen_Click(object sender, EventArgs e)
         {
             GraphBox.Reload();
+            _display.ResetDisplay();
+            UpdateText();
         }
 
         private void GraphFrom_Menu_tool_testDialog_testInfo_Click(object sender, EventArgs e)

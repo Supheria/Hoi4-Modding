@@ -1,19 +1,20 @@
 #define DEBUG
-using System.Diagnostics.CodeAnalysis;
-using FocusTree.Graph;
+using FocusTree.Graph.Lattice;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Schema;
-using FocusTree.Graph.Lattice;
+using System.Xml.Serialization;
 
 namespace FocusTree.Data.Focus
 {
     /// <summary>
     /// 国策树图控制类
     /// </summary>
+    [XmlRoot("NationalFocus")]
     public class FocusGraph : IHistoryable, IBackupable
     {
         #region ---- 基本变量 ----
@@ -354,7 +355,7 @@ namespace FocusTree.Data.Focus
                     Description = data.Description,
                     Ps = data.Ps,
                     BeginWithStar = data.BeginWithStar,
-                    RawEffects = new() { data.RawEffectsCohesion },
+                    RawEffects = data.RawEffects,
                     Requires = data.Requires,
                 };
             }
@@ -370,56 +371,21 @@ namespace FocusTree.Data.Focus
         public void ReadXml(XmlReader reader)
         {
             _focusCatalog = new();
-            do
+            Name = reader.GetAttribute("NationName") ?? "";
+            XmlHelper.ReadCollection(reader, _focusCatalog, "NationalFocus", "Focus", r =>
             {
-                if (reader is { Name: "State", NodeType: XmlNodeType.Element })
-                {
-                    Name = reader.GetAttribute("Name") ?? "";
-                }
-
-                if (reader.Name != "Nodes")
-                    continue;
-                if (reader.ReadToDescendant("Node") == false)
-                    continue;
-                do
-                {
-                    if (reader is { Name: "Nodes", NodeType: XmlNodeType.EndElement })
-                        break;
-                    if (reader.Name != "Node")
-                        continue;
-                    FocusNode node = new();
-                    try
-                    {
-                        node.ReadXml(reader);
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                    _focusCatalog.Add(node.FData.Id, node.FData);
-                } while (reader.Read());
-            } while (reader.Read());
+                var node = new FocusNode();
+                node.ReadXml(r, "Focus");
+                return (node.FData.Id, node.FData);
+            });
         }
         public void WriteXml(XmlWriter writer)
         {
-            // <State>
-            writer.WriteStartElement("State");
-            writer.WriteAttributeString("Name", Name);
+            writer.WriteAttributeString("NationName", Name);
 
-            //==== 序列化节点数据 ====//
-
-            // <Nodes>
-            writer.WriteStartElement("Nodes");
-            foreach (var node in _focusCatalog.Values.Select(focus => new FocusNode(focus)))
-            {
-                // <Node>
-                node.WriteXml(writer);
-            }
-            // </Nodes>
-            writer.WriteEndElement();
-
-            // </State>
-            writer.WriteEndElement();
+            // 序列化节点数据
+            XmlHelper.WriteCollection(writer, _focusCatalog.Values, "Focus",
+                (w, focus) => new FocusNode(focus).WriteXml(w));
         }
 
         #endregion
@@ -457,15 +423,13 @@ namespace FocusTree.Data.Focus
         {
             var hashCode = GetHashString();
             if (!Directory.Exists(hashCode))
-            {
                 XmlIO.SaveToXml(this, FileCache.GetCachePath(this, hashCode));
-            }
             return new(hashCode);
         }
         public void Deformat(FormattedData data)
         {
-            _focusCatalog = new();
-            _focusCatalog = XmlIO.LoadFromXml<FocusGraph>(FileCache.GetCachePath(this, data.Items[0]))._focusCatalog;
+            _focusCatalog = XmlIO.LoadFromXml<FocusGraph>(FileCache.GetCachePath(this, data.Items[0]))?._focusCatalog ??
+                            new();
         }
 
         #endregion

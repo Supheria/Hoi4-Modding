@@ -5,35 +5,31 @@ namespace FocusTree.Data.Hoi4Helper
     /// <summary>
     /// 句子属性
     /// </summary>
-    public struct Hoi4SentenceStruct
+    public class Hoi4SentenceStruct
     {
         /// <summary>
         /// 执行动作
         /// </summary>
-        public Motions Motion { get; set; }
+        public Motions Motion = Motions.None;
         /// <summary>
         /// 值类型
         /// </summary>
-        public Types ValueType { get; set; }
+        public Types ValueType = Types.None;
         /// <summary>
         /// 执行值
         /// </summary>
-        public string Value { get; set; }
+        public string Value = "";
         /// <summary>
         /// 触发者类型
         /// </summary>
-        public Types TriggerType { get; set; }
+        public Types TriggerType = Types.None;
         /// <summary>
         /// 动作触发者
         /// </summary>
-        public string[] Triggers { get; set; }
+        public string[] Triggers = Array.Empty<string>();
+
         public Hoi4SentenceStruct()
         {
-            Motion = Motions.None;
-            ValueType = Types.None;
-            Value = string.Empty;
-            TriggerType = Types.None;
-            Triggers = Array.Empty<string>();
         }
     }
 }

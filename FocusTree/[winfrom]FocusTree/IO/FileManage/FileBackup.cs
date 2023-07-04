@@ -60,7 +60,7 @@ namespace FocusTree.IO.FileManage
             {
                 var bkPath = BackupPath<T>(path);
                 var bkDir = Path.GetDirectoryName(bkPath);
-                if (!Directory.Exists(bkDir) || !File.Exists(bkPath)) 
+                if (!Directory.Exists(bkDir) || !File.Exists(bkPath))
                     return;
                 Directory.CreateDirectory(bkDir);
                 File.Copy(path, bkPath, true);
@@ -81,7 +81,7 @@ namespace FocusTree.IO.FileManage
             var objRootDir = Path.GetDirectoryName(obj.IsBackupFile(path)
                 ? Path.GetDirectoryName(path)
                 : Path.GetDirectoryName(obj.BackupPath()));
-            if (!Directory.Exists(objRootDir)) 
+            if (!Directory.Exists(objRootDir))
                 return result;
             var dirs = new DirectoryInfo(objRootDir).GetDirectories();
             Array.Sort(dirs, (x, y) => x.LastWriteTime.CompareTo(y.LastWriteTime));

@@ -1,4 +1,4 @@
-﻿using FocusTree.Graph;
+﻿using System.Xml.Serialization;
 using FocusTree.Graph.Lattice;
 
 namespace FocusTree.Data.Focus
@@ -11,45 +11,39 @@ namespace FocusTree.Data.Focus
         /// <summary>
         /// 栅格化坐标
         /// </summary>
-        public LatticedPoint LatticedPoint { get; set; } = new();
-
+        public LatticedPoint LatticedPoint = new();
         /// <summary>
         /// 节点ID
         /// </summary>
-        public int Id { get; set; } = 0;
-
+        public int Id = 0;
         /// <summary>
         /// 国策名称
         /// </summary>
-        public string Name { get; set; } = "";
-
+        public string Name = "";
         /// <summary>
         /// 实施国策所需的天数
         /// </summary>
-        public int Duration { get; set; } = 0;
-
+        public int Duration = 0;
         /// <summary>
         /// 国策描述
         /// </summary>
-        public string Description { get; set; } = "";
+        public string Description = "";
         /// <summary>
         /// 备注
         /// </summary>
-        public string Ps { get; set; } = "";
-
+        public string Ps = "";
         /// <summary>
         /// 字段是否以 * 开头
         /// </summary>
-        public bool BeginWithStar { get; set; } = false;
-
+        public bool BeginWithStar = false;
         /// <summary>
         /// 原始效果语句
         /// </summary>
-        public List<string> RawEffects { get; set; } = new();
+        public List<string> RawEffects = new();
         /// <summary>
         /// 依赖组
         /// </summary>
-        public List<HashSet<int>> Requires { get; set; } = new();
+        public List<HashSet<int>> Requires = new();
 
         public FocusData()
         {

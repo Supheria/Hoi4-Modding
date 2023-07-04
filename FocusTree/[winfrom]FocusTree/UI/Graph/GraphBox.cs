@@ -1,10 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using FocusTree.Data;
+﻿using FocusTree.Data;
 using FocusTree.Data.Focus;
 using FocusTree.Graph;
 using FocusTree.Graph.Lattice;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.UI.Graph
 {
@@ -39,7 +39,7 @@ namespace FocusTree.UI.Graph
                     return "Focus Tree";
                 else if (ReadOnly)
                     return Graph.Name + "（只读）";
-                else if (Graph.IsEdit()) 
+                else if (Graph.IsEdit())
                     return Graph.Name + "（未保存）";
                 else
                     return Graph.Name;
@@ -94,18 +94,19 @@ namespace FocusTree.UI.Graph
             if (!ReadOnly)
                 FilePath = filePath;
             FileCache.ClearCache(Graph);
-            try
-            {
-                Graph = Path.GetExtension(filePath).ToLower() is ".csv"
-                    ? Graph = CsvIO.LoadFromCsv(filePath)
-                    : XmlIO.LoadFromXml<FocusGraph>(filePath);
-            }
-            catch (Exception e)
-            {
-                Graph = null;
-                Program.TestInfo.Append(e.Message);
-                Program.TestInfo.Show();
-            }
+            if (Path.GetExtension(filePath).ToLower() is ".csv") 
+                try
+                {
+                    Graph = CsvIO.LoadFromCsv(filePath);
+                }
+                catch (Exception e)
+                {
+                    Graph = null;
+                    Program.TestInfo.Append(e.Message);
+                    Program.TestInfo.Show();
+                }
+            else
+                Graph = XmlIO.LoadFromXml<FocusGraph>(filePath);
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -118,18 +119,19 @@ namespace FocusTree.UI.Graph
             if (!File.Exists(FilePath)) { return; }
             ReadOnly = false;
             FileCache.ClearCache(Graph);
-            try
-            {
-                Graph = Path.GetExtension(FilePath).ToLower() is ".csv"
-                    ? Graph = CsvIO.LoadFromCsv(FilePath)
-                    : XmlIO.LoadFromXml<FocusGraph>(FilePath);
-            }
-            catch (Exception e)
-            {
-                Graph = null;
-                Program.TestInfo.Append(e.Message);
-                Program.TestInfo.Show();
-            }
+            if (Path.GetExtension(FilePath).ToLower() is ".csv")
+                try
+                {
+                    Graph = CsvIO.LoadFromCsv(FilePath);
+                }
+                catch (Exception e)
+                {
+                    Graph = null;
+                    Program.TestInfo.Append(e.Message);
+                    Program.TestInfo.Show();
+                }
+            else
+                Graph = XmlIO.LoadFromXml<FocusGraph>(FilePath);
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -156,7 +158,7 @@ namespace FocusTree.UI.Graph
         /// <param name="filePath"></param>
         public static void SaveToNew(string filePath)
         {
-            if (Graph is null) 
+            if (Graph is null)
                 return;
             if (filePath == FilePath)
             {

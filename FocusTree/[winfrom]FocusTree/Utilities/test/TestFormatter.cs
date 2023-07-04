@@ -1,5 +1,5 @@
-﻿using System.Text;
-using FocusTree.Data.Hoi4Helper;
+﻿using FocusTree.Data.Hoi4Helper;
+using System.Text;
 
 namespace FocusTree.Utilities.test
 {

@@ -1,7 +1,5 @@
 ﻿using FocusTree.Data.Focus;
-using FocusTree.UI;
 using System.Numerics;
-using FocusTree.UI.Graph;
 
 namespace FocusTree.IO
 {

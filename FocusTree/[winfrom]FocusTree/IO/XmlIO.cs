@@ -7,10 +7,12 @@ namespace FocusTree.IO
         /// <summary>
         /// 将 FGraph 序列化成 xml
         /// </summary>
+        /// <param name="obj"></param>
         /// <param name="path">保存路径</param>
-        /// <param name="graph">FGraph</param>
-        public static void SaveToXml<T>(T obj, string path) where T : IXmlSerializable
+        public static void SaveToXml<T>(T? obj, string path) where T : IXmlSerializable
         {
+            if (obj is null)
+                return;
             var file = File.Create(path);
             var writer = new XmlSerializer(typeof(T));
             writer.Serialize(file, obj);
@@ -25,15 +27,17 @@ namespace FocusTree.IO
         {
             try
             {
+                if (!File.Exists(path))
+                    return default;
                 var file = File.OpenRead(path);
                 var reader = new XmlSerializer(typeof(T));
-                var obj = (T)reader.Deserialize(file);
+                var obj = reader.Deserialize(file);
                 file.Close();
-                return obj;
+                return obj is null ? default : (T)obj;
             }
-            catch (Exception ex)
+            catch
             {
-                throw new($"[2304130225]无法读取{path}。\n{ex.Message}");
+                return default;
             }
         }
     }

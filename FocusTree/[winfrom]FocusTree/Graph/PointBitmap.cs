@@ -10,22 +10,22 @@ namespace FocusTree.Graph
         /// <summary>
         /// 指向的源图片
         /// </summary>
-        readonly Bitmap Source = null;
+        private readonly Bitmap _source;
         /// <summary>
         /// 指针首地址
         /// </summary>
-        IntPtr Iptr = IntPtr.Zero;
+        private IntPtr _intPointer = IntPtr.Zero;
         /// <summary>
         /// 数据存储结构
         /// </summary>
-        BitmapData BmpData = null;
+        private BitmapData? _bmpData = null;
         /// <summary>
         /// 图片位深
         /// </summary>
         public int Depth { get; private set; }
         public PointBitmap(Bitmap source)
         {
-            Source = source;
+            _source = source;
         }
         /// <summary>
         /// 根据源图片大小和位深设置并调用 Bitmap.LockBits（只做了对 32、24、8 位的处理）
@@ -33,22 +33,19 @@ namespace FocusTree.Graph
         /// <exception cref="ArgumentException"></exception>
         public void LockBits()
         {
-            Depth = Image.GetPixelFormatSize(Source.PixelFormat);
-            Rectangle rect = new(0, 0, Source.Width, Source.Height);
-            if (Depth == 32 || Depth == 24 || Depth == 8)
-            {
-                BmpData = Source.LockBits(rect, ImageLockMode.ReadWrite, Source.PixelFormat);
-                Iptr = BmpData.Scan0;
-                return;
-            }
-            throw new ArgumentException("Only 8, 24 and 32 bpp images are supported.");
+            Depth = Image.GetPixelFormatSize(_source.PixelFormat);
+            Rectangle rect = new(0, 0, _source.Width, _source.Height);
+            if (Depth is not (32 or 24 or 8))
+                throw new ArgumentException("Only 8, 24 and 32 bpp images are supported.");
+            _bmpData = _source.LockBits(rect, ImageLockMode.ReadWrite, _source.PixelFormat);
+            _intPointer = _bmpData.Scan0;
         }
         /// <summary>
         /// 调用 Bitmap.LockBits
         /// </summary>
         public void UnlockBits()
         {
-            Source.UnlockBits(BmpData);
+            _source.UnlockBits(_bmpData!);
         }
         /// <summary>
         /// 返回指针指向的地址的数据（代换 Bitmap.GetPixel)
@@ -60,20 +57,19 @@ namespace FocusTree.Graph
         {
             unsafe
             {
-                var ptr = (byte*)Iptr;
-                ptr += y * BmpData.Stride + x * (Depth >> 3);
-                if (Depth == 32)
+                var ptr = (byte*)_intPointer;
+                ptr += y * _bmpData!.Stride + x * (Depth >> 3);
+                switch (Depth)
                 {
-                    return Color.FromArgb(ptr[3], ptr[2], ptr[1], ptr[0]);
-                }
-                if (Depth == 24)
-                {
-                    return Color.FromArgb(ptr[2], ptr[1], ptr[0]);
-                }
-                else
-                {
-                    int r = ptr[0];
-                    return Color.FromArgb(r, r, r);
+                    case 32:
+                        return Color.FromArgb(ptr[3], ptr[2], ptr[1], ptr[0]);
+                    case 24:
+                        return Color.FromArgb(ptr[2], ptr[1], ptr[0]);
+                    default:
+                    {
+                        int r = ptr[0];
+                        return Color.FromArgb(r, r, r);
+                    }
                 }
             }
         }
@@ -87,26 +83,26 @@ namespace FocusTree.Graph
         {
             unsafe
             {
-                var ptr = (byte*)Iptr;
-                ptr += y * BmpData.Stride + x * (Depth >> 3);
-                if (Depth == 32)
+                var ptr = (byte*)_intPointer;
+                ptr += y * _bmpData!.Stride + x * (Depth >> 3);
+                switch (Depth)
                 {
-                    ptr[3] = c.A;
-                    ptr[2] = c.R;
-                    ptr[1] = c.G;
-                    ptr[0] = c.B;
-                }
-                else if (Depth == 24)
-                {
-                    ptr[2] = c.R;
-                    ptr[1] = c.G;
-                    ptr[0] = c.B;
-                }
-                else if (Depth == 8)
-                {
-                    //ptr[2] = c.R;
-                    //ptr[1] = c.G;
-                    ptr[0] = c.B;
+                    case 32:
+                        ptr[3] = c.A;
+                        ptr[2] = c.R;
+                        ptr[1] = c.G;
+                        ptr[0] = c.B;
+                        break;
+                    case 24:
+                        ptr[2] = c.R;
+                        ptr[1] = c.G;
+                        ptr[0] = c.B;
+                        break;
+                    case 8:
+                        //ptr[2] = c.R;
+                        //ptr[1] = c.G;
+                        ptr[0] = c.B;
+                        break;
                 }
             }
         }

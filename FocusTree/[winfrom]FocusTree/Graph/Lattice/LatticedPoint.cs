@@ -21,7 +21,7 @@ namespace FocusTree.Graph.Lattice
         /// </summary>
         public int Col
         {
-            get => _colNumber; 
+            get => _colNumber;
             set => _colNumber = value;
         }
 
@@ -30,7 +30,7 @@ namespace FocusTree.Graph.Lattice
         /// </summary>
         public int Row
         {
-            get => _rowNumber; 
+            get => _rowNumber;
             set => _rowNumber = value;
         }
         public LatticedPoint()
