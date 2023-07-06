@@ -8,6 +8,7 @@ using FocusTree.IO.FileManage;
 using FocusTree.Utilities.test;
 using System.Diagnostics;
 using System.IO.Compression;
+using LocalUtilities.XmlUtilities;
 
 namespace FocusTree.UI.Graph
 {
@@ -268,9 +269,10 @@ namespace FocusTree.UI.Graph
             {
                 try
                 {
-                    var graph = XmlIO.LoadFromXml<FocusGraph>(fileName);
+                    var graph = new FocusGraphSerialization().LoadFromXml(fileName).Source;
                     graph?.ReorderNodeIds();
-                    XmlIO.SaveToXml(graph, Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
+                    new FocusGraphSerialization(graph).SaveToXml(Path.Combine(folderBrowser.SelectedPath,
+                        Path.GetFileName(fileName)));
                     suc++;
                     GraphFrom_ProgressBar.PerformStep();
                 }
@@ -301,7 +303,7 @@ namespace FocusTree.UI.Graph
             {
                 try
                 {
-                    var graph = XmlIO.LoadFromXml<FocusGraph>(fileName);
+                    var graph = new FocusGraphSerialization().LoadFromXml(fileName).Source;
                     var savePath = Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName));
                     NodeMapDrawer.SaveImage(graph, savePath);
                     suc++;

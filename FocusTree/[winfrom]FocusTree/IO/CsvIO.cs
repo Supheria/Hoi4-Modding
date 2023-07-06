@@ -16,7 +16,7 @@ namespace FocusTree.IO
             {
                 var nodes = new List<CsvFocusData>();
                 ReadGraphFromCsv(path, nodes);
-                return new(path, nodes);
+                return new(Path.GetFileNameWithoutExtension(path), nodes);
             }
             catch (Exception ex)
             {

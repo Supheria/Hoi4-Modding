@@ -24,7 +24,7 @@
         /// <param name="obj"></param>
         /// <param name="fileNameWithoutExtension">纯文件名</param>
         /// <returns></returns>
-        public static string GetCachePath<T>(T obj, string fileNameWithoutExtension) where T : IFileManageable
+        public static string GetCachePath<T>(this T obj, string fileNameWithoutExtension) where T : IFileManageable
         {
             var cachePath = Path.Combine(obj.DirectoryName(), fileNameWithoutExtension);
             return cachePath;

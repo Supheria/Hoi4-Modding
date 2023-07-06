@@ -10,19 +10,19 @@ namespace FocusTree.Graph.Lattice
         /// <summary>
         /// 所在栅格列数
         /// </summary>
-        private int _colNumber;
+        private int _colIndex;
         /// <summary>
         /// 所在栅格行数
         /// </summary>
-        private int _rowNumber;
+        private int _rowIndex;
 
         /// <summary>
         /// 所在栅格列数
         /// </summary>
         public int Col
         {
-            get => _colNumber;
-            set => _colNumber = value;
+            get => _colIndex;
+            set => _colIndex = value;
         }
 
         /// <summary>
@@ -30,18 +30,18 @@ namespace FocusTree.Graph.Lattice
         /// </summary>
         public int Row
         {
-            get => _rowNumber;
-            set => _rowNumber = value;
+            get => _rowIndex;
+            set => _rowIndex = value;
         }
         public LatticedPoint()
         {
-            _colNumber = 0;
-            _rowNumber = 0;
+            _colIndex = 0;
+            _rowIndex = 0;
         }
         public LatticedPoint(int col, int row)
         {
-            _colNumber = col;
-            _rowNumber = row;
+            _colIndex = col;
+            _rowIndex = row;
         }
 
         /// <summary>
@@ -51,10 +51,10 @@ namespace FocusTree.Graph.Lattice
         {
             var widthDiff = realPoint.X - LatticeGrid.OriginLeft;
             var heightDiff = realPoint.Y - LatticeGrid.OriginTop;
-            _colNumber = widthDiff / LatticeCell.Length;
-            _rowNumber = heightDiff / LatticeCell.Length;
-            if (widthDiff < 0) { _colNumber--; }
-            if (heightDiff < 0) { _rowNumber--; }
+            _colIndex = widthDiff / LatticeCell.Length;
+            _rowIndex = heightDiff / LatticeCell.Length;
+            if (widthDiff < 0) { _colIndex--; }
+            if (heightDiff < 0) { _rowIndex--; }
         }
         /// <summary>
         /// 行列数是否都相等

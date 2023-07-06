@@ -72,7 +72,7 @@ namespace FocusTree.Graph
         /// </summary>
         /// <param name="image"></param>
         /// <param name="focus"></param>
-        public static void DrawFocusNodeNormal(Bitmap image, FocusData focus)
+        public static void DrawFocusNodeNormal(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
             var nodeRect = cell.NodeRealRect;
@@ -88,7 +88,7 @@ namespace FocusTree.Graph
         /// </summary>
         /// <param name="image"></param>
         /// <param name="focus"></param>
-        public static void DrawFocusNodeSelected(Bitmap image, FocusData focus)
+        public static void DrawFocusNodeSelected(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
             var nodeRect = cell.NodeRealRect;

@@ -66,10 +66,10 @@ namespace FocusTree.Graph
                     case 24:
                         return Color.FromArgb(ptr[2], ptr[1], ptr[0]);
                     default:
-                    {
-                        int r = ptr[0];
-                        return Color.FromArgb(r, r, r);
-                    }
+                        {
+                            int r = ptr[0];
+                            return Color.FromArgb(r, r, r);
+                        }
                 }
             }
         }

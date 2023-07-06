@@ -1,25 +1,28 @@
-﻿using FocusTree.Data.Hoi4Helper.MatchHelper;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.RegularExpressions;
-using static FocusTree.Data.Hoi4Helper.PublicSign;
+using FormatRawEffectSentence.Data;
+using FormatRawEffectSentence.InternalSign;
+using FormatRawEffectSentence.IO;
+using FormatRawEffectSentence.Model;
+using FormatRawEffectSentence.Model.Pattern;
+using LocalUtilities.RegexUtilities;
+using LocalUtilities.XmlUtilities;
 
-namespace FocusTree.Data.Hoi4Helper
+namespace FormatRawEffectSentence
 {
     /// <summary>
     /// 格式化原始效果语句
     /// </summary>
-    internal class FormatRawEffectSentence
+    public class RawEffectSentenceFormatter
     {
-        #region ==== 基本变量 ====
+        private static string XmlFilePath => "raw effect format match patterns.xml";
 
-        /// <summary>
-        /// 收集无法格式化的语句
-        /// </summary>
-        public static List<string> Unformattable { get; private set; } = new List<string>();
+        private static string _rawSentence = "";
 
-        #endregion
+        private static RawPattern[] _patterns = Array.Empty<RawPattern>();
 
-        #region ==== 主方法 ====
+        private record MotionCollect(Motions Motion, (Types Type, string Value) Value);
 
         /// <summary>
         /// 格式化器
@@ -27,47 +30,78 @@ namespace FocusTree.Data.Hoi4Helper
         /// <param name="sentence">原始效果语句</param>
         /// <param name="formattedList">格式化后的语句（可能有多个），默认值为 null</param>
         /// <returns>如果格式化成功则返回true，否则返回false</returns>
-        public static bool Formatter(string sentence, out List<Hoi4Sentence> formattedList)
+        public static bool Format(string sentence, out List<EffectSentence> formattedList)
         {
-            FindFormatPattern.ReadMatchPatternFile();
-            return SinglePatternFormatter(sentence, out formattedList) ||
-                   ComplexPatternFormatter(sentence, out formattedList);
+            _rawSentence = sentence;
+            _patterns = RawPatternArrayUtilities.LoadRawPatternArray(XmlFilePath);
+            RawPatternArrayUtilities.SaveRawPatternArray(XmlFilePath, ref _patterns);
+            return TestSinglePatterns(out formattedList);
+            //return SinglePatternFormatter(sentence, out formattedList) ||
+            //       ComplexPatternFormatter(sentence, out formattedList);
         }
-
-        #endregion
-
-        #region ==== 工具 ====
-
-        private static bool GetMatch(string input, string pattern, out Match match)
-        {
-            match = Regex.Match(input, pattern);
-            return match.Success;
-        }
-
-        #endregion
 
         #region ==== 单语句 ====
 
-        private record TriggerToRegex(Types Type, string Pattern);
-        private record MotionCollect(Motions Motion, (Types Type, string Value)? Value);
+        private static bool TestSinglePatterns(out List<EffectSentence> formattedList)
+        {
+            formattedList = new();
+            var patterns = RawPatternArrayUtilities.LoadRawPatternArray(XmlFilePath);
+            foreach (var pattern in new LocalRawPatternArray().Patterns)
+            {
+                if (TestPatternForMatch(pattern, out formattedList))
+                    return true;
+            }
+            return false;
+        }
+        private static bool TestPatternForMatch(RawPattern pattern, out List<EffectSentence> formattedList)
+        {
+            formattedList = new();
 
-        private static bool MatchSinglePatternHoi4Sentence(string rawSentence, TriggerToRegex? trigger,
-            string motionPattern, Func<string[], MotionCollect> motionMatch,
-            [NotNullWhen(true)] out Hoi4Sentence? sentence)
+            static Motions Motion(RawPattern p, IReadOnlyList<string> parts)
+            {
+                var key = (uint)p.Motion.PartIndex < parts.Count ? parts[p.Motion.PartIndex] : "";
+                return p.Motion.ConditionMap.TryGetValue(key, out var value) ? value : p.Motion.ConditionMap[""];
+            }
+
+            static (Types Type, string Value) Value(RawPattern p, IReadOnlyList<string> parts)
+            {
+                if (p.Value.Type is Types.None)
+                    return (p.Value.Type, "");
+                var sb = new StringBuilder();
+                foreach (var index in p.Value.PartIndexOrder.Where(index => (uint)index < parts.Count))
+                    sb.Append($"{parts[index]}{GeneralMark.ElementSplitter}");
+
+                var str = sb.ToString();
+                if (str.EndsWith(GeneralMark.ElementSplitter) && str.Length > 0)
+                    str = str[..^1];
+                return (p.Value.Type, str);
+            }
+
+            if (!MatchSinglePatternEffectSentence(pattern.Trigger, pattern.Motion.Pattern,
+                    parts => new(Motion(pattern, parts), Value(pattern, parts)), out var sentence))
+                return false;
+            formattedList = new() { sentence };
+            return true;
+        }
+
+        private static bool MatchSinglePatternEffectSentence(MotionTrigger trigger,
+            string motionPattern, Func<string[], MotionCollect> getMotionCollect,
+            [NotNullWhen(true)] out EffectSentence? sentence)
         {
             sentence = null;
-            var pattern = $"^({trigger?.Pattern})*{motionPattern}$";
-            if (!GetMatch(rawSentence, pattern, out var match))
+            var pattern = $"^({trigger.Pattern})*{motionPattern}$";
+            if (!RegexMatchTool.GetMatch(_rawSentence, pattern, out _))
                 return false;
             var triggers = new List<string>();
-            if (trigger is not null)
-                while (GetMatch(rawSentence, $"^{trigger?.Pattern}(.+)$", out match))
+            Match? match;
+            if (trigger.Type is not Types.None && trigger.Pattern is not "")
+                while (RegexMatchTool.GetMatch(_rawSentence, $"^{trigger.Pattern}(.+)$", out match))
                 {
                     triggers.Add(match.Groups[1].Value);
-                    rawSentence = match.Groups[2].Value;
+                    _rawSentence = match.Groups[2].Value;
                 }
 
-            if (!GetMatch(rawSentence, motionPattern, out match))
+            if (!RegexMatchTool.GetMatch(_rawSentence, motionPattern, out match))
                 return false;
             var parts = new List<string>();
             for (var i = 0; i < match.Groups.Count; i++)
@@ -77,8 +111,10 @@ namespace FocusTree.Data.Hoi4Helper
                     parts.Add(group.Value);
             }
 
-            var motion = motionMatch(parts.ToArray());
-            sentence = new(motion.Motion, motion.Value?.Type, motion.Value?.Value, trigger?.Type, triggers?.ToArray(), null);
+            var motionCollect = getMotionCollect(parts.ToArray());
+            if (motionCollect.Motion is Motions.None)
+                return false;
+            sentence = new(motionCollect.Motion, motionCollect.Value.Type, motionCollect.Value.Value, trigger.Type, triggers.ToArray());
             return true;
         }
 
@@ -88,49 +124,49 @@ namespace FocusTree.Data.Hoi4Helper
         /// <param name="rawSentence"></param>
         /// <param name="formattedList">格式化后的语句</param>
         /// <returns>返回格式化后的单语句，如果无匹配的格式化模式则返回null</returns>
-        private static bool SinglePatternFormatter(string rawSentence, out List<Hoi4Sentence> formattedList)
+        private static bool SinglePatternFormatter(string rawSentence, out List<EffectSentence> formattedList)
         {
             formattedList = new();
 
-            // 单语句 - （某国）触发事件
-            // 触发事件“骑着青牛的老者？”。
-            // 触发事件：“借地？”
-            // （妖精乐园）触发事件：“解释”
-            // 错误
-            // 神灵庙触发事件“道教该如何面对道家？”
-            if (MatchSinglePatternHoi4Sentence(rawSentence, new(Types.State, "（([^触）]+)）"),
-                    "触发事件：?“([\u4e00-\u9fa5？《》]+)”。?",
-                    parts => new(Motions.Trigger, (Types.Event, parts[0])),
-                    out var sentence)) 
-                formattedList = new() { sentence };
-            // 单语句 - 固定值或类型
-            // 将平均灵力值固定为50%
-            // 将世界观固定为唯心世界观
-            else if (MatchSinglePatternHoi4Sentence(rawSentence, null, "将(.+)固定为([\u4e00-\u9fa5\\d%]+)",
-                         parts => new(Motions.Fixed,
-                             (Types.Variable, parts[0] + PublicSplitter + parts[1])),
-                         out sentence)) 
-                formattedList = new() { sentence };
-            // 单语句-移除固定
-            // 移除对势力规模的固定
-            else if (MatchSinglePatternHoi4Sentence(rawSentence, null, "移除对(.+)的固定",
-                         parts => new(Motions.Unpin, (Types.Variable, parts[0])),
-                         out sentence)) 
-                formattedList = new() { sentence };
-            // 单语句-加|减值
-            // 灵力系科研速度：+35%
-            // 稳定度：-30%
-            // 每日获得的政治点数：+0.1
-            // （人类村落）政治点数：+300
-            else if (MatchSinglePatternHoi4Sentence(rawSentence, new(Types.State, "（([^（]+)）"),
-                         "([^：]+)：?([+-])([\\d.]+%?)",
-                         parts => new(parts[1] is "+" ? Motions.Add : Motions.Sub,
-                             (Types.Variable, $"{parts[0]}{PublicSplitter}{parts[2]}")), out sentence)) 
-                formattedList = new() { sentence };
-            // 单语句-修正值
-            // 适役人口修正：15%
-            else if (MatchSinglePatternHoi4Sentence(rawSentence, null, "([^修]+)修正：?([\\d.]+%?)", parts => new(Motions.Modify, (Types.Variable, parts[0] + PublicSplitter + parts[1])), out sentence))
-                formattedList = new() { sentence };
+            //// 单语句 - （某国）触发事件
+            //// 触发事件“骑着青牛的老者？”。
+            //// 触发事件：“借地？”
+            //// （妖精乐园）触发事件：“解释”
+            //// 错误
+            //// 神灵庙触发事件“道教该如何面对道家？”
+            //if (MatchSinglePatternEffectSentence(rawSentence, new(Types.State, "（([^触）]+)）"),
+            //        "触发事件：?“([\u4e00-\u9fa5？《》]+)”。?",
+            //        parts => new(Motions.Trigger, (Types.Event, parts[0])),
+            //        out var sentence))
+            //    formattedList = new() { sentence };
+            //// 单语句 - 固定值或类型
+            //// 将平均灵力值固定为50%
+            //// 将世界观固定为唯心世界观
+            //else if (MatchSinglePatternEffectSentence(rawSentence, null, "将(.+)固定为([\u4e00-\u9fa5\\d%]+)",
+            //             parts => new(Motions.Fixed,
+            //                 (Types.Variable, parts[0] + PublicSplitter + parts[1])),
+            //             out sentence))
+            //    formattedList = new() { sentence };
+            //// 单语句-移除固定
+            //// 移除对势力规模的固定
+            //else if (MatchSinglePatternEffectSentence(rawSentence, null, "移除对(.+)的固定",
+            //             parts => new(Motions.Unpin, (Types.Variable, parts[0])),
+            //             out sentence))
+            //    formattedList = new() { sentence };
+            //// 单语句-加|减值
+            //// 灵力系科研速度：+35%
+            //// 稳定度：-30%
+            //// 每日获得的政治点数：+0.1
+            //// （人类村落）政治点数：+300
+            //else if (MatchSinglePatternEffectSentence(rawSentence, new(Types.State, "（([^（]+)）"),
+            //             "([^：]+)：?([+-])([\\d.]+%?)",
+            //             parts => new(parts[1] is "+" ? Motions.Add : Motions.Sub,
+            //                 (Types.Variable, $"{parts[0]}{PublicSplitter}{parts[2]}")), out sentence))
+            //    formattedList = new() { sentence };
+            //// 单语句-修正值
+            //// 适役人口修正：15%
+            //else if (MatchSinglePatternEffectSentence(rawSentence, null, "([^修]+)修正：?([\\d.]+%?)", parts => new(Motions.Modify, (Types.Variable, parts[0] + PublicSplitter + parts[1])), out sentence))
+            //    formattedList = new() { sentence };
             //// 单语句-获得|增加|移除个数
             ///// 获得1个科研槽
             ///// 增加10个建筑位
@@ -359,7 +395,7 @@ namespace FocusTree.Data.Hoi4Helper
             //    var value = match.Groups[2].Value + PublicSplitter + match.Groups[1].Value; // eg.神灵庙护卫|6
             //    formattedList = new() { new(motion, valueType, value, null, null, null) };
             //}
-            else
+            //else
             {
                 return false;
             }
@@ -376,7 +412,7 @@ namespace FocusTree.Data.Hoi4Helper
         /// <param name="str">原始语句</param>
         /// <param name="formattedList">格式化后的语句，默认值为 null</param>
         /// <returns>格式化成功返回true，否则返回false。若子语句中有一个或以上的短句无法格式化，同样判定为格式化失败返回false</returns>
-        private static bool ComplexPatternFormatter(string rawSentence, out List<Hoi4Sentence> formattedList)
+        private static bool ComplexPatternFormatter(string rawSentence, out List<EffectSentence> formattedList)
         {
             formattedList = new();
 
@@ -654,7 +690,7 @@ namespace FocusTree.Data.Hoi4Helper
         /// <param name="splitter">复合子句分割符号</param>
         /// <param name="subSentences">拆分后的所有格式化的子句</param>
         /// <returns>全部子句格式化成功返回true，有一个或以上失败则返回false</returns>
-        private static bool GetSubSentence(string subSentence, string? splitter, out List<Hoi4Sentence> subSentences)
+        private static bool GetSubSentence(string subSentence, string? splitter, out List<EffectSentence> subSentences)
         {
             subSentences = new();
             var clauses = splitter == null ? new[] { subSentence } : subSentence.Split(splitter);

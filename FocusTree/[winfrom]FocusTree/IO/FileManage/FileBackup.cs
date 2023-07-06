@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
+using LocalUtilities.XmlUtilities;
 
 namespace FocusTree.IO.FileManage
 {
@@ -26,39 +27,35 @@ namespace FocusTree.IO.FileManage
             Directory.CreateDirectory(dir);
             return dir;
         }
+
         /// <summary>
-        /// 对象的文件备份路径
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>root\obj file manage\obj hash\date time</returns>
+        private static string GetBackupFilePath<T>(this T obj) where T : IBackupable =>
+            Path.Combine(obj.DirectoryName(), obj.GetHashString(), $"BK{DateTime.Now:yyyyMMddHHmmss}");
+
+        /// <summary>
+        /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        /// <returns>root\obj's Root\objHash\dateTime</returns>
-        private static string? BackupPath<T>(this T obj) where T : IBackupable?
-        {
-            if (obj is null)
-                return null;
-            var objHash = obj.GetHashString();
-            return Path.Combine(obj.DirectoryName(), objHash, $"BK{DateTime.Now:yyyyMMddHHmmss}");
-        }
-        /// <summary>
-        /// 从文件路径获取备份路径
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="path">要获取备份路径的文件路径</param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        private static string? BackupPath<T>(string path) where T : IBackupable
-        {
-            var obj = XmlIO.LoadFromXml<T>(path);
-            return obj.BackupPath();
-        }
+        private static string GetBackupFilePath<T>(this T obj, string path) where T : IBackupable =>
+            Path.Combine(obj.DirectoryName(), obj.GetHashString(path), $"BK{DateTime.Now:yyyyMMddHHmmss}");
+
         /// <summary>
         /// 备份指定文件路径的obj（如果存在的话）,如果已存在备份文件则不作替换
         /// </summary>
+        /// <param name="obj"></param>
         /// <param name="path">要备份的文件路径</param>
-        public static void Backup<T>(string path) where T : IBackupable
+        public static void Backup<T>(this T obj, string path) where T : IBackupable
         {
             try
             {
-                var bkPath = BackupPath<T>(path);
+                var bkPath = obj.GetBackupFilePath(path);
                 var bkDir = Path.GetDirectoryName(bkPath);
                 if (!Directory.Exists(bkDir) || !File.Exists(bkPath))
                     return;
@@ -70,44 +67,47 @@ namespace FocusTree.IO.FileManage
                 throw new($"[2303051407]无法备份{path}。\n{ex.Message}");
             }
         }
+
         /// <summary>
         /// 通过文件路径的文件名查找同名文件夹下的所有备份，形成文件列表
         /// </summary>
+        /// <param name="obj"></param>
         /// <param name="path">要查找的文件路径</param>
         /// <returns>文件列表(备份文件路径, 备份名)，列表第一元素是文件路径本身</returns>
         public static List<(string, string)> GetBackupsList<T>(this T obj, string path) where T : IBackupable
         {
             List<(string, string)> result = new();
-            var objRootDir = Path.GetDirectoryName(obj.IsBackupFile(path)
+            var objManageDir = Path.GetDirectoryName(obj.IsBackupFile(path)
                 ? Path.GetDirectoryName(path)
-                : Path.GetDirectoryName(obj.BackupPath()));
-            if (!Directory.Exists(objRootDir))
+                : Path.GetDirectoryName(obj.GetBackupFilePath()));
+            if (!Directory.Exists(objManageDir))
                 return result;
-            var dirs = new DirectoryInfo(objRootDir).GetDirectories();
-            Array.Sort(dirs, (x, y) => x.LastWriteTime.CompareTo(y.LastWriteTime));
+            var backupDirs = new DirectoryInfo(objManageDir).GetDirectories();
+            Array.Sort(backupDirs, (x, y) => x.LastWriteTime.CompareTo(y.LastWriteTime));
             result.Add((path, Path.GetFileNameWithoutExtension(path)));
-            var bkPathOfPath = BackupPath<T>(path);
-            foreach (var bkdir in dirs)
+            var objBackupDir = Path.GetDirectoryName(obj.GetBackupFilePath(path));
+            foreach (var backupDir in backupDirs)
             {
-                var dir = bkdir.GetFiles().FirstOrDefault();
-                if (dir == null)
+                var backupFile = backupDir.GetFiles().FirstOrDefault();
+                if (backupFile is null)
                 {
-                    bkdir.Delete(true);
+                    backupDir.Delete(true);
                     continue;
                 }
-                var bkPath = dir.FullName;
-                var testbkdir = Path.GetDirectoryName(BackupPath<T>(bkPath));
-                if (testbkdir != bkdir.FullName)
+                var backupFilePath = backupFile.FullName;
+                var backupDirForTest = Path.GetDirectoryName(obj.GetBackupFilePath(backupFilePath));
+                if (backupDirForTest != backupDir.FullName)
                 {
-                    bkdir.Delete(true);
+                    backupDir.Delete(true);
                     continue;
                 }
-                if (testbkdir == Path.GetDirectoryName(bkPathOfPath))
-                {
+                if (backupDirForTest == objBackupDir)
                     continue;
-                }
-                var match = Regex.Match(Path.GetFileName(bkPath), "^BK(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$");
-                result.Add((bkPath, $"{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value} {match.Groups[4].Value}:{match.Groups[5].Value}:{match.Groups[6].Value}"));
+
+                var match = Regex.Match(Path.GetFileName(backupFilePath),
+                    "^BK(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$");
+                result.Add((backupFilePath,
+                    $"{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value} {match.Groups[4].Value}:{match.Groups[5].Value}:{match.Groups[6].Value}"));
             }
             return result;
         }
@@ -118,7 +118,7 @@ namespace FocusTree.IO.FileManage
         /// <param name="obj">要删除的备份对象</param>
         public static void DeleteBackup<T>(this T obj) where T : IBackupable
         {
-            var objRootDir = Path.GetDirectoryName(obj.BackupPath());
+            var objRootDir = Path.GetDirectoryName(obj.GetBackupFilePath());
             if (!Directory.Exists(objRootDir) || MessageBox.Show("是否要删除当前备份？", "提示", MessageBoxButtons.YesNo) == DialogResult.No)
             {
                 return;

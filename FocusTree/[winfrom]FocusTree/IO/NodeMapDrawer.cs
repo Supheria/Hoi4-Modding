@@ -67,12 +67,12 @@ namespace FocusTree.IO
             var g = Graphics.FromImage(canvas);
             g.Clear(Color.White);
 
-            _drawer = new(graph.FocusList.Count + 1);
-            foreach (var focus in graph.FocusList)
+            _drawer = new(graph.FocusNodes.Length + 1);
+            foreach (var focus in graph.FocusNodes)
             {
                 DrawNodeLinks(g, graph, focus);
             }
-            foreach (var focus in graph.FocusList)
+            foreach (var focus in graph.FocusNodes)
             {
                 var drawingRect = NodeDrawingRect(focus);
                 g.FillRectangle(
@@ -110,7 +110,7 @@ namespace FocusTree.IO
                 );
             return new Bitmap(size.Width, size.Height);
         }
-        private static RectangleF NodeDrawingRect(FocusData focus)
+        private static RectangleF NodeDrawingRect(FocusNode focus)
         {
             var point = focus.LatticedPoint;
             return new(
@@ -124,7 +124,7 @@ namespace FocusTree.IO
         #endregion
 
         #region ==== 绘图 ====
-        private static void DrawNodeLinks(Graphics g, FocusGraph graph, FocusData focus)
+        private static void DrawNodeLinks(Graphics g, FocusGraph graph, FocusNode focus)
         {
             var drawingRect = NodeDrawingRect(focus);
             var requires = focus.Requires;
@@ -144,7 +144,7 @@ namespace FocusTree.IO
                 }
             }
         }
-        private static void DrawNodeInfo(Graphics g, RectangleF drawingRect, FocusData focus)
+        private static void DrawNodeInfo(Graphics g, RectangleF drawingRect, FocusNode focus)
         {
             var name = focus.Name;
             var duration = $"{focus.Duration}日";
