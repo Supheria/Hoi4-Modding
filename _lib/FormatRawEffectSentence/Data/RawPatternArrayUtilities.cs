@@ -1,6 +1,6 @@
 ﻿using FormatRawEffectSentence.IO.Pattern;
 using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Text;
 
 namespace FormatRawEffectSentence.Data;
@@ -39,7 +39,8 @@ internal class RawPatternArrayUtilities
     internal static RawPattern[] LoadRawPatternArray(string filePath)
     {
 #if DEBUG
-        return new RawPatternArrayXmlSerialization().LoadFromXml(filePath) ?? new LocalRawPatternArray().Patterns;
+        return //new RawPatternArrayXmlSerialization().LoadFromXml(filePath) ?? new LocalRawPatternArray().Patterns;
+            new LocalRawPatternArray().Patterns;
 #else
          return new RawPatternArraySerialization().LoadFromXml(filePath).Source ?? LocalRawPatternArray.Patterns;
 #endif

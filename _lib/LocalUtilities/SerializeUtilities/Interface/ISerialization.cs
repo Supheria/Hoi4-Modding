@@ -1,4 +1,4 @@
-﻿namespace LocalUtilities.Interface;
+﻿namespace LocalUtilities.SerializeUtilities.Interface;
 
 public interface ISerialization<T>
 {

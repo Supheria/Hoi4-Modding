@@ -1,4 +1,4 @@
-﻿namespace LocalUtilities.Interface;
+﻿namespace LocalUtilities.SerializeUtilities.Interface;
 
 public abstract class Serialization<T> : ISerialization<T>
 {

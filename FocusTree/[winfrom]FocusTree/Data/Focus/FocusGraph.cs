@@ -3,8 +3,7 @@ using FocusTree.Graph.Lattice;
 using FocusTree.IO.Csv;
 using FocusTree.IO.FileManage;
 using FocusTree.IO.Xml;
-using LocalUtilities;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 
@@ -406,7 +405,7 @@ namespace FocusTree.Data.Focus
 
         //
         //
-        // IHistoryable
+        // IHistoriable
         //
         //
         public int HistoryIndex { get; set; } = 0;

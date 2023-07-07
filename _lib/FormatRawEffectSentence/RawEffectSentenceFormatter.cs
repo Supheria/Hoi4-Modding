@@ -1,11 +1,11 @@
 ﻿using FormatRawEffectSentence.Data;
-using FormatRawEffectSentence.InternalSign;
 using FormatRawEffectSentence.Model;
 using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.RegexUtilities;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
+using FormatRawEffectSentence.LocalSign;
 
 namespace FormatRawEffectSentence
 {
@@ -14,20 +14,14 @@ namespace FormatRawEffectSentence
     /// </summary>
     public class RawEffectSentenceFormatter
     {
-        private static string XmlFilePath => "raw effect format match patterns.xml";
+        private const string XmlFilePath = "raw effect format match patterns.xml";
 
         private static string _rawSentence = "";
 
         private static RawPattern[] _patterns = Array.Empty<RawPattern>();
 
         private record MotionCollect(Motions Motion, (Types Type, string Value) Value);
-
-        /// <summary>
-        /// 格式化器
-        /// </summary>
-        /// <param name="sentence">原始效果语句</param>
-        /// <param name="formattedList">格式化后的语句（可能有多个），默认值为 null</param>
-        /// <returns>如果格式化成功则返回true，否则返回false</returns>
+        
         public static bool Format(string sentence, out List<EffectSentence> formattedList)
         {
             _rawSentence = sentence.Trim();

@@ -1,4 +1,4 @@
-﻿namespace FormatRawEffectSentence.InternalSign;
+﻿namespace FormatRawEffectSentence.LocalSign;
 
 /// <summary>
 /// 对象类型
@@ -7,9 +7,11 @@
 public enum Types
 {
     None = 0,
-
-    #region ==== 基础 ====
-
+    //
+    //
+    // 基础
+    //
+    //
     /// <summary>
     /// 事件
     /// </summary>
@@ -78,11 +80,11 @@ public enum Types
     /// 资源
     /// </summary>
     Resource = RegionCore << 1,
-
-    #endregion
-
-    #region ==== 可用性 ====
-
+    //
+    //
+    // 可用性
+    //
+    //
     /// <summary>
     /// 可以宣战
     /// </summary>
@@ -103,6 +105,4 @@ public enum Types
     /// 可以开启决议
     /// </summary>
     AbleToStartResolution = Availability | (AbleToJoinCamp ^ Availability) << 1,
-
-    #endregion
 }

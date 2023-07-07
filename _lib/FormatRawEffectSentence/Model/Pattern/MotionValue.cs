@@ -1,4 +1,4 @@
-﻿using FormatRawEffectSentence.InternalSign;
+﻿using FormatRawEffectSentence.LocalSign;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 

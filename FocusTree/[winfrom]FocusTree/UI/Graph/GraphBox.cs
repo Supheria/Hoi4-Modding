@@ -5,7 +5,7 @@ using FocusTree.Graph.Lattice;
 using FocusTree.IO.Csv;
 using FocusTree.IO.FileManage;
 using FocusTree.IO.Xml;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.UI.Graph

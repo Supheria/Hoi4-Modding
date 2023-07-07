@@ -1,7 +1,7 @@
-﻿using LocalUtilities.Interface;
+﻿using LocalUtilities.SerializeUtilities.Interface;
 using System.Xml.Serialization;
 
-namespace LocalUtilities.XmlUtilities;
+namespace LocalUtilities.SerializeUtilities;
 
 public static class XmlIO
 {

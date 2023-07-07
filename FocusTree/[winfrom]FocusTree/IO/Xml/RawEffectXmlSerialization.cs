@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using LocalUtilities.Interface;
+using LocalUtilities.SerializeUtilities.Interface;
 
 namespace FocusTree.IO.Xml;
 

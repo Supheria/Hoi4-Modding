@@ -1,4 +1,4 @@
-﻿namespace FormatRawEffectSentence.InternalSign;
+﻿namespace FormatRawEffectSentence.LocalSign;
 
 /// <summary>
 /// 执行动作
@@ -7,17 +7,20 @@
 public enum Motions
 {
     None = 0,
-
-    #region ==== 额外动作时机：不添加此项则默认为国策完成后开始实施 ====
+    //
+    //
+    // 额外动作时机：不添加此项则默认为国策完成后开始实施
+    //
+    //
     /// <summary>
     /// 开启国策后立即实施
     /// </summary>
     Instantly = 0b1,
-
-    #endregion
-
-    #region ==== 基础 ====
-
+    //
+    //
+    // 基础
+    //
+    //
     NoneButMayChange = Instantly << 1,
     /// <summary>
     /// 触发
@@ -43,11 +46,11 @@ public enum Motions
     /// 开启
     /// </summary>
     Start = Annexed << 1,
-
-    #endregion
-
-    #region ==== 修改 ====
-
+    //
+    //
+    // 修改
+    //
+    //
     /// <summary>
     /// 加
     /// </summary>
@@ -79,7 +82,5 @@ public enum Motions
     /// <summary>
     /// 取代
     /// </summary>
-    Replace = Modify | (Bonus ^ Modify) << 1
-
-    #endregion
+    Replace = Modify | (Bonus ^ Modify) << 1,
 };

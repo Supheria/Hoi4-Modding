@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace LocalUtilities.Interface;
+namespace LocalUtilities.SerializeUtilities.Interface;
 
 public interface IXmlSerialization<T> : IXmlSerializable, ISerialization<T>
 {

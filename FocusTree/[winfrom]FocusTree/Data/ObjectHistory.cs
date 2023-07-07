@@ -19,10 +19,10 @@
         /// </summary>
         /// <returns>是否有上一个历史记录</returns>
         public static bool HasPrevHistory<T>(this T obj) where T : IHistoryable => obj.HistoryIndex > 0;
+
         /// <summary>
         /// 将当前的状态添加到历史记录（会使后续的记录失效）
         /// </summary>
-        /// <param name="graph">当前的Graph</param>
         //[Obsolete("我不确定这东西有没有Bug，看起来很玄乎")]
         public static void EnqueueHistory<T>(this T obj) where T : IHistoryable
         {
@@ -43,7 +43,7 @@
             if (obj.CurrentHistoryLength >= obj.History.Length) // 如果已在历史记录的结尾
             {
                 // 将所有历史记录向左移动一位（不删除当前位）
-                for (int i = 0; i < obj.CurrentHistoryLength - 1; i++)
+                for (var i = 0; i < obj.CurrentHistoryLength - 1; i++)
                 {
                     obj.History[i] = obj.History[i + 1];
                 }
@@ -60,10 +60,10 @@
                 return;
             }
         }
+
         /// <summary>
         /// 撤回 (已检查 HasPrevHistory())
         /// </summary>
-        /// <param name="graph">当前的Graph</param>
         public static void Undo<T>(this T obj) where T : IHistoryable
         {
             if (obj.HasPrevHistory() == false)
@@ -73,11 +73,11 @@
             obj.HistoryIndex--;
             obj.Deformat(obj.History[obj.HistoryIndex]);
         }
+
         /// <summary>
         /// 重做 (已检查 HasNextHistory())
         /// </summary>
-        /// <param name="graph">当前的Graph</param>
-        /// <exception cref="HistoryIndexOutOfRangeException">访问的历史记录越界</exception>
+        /// <exception cref="IndexOutOfRangeException">访问的历史记录越界</exception>
         public static void Redo<T>(this T obj) where T : IHistoryable
         {
             if (obj.HasNextHistory() == false)

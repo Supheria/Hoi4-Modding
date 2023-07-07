@@ -1,5 +1,5 @@
-﻿using FormatRawEffectSentence.InternalSign;
-using FormatRawEffectSentence.IO;
+﻿using FormatRawEffectSentence.IO;
+using FormatRawEffectSentence.LocalSign;
 
 namespace FormatRawEffectSentence.Model;
 

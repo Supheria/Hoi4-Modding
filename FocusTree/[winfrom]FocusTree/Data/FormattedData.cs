@@ -3,7 +3,7 @@ namespace FocusTree.Data
     public struct FormattedData
     {
         public string[] Items { get; private set; }
-        public FormattedData(params string[] data)
+        public FormattedData(params string[]? data)
         {
             Items = data ?? Array.Empty<string>();
         }
