@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NationalFocuses Name="草原流亡者">
+  <FocusNode Id="1" Name="流浪啊流浪" BeginWithStar="False" Duration="5" Description="人类复权运动失败之后，我们看似四散而逃，实则在为人类保留火种……" Ps="" LatticedPoint="0,0">
+    <RawEffects>
+      <RawEffect>触发事件“曾经的约定”</RawEffect>
+    </RawEffects>
+    <Effects>
+      <EffectSentence Motion="AfterDone, Gain" Type="(Label),(None)" Value="(争取复权生机),()">
+        <EffectSentence Motion="AfterDone, Add" Type="(Variable),(None)" Value="(投降界限|10%),()" >
+          <EffectSentence Motion="Trigger, Sub" Type="(Variable),(None)" Value="(曾经的约定),()" />
+        </EffectSentence>
+
+        <EffectSentence Motion="AfterDone, Add" Type="(Variable),(None)" Value="(战争支持度|15%),()" />
+        <EffectSentence Motion="AfterDone, Sub" Type="(Variable),(None)" Value="(科研速度|5%),()" />
+        <EffectSentence Motion="AfterDone, Sub" Type="(Variable),(None)" Value="(正当化战争目标所需时间|30%),()" />
+        <EffectSentence Motion="AfterDone, Sub" Type="(Variable),(None)" Value="(征兵法案花费|25%),()" />
+      </EffectSentence>
+    </Effects>
+  </FocusNode>
+</NationalFocuses>

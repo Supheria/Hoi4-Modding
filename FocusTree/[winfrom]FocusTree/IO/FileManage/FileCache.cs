@@ -5,12 +5,14 @@
         /// <summary>
         /// 根目录
         /// </summary>
-        static DirectoryInfo RootDirectoryInfo = Directory.CreateDirectory("cache");
+        private static readonly DirectoryInfo RootDirectoryInfo = Directory.CreateDirectory("cache");
         /// <summary>
         /// 对象根目录
         /// </summary>
-        private static string DirectoryName<T>(this T obj) where T : IFileManageable
+        private static string DirectoryName<T>(this T obj) where T : IFileManageable?
         {
+            if (obj is null)
+                return "";
             var dir = Path.Combine(RootDirectoryInfo.FullName, obj.FileManageDirName);
             Directory.CreateDirectory(dir);
             return dir;
@@ -20,23 +22,21 @@
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        /// <param name="FileNameWithoutExtension">纯文件名</param>
+        /// <param name="fileNameWithoutExtension">纯文件名</param>
         /// <returns></returns>
-        public static string GetCachePath<T>(T obj, string FileNameWithoutExtension) where T : IFileManageable
+        public static string GetCachePath<T>(this T obj, string fileNameWithoutExtension) where T : IFileManageable
         {
-            var cachePath = Path.Combine(obj.DirectoryName(), FileNameWithoutExtension);
+            var cachePath = Path.Combine(obj.DirectoryName(), fileNameWithoutExtension);
             return cachePath;
         }
         /// <summary>
         /// 删除所有缓存
         /// </summary>
-        public static void ClearCache<T>(T obj) where T : IFileManageable
+        public static void ClearCache<T>(T obj) where T : IFileManageable?
         {
             var dir = obj?.DirectoryName();
             if (Directory.Exists(dir))
-            {
                 Directory.Delete(dir, true);
-            }
         }
         /// <summary>
         /// 清空根目录

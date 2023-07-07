@@ -1,6 +1,4 @@
-﻿using FocusTree.IO;
-
-namespace FocusTree.UI
+﻿namespace FocusTree.UI.Graph
 {
     partial class GraphForm
     {
@@ -72,8 +70,9 @@ namespace FocusTree.UI
             GraphFrom_Menu_setting_backImage = new ToolStripMenuItem();
             GraphFrom_Menu_setting_backImage_show = new ToolStripMenuItem();
             GraphFrom_Menu_tool = new ToolStripMenuItem();
-            GraphFrom_Menu_tool_rawEffectFormatter = new ToolStripMenuItem();
-            GraphFrom_Menu_tool_testInfo = new ToolStripMenuItem();
+            GraphFrom_Menu_tool_testDialog = new ToolStripMenuItem();
+            GraphFrom_Menu_tool_testDialog_testInfo = new ToolStripMenuItem();
+            GraphFrom_Menu_tool_testDialog_rawEffectFormatter = new ToolStripMenuItem();
             GraphFrom_StatusStrip.SuspendLayout();
             GraphFrom_Menu.SuspendLayout();
             SuspendLayout();
@@ -365,24 +364,31 @@ namespace FocusTree.UI
             // 
             // GraphFrom_Menu_tool
             // 
-            GraphFrom_Menu_tool.DropDownItems.AddRange(new ToolStripItem[] { GraphFrom_Menu_tool_rawEffectFormatter, GraphFrom_Menu_tool_testInfo });
+            GraphFrom_Menu_tool.DropDownItems.AddRange(new ToolStripItem[] { GraphFrom_Menu_tool_testDialog });
             GraphFrom_Menu_tool.Name = "GraphFrom_Menu_tool";
             GraphFrom_Menu_tool.Size = new Size(62, 28);
             GraphFrom_Menu_tool.Text = "工具";
             // 
-            // GraphFrom_Menu_tool_rawEffectFormatter
+            // GraphFrom_Menu_tool_testDialog
             // 
-            GraphFrom_Menu_tool_rawEffectFormatter.Name = "GraphFrom_Menu_tool_rawEffectFormatter";
-            GraphFrom_Menu_tool_rawEffectFormatter.Size = new Size(362, 34);
-            GraphFrom_Menu_tool_rawEffectFormatter.Text = "原始效果语句格式化测试对话框";
-            GraphFrom_Menu_tool_rawEffectFormatter.Click += GraphFrom_Menu_tool_rawEffectFormatter_Click;
+            GraphFrom_Menu_tool_testDialog.DropDownItems.AddRange(new ToolStripItem[] { GraphFrom_Menu_tool_testDialog_testInfo, GraphFrom_Menu_tool_testDialog_rawEffectFormatter });
+            GraphFrom_Menu_tool_testDialog.Name = "GraphFrom_Menu_tool_testDialog";
+            GraphFrom_Menu_tool_testDialog.Size = new Size(270, 34);
+            GraphFrom_Menu_tool_testDialog.Text = "测试对话框";
             // 
-            // GraphFrom_Menu_tool_testInfo
+            // GraphFrom_Menu_tool_testDialog_testInfo
             // 
-            GraphFrom_Menu_tool_testInfo.Name = "GraphFrom_Menu_tool_testInfo";
-            GraphFrom_Menu_tool_testInfo.Size = new Size(362, 34);
-            GraphFrom_Menu_tool_testInfo.Text = "测试信息输出对话框";
-            GraphFrom_Menu_tool_testInfo.Click += GraphFrom_Menu_tool_testInfo_Click;
+            GraphFrom_Menu_tool_testDialog_testInfo.Name = "GraphFrom_Menu_tool_testDialog_testInfo";
+            GraphFrom_Menu_tool_testDialog_testInfo.Size = new Size(308, 34);
+            GraphFrom_Menu_tool_testDialog_testInfo.Text = "测试信息输出";
+            GraphFrom_Menu_tool_testDialog_testInfo.Click += GraphFrom_Menu_tool_testDialog_testInfo_Click;
+            // 
+            // GraphFrom_Menu_tool_testDialog_rawEffectFormatter
+            // 
+            GraphFrom_Menu_tool_testDialog_rawEffectFormatter.Name = "GraphFrom_Menu_tool_testDialog_rawEffectFormatter";
+            GraphFrom_Menu_tool_testDialog_rawEffectFormatter.Size = new Size(308, 34);
+            GraphFrom_Menu_tool_testDialog_rawEffectFormatter.Text = "原始效果语句格式化测试";
+            GraphFrom_Menu_tool_testDialog_rawEffectFormatter.Click += GraphFrom_Menu_tool_testDialog_rawEffectFormatter_Click;
             // 
             // GraphForm
             // 
@@ -448,7 +454,8 @@ namespace FocusTree.UI
         private ToolStripMenuItem GraphFrom_Menu_setting_backImage_show;
         private ToolStripMenuItem GraphFrom_Menu_file_reopen;
         private ToolStripMenuItem GraphFrom_Menu_tool;
-        private ToolStripMenuItem GraphFrom_Menu_tool_rawEffectFormatter;
-        private ToolStripMenuItem GraphFrom_Menu_tool_testInfo;
+        private ToolStripMenuItem GraphFrom_Menu_tool_testDialog;
+        private ToolStripMenuItem GraphFrom_Menu_tool_testDialog_testInfo;
+        private ToolStripMenuItem GraphFrom_Menu_tool_testDialog_rawEffectFormatter;
     }
 }

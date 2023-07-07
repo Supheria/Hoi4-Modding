@@ -1,28 +1,30 @@
 //#define DEBUG
-using FocusTree.Data.Focus;
+
 using FocusTree.Graph;
+using FocusTree.Graph.Lattice;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
+using FocusTree.IO.Xml;
+using FocusTree.Utilities.test;
+using LocalUtilities.XmlUtilities;
 using System.Diagnostics;
 using System.IO.Compression;
-using FocusTree.Utilities.test;
 
-namespace FocusTree.UI
+namespace FocusTree.UI.Graph
 {
     public partial class GraphForm : Form
     {
-        readonly GraphDisplayer Display;
-        FormWindowState LastState;
-        Stopwatch ResizeTimer = new();
+        private readonly GraphDisplay _display;
+        private readonly Stopwatch _resizeTimer = new();
         public GraphForm()
         {
-            Display = new GraphDisplayer(this);
+            _display = new GraphDisplay(this);
             InitializeComponent();
             UpdateText();
 
             Shown += GraphFrom_Shown;
 
-            foreach (var name in Display.ToolDialogs.Keys)
+            foreach (var name in _display.ToolDialogs.Keys)
             {
                 ToolStripMenuItem item = new()
                 {
@@ -62,7 +64,7 @@ namespace FocusTree.UI
             }
             GraphFrom_Openfile.InitialDirectory = Path.GetDirectoryName(GraphFrom_Openfile.FileName);
             GraphBox.Load(GraphFrom_Openfile.FileName);
-            Display.ResetDisplay();
+            _display.ResetDisplay();
             UpdateText();
         }
 
@@ -99,18 +101,15 @@ namespace FocusTree.UI
         }
         private void GraphFrom_Menu_file_backup_open_ReadBackupList(object sender, EventArgs e)
         {
-            GraphFrom_Menu_file_backup_open.Visible = false;
-            if (GraphBox.IsNull) { return; }
-
-            GraphFrom_Menu_file_backup_open.DropDownItems.Clear();
             var backupList = GraphBox.BackupList;
-            if (backupList.Count == 1) { return; }
-
+            if (backupList.Count <= 1)
+                return;
+            GraphFrom_Menu_file_backup_open.Visible = false;
+            GraphFrom_Menu_file_backup_open.DropDownItems.Clear();
             GraphFrom_Menu_file_backup_open.Visible = true;
-            ToolStripMenuItem item;
             foreach (var pair in backupList)
             {
-                item = new()
+                ToolStripMenuItem item = new()
                 {
                     Tag = pair.Item1,
                     Text = pair.Item2
@@ -129,14 +128,15 @@ namespace FocusTree.UI
                     return;
                 }
             }
-            GraphBox.Load(item.Tag.ToString());
-            Display.RefreshGraphBox();
+
+            GraphBox.Load(item.Tag.ToString() ?? "");
+            _display.RefreshGraphBox();
         }
         private void GraphFrom_Menu_file_backup_delete_Click(object sender, EventArgs e)
         {
             GraphBox.DeleteBackup();
             GraphBox.Reload();
-            Display.ResetDisplay();
+            _display.ResetDisplay();
             GraphFrom_StatusStrip_status.Text = "已删除";
         }
         private void GraphFrom_Menu_file_backup_clear_Click(object sender, EventArgs e)
@@ -176,7 +176,7 @@ namespace FocusTree.UI
         private void GraphFrom_Menu_edit_undo_Click(object sender, EventArgs e)
         {
             GraphBox.Undo();
-            Display.RefreshGraphBox();
+            _display.RefreshGraphBox();
             GraphFrom_Menu_edit_status_check();
             UpdateText();
         }
@@ -184,7 +184,7 @@ namespace FocusTree.UI
         private void GraphFrom_Menu_edit_redo_Click(object sender, EventArgs e)
         {
             GraphBox.Redo();
-            Display.RefreshGraphBox();
+            _display.RefreshGraphBox();
             GraphFrom_Menu_edit_status_check();
             UpdateText();
         }
@@ -213,11 +213,11 @@ namespace FocusTree.UI
 
         private void GraphFrom_Menu_camLoc_panorama_Click(object sender, EventArgs e)
         {
-            Display.CameraLocatePanorama();
+            _display.CameraLocatePanorama();
         }
         private void GraphFrom_Menu_camLoc_focus_Click(object sender, EventArgs e)
         {
-            Display.CameraLocateSelectedNode(true);
+            _display.CameraLocateSelectedNode(true);
         }
 
         #endregion
@@ -226,7 +226,7 @@ namespace FocusTree.UI
         private void GraphFrom_Menu_window_display_toolDialog_Click(object sender, EventArgs e)
         {
             var item = (ToolStripMenuItem)sender;
-            Display.ToolDialogs[item.Text].Show();
+            _display.ToolDialogs[item.Text].Show();
         }
 
         #endregion
@@ -235,16 +235,16 @@ namespace FocusTree.UI
 
         private void GraphFrom_Menu_graph_saveas_Click(object sender, EventArgs e)
         {
-            NodeMapDrawer.SaveasImage(GraphBox.Graph, GraphBox.FilePath);
+            NodeMapDrawer.SaveImage(GraphBox.Graph, GraphBox.FilePath);
         }
         private void GraphFrom_Menu_graph_reorderIds_Click(object sender, EventArgs e)
         {
-            GraphBox.ReorderFocusNodesID();
+            GraphBox.ReorderFocusNodesId();
         }
         private void GraphFrom_Menu_graph_autoLayout_Click(object sender, EventArgs e)
         {
             GraphBox.AutoLayoutAllFocusNodes();
-            Display.RefreshGraphBox();
+            _display.RefreshGraphBox();
         }
 
         #endregion
@@ -259,19 +259,20 @@ namespace FocusTree.UI
             if (fileNames.Length == 0) { return; }
             FolderBrowserDialog folderBrowser = new()
             {
-                InitialDirectory = Path.Combine(Path.GetDirectoryName(fileNames[0]), "batch")
+                InitialDirectory = Path.Combine(Path.GetDirectoryName(fileNames[0]) ?? "", "batch")
             };
             if (folderBrowser.ShowDialog() == DialogResult.Cancel) { return; }
             GraphFrom_ProgressBar.Maximum = fileNames.Length;
             GraphFrom_ProgressBar.Value = 0;
-            int suc = 0;
+            var suc = 0;
             foreach (var fileName in fileNames)
             {
                 try
                 {
-                    var graph = XmlIO.LoadFromXml<FocusGraph>(fileName);
-                    graph.ReorderNodeIds();
-                    XmlIO.SaveToXml(graph, Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
+                    var graph = new FocusXmlGraphSerialization().LoadFromXml(fileName);
+                    graph?.ReorderNodeIds();
+                    graph?.SaveToXml(Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)),
+                        new FocusXmlGraphSerialization());
                     suc++;
                     GraphFrom_ProgressBar.PerformStep();
                 }
@@ -288,22 +289,23 @@ namespace FocusTree.UI
             GraphFrom_StatusStrip_status.Text = "正在生成图片";
             GraphFrom_Openfile_batch.Title = "批量生成图片";
             var fileNames = GetBatchPath();
-            if (fileNames.Length == 0) { return; }
+            if (fileNames.Length == 0)
+                return;
             FolderBrowserDialog folderBrowser = new()
             {
-                InitialDirectory = Path.Combine(Path.GetDirectoryName(fileNames[0]))
+                InitialDirectory = Path.GetDirectoryName(fileNames[0]),
             };
             if (folderBrowser.ShowDialog() == DialogResult.Cancel) { return; }
             GraphFrom_ProgressBar.Maximum = fileNames.Length;
             GraphFrom_ProgressBar.Value = 0;
-            int suc = 0;
+            var suc = 0;
             foreach (var fileName in fileNames)
             {
                 try
                 {
-                    var graph = XmlIO.LoadFromXml<FocusGraph>(fileName);
+                    var graph = new FocusXmlGraphSerialization().LoadFromXml(fileName);
                     var savePath = Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName));
-                    NodeMapDrawer.SaveasImage(graph, savePath);
+                    NodeMapDrawer.SaveImage(graph, savePath);
                     suc++;
                     GraphFrom_ProgressBar.PerformStep();
                 }
@@ -342,8 +344,8 @@ namespace FocusTree.UI
                 GraphFrom_Menu_setting_backImage_show.CheckState = CheckState.Checked;
                 Background.Show = true;
             }
-            Background.DrawNew(Display.Image);
-            Display.Refresh();
+            Background.DrawNew(_display.Image);
+            _display.Refresh();
         }
 
         #endregion
@@ -361,7 +363,7 @@ namespace FocusTree.UI
         private void UpdateText()
         {
             GraphFrom_ProgressBar.Value = 0;
-            if (GraphBox.IsNull)
+            if (GraphBox.Graph is null)
             {
                 Text = "FocusTree";
                 GraphFrom_StatusStrip_status.Text = "等待打开文件";
@@ -388,15 +390,15 @@ namespace FocusTree.UI
         }
         private void GraphFrom_Shown(object sender, EventArgs e)
         {
-            Size size = Background.Size;
+            var size = Background.Size;
             Size = new(
                 size.Width + Width - ClientRectangle.Width,
                 size.Height + Height - ClientRectangle.Height
                 );
-            ResizeGraphDisplayer();
+            ResizeGraphDisplay();
             SizeChanged += GraphFrom_SizeChanged;
             ResizeEnd += GraphForm_ResizeEnd;
-            ResizeTimer.Start();
+            _resizeTimer.Start();
 
 #if DEBUG
             //GraphBox.Load("C:\\Users\\Non_E\\Documents\\GitHub\\FocusTree\\FocusTree\\program\\FILES\\神佑村落.xml");
@@ -405,27 +407,27 @@ namespace FocusTree.UI
         }
         private void GraphForm_ResizeEnd(object sender, EventArgs e)
         {
-            Background.DrawNew(Display.Image);
-            Display.Refresh();
+            Background.DrawNew(_display.Image);
+            _display.Refresh();
         }
         private void GraphFrom_SizeChanged(object sender, EventArgs e)
         {
-            ResizeGraphDisplayer();
-            if (ResizeTimer.ElapsedMilliseconds > 300)
+            ResizeGraphDisplay();
+            if (_resizeTimer.ElapsedMilliseconds > 300)
             {
-                Background.DrawNew(Display.Image);
-                Display.Refresh();
-                Lattice.DrawRect = Display.LatticeBound;
+                Background.DrawNew(_display.Image);
+                _display.Refresh();
+                LatticeGrid.DrawRect = _display.LatticeBound;
             }
-            ResizeTimer.Restart();
+            _resizeTimer.Restart();
         }
-        public void ResizeGraphDisplayer()
+        public void ResizeGraphDisplay()
         {
             if (Math.Min(ClientRectangle.Width, ClientRectangle.Height) <= 0)
             {
                 return;
             }
-            Display.Bounds = new(
+            _display.Bounds = new(
                 ClientRectangle.Left,
                 ClientRectangle.Top + GraphFrom_Menu.Height,
                 ClientRectangle.Width,
@@ -434,20 +436,20 @@ namespace FocusTree.UI
         }
         private void GraphFrom_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (GraphBox.IsNull || GraphBox.Edited == false)
+            if (GraphBox.Edited is false)
             {
                 FileCache.Clear();
                 return;
             }
             var result = MessageBox.Show("是否保存当前编辑？", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-            if (result == DialogResult.Cancel)
+            switch (result)
             {
-                e.Cancel = true;
-                return;
-            }
-            if (result == DialogResult.Yes)
-            {
-                GraphBox.Save();
+                case DialogResult.Cancel:
+                    e.Cancel = true;
+                    break;
+                case DialogResult.Yes:
+                    GraphBox.Save();
+                    break;
             }
         }
 
@@ -456,17 +458,19 @@ namespace FocusTree.UI
         private void GraphFrom_Menu_file_reopen_Click(object sender, EventArgs e)
         {
             GraphBox.Reload();
+            _display.ResetDisplay();
+            UpdateText();
         }
 
-        private void GraphFrom_Menu_tool_rawEffectFormatter_Click(object sender, EventArgs e)
+        private void GraphFrom_Menu_tool_testDialog_testInfo_Click(object sender, EventArgs e)
+        {
+            Program.TestInfo.Show();
+        }
+
+        private void GraphFrom_Menu_tool_testDialog_rawEffectFormatter_Click(object sender, EventArgs e)
         {
             var test = new TestFormatter();
             test.Show();
-        }
-
-        private void GraphFrom_Menu_tool_testInfo_Click(object sender, EventArgs e)
-        {
-            Program.TestInfo.Show();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Text;
-using FocusTree.Data.Hoi4Helper;
+﻿using FormatRawEffectSentence;
+using System.Text;
 
 namespace FocusTree.Utilities.test
 {
@@ -38,7 +38,7 @@ namespace FocusTree.Utilities.test
         private void Input_TextChanged(object sender, EventArgs e)
         {
             Output.Text = "";
-            if (!FormatRawEffectSentence.Formatter(Input.Text, out var formatted))
+            if (!RawEffectSentenceFormatter.Format(Input.Text, out var formatted))
                 return;
             var sb = new StringBuilder();
             foreach (var sentence in formatted)

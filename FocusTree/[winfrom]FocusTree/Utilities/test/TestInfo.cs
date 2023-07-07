@@ -1,12 +1,14 @@
 ﻿using System.Text;
-using FocusTree.Data.Focus;
-using FocusTree.IO;
 
 namespace FocusTree.Utilities.test
 {
     public partial class TestInfo : Form
     {
-        TestFormatter testFormatter = new();
+        private bool DoWrap
+        {
+            get => ToolStripMenuItemLook_Wrap.Checked;
+            set => ToolStripMenuItemLook_Wrap.Checked = value;
+        }
 
         HashSet<string> _infoText = new();
         public int Total = 0;
@@ -26,7 +28,7 @@ namespace FocusTree.Utilities.test
             Closing += (sender, args) =>
             {
                 Hide();
-                renew();
+                Renew();
                 args.Cancel = true;
             };
             //TopMost = true;
@@ -52,7 +54,7 @@ namespace FocusTree.Utilities.test
             Good = 0;
         }
 
-        public void renew()
+        public void Renew()
         {
             _infoText = new();
             Total = 0;
@@ -61,25 +63,23 @@ namespace FocusTree.Utilities.test
             Good = 0;
         }
 
-        private void ToolStripMenuItemOpen_Click(object sender, EventArgs e)
+        private void ToolStripMenuItemLook_Wrap_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFile = new();
-            openFile.Filter = "所有文件|*.*";
-            if (openFile.ShowDialog() == DialogResult.OK)
+            if (DoWrap)
             {
-                Initialize();
-                Text = openFile.FileName;
-                var g = XmlIO.LoadFromXml<FocusGraph>(openFile.FileName);
-                Info.Text += "\n\n=====Successfull=====\n";
-                foreach (var focus in g.FocusList)
-                {
-                    Info.Text += focus.Id + ". ";
-                    foreach (var effect in g[focus.Id].RawEffects)
-                    {
-                        Info.Text += effect.ToString() + "\n";
-                    }
-                }
+                DoWrap = true;
+                Info.WordWrap = true;
             }
+            else
+            {
+                DoWrap = false;
+                Info.WordWrap = false;
+            }
+        }
+
+        private void ToolStripMenuItemLook_Clear_Click(object sender, EventArgs e)
+        {
+            Info.Text = "";
         }
     }
 }

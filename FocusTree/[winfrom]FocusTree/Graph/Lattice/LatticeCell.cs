@@ -1,9 +1,11 @@
-﻿namespace FocusTree.Graph
+﻿using FocusTree.Graph.Lattice;
+
+namespace FocusTree.Graph
 {
     /// <summary>
     /// 格元
     /// </summary>
-    public struct LatticeCell
+    public class LatticeCell
     {
         #region ==== 设置宽高和间距 ====
 
@@ -12,10 +14,11 @@
         /// </summary>
         public static int Length
         {
-            get => sideLength;
-            set => sideLength = value < LengthMin ? LengthMin : value > LengthMax ? LengthMax : value;
+            get => _sideLength;
+            set => _sideLength = value < LengthMin ? LengthMin : value > LengthMax ? LengthMax : value;
         }
-        static int sideLength = 30;
+
+        private static int _sideLength = 30;
         /// <summary>
         /// 最小尺寸
         /// </summary>
@@ -45,10 +48,11 @@
         /// </summary>
         public static PointF NodePaddingZoomFactor
         {
-            get => nodePaddingZoomFactor;
-            set => nodePaddingZoomFactor = new(value.X < 0.3f ? 0.3f : value.X > 0.7f ? 0.7f : value.X, value.Y < 0.3f ? 0.3f : value.Y > 0.7f ? 0.7f : value.Y);
+            get => _nodePaddingZoomFactor;
+            set => _nodePaddingZoomFactor = new(value.X < 0.3f ? 0.3f : value.X > 0.7f ? 0.7f : value.X, value.Y < 0.3f ? 0.3f : value.Y > 0.7f ? 0.7f : value.Y);
         }
-        static PointF nodePaddingZoomFactor = new(0.3f, 0.485f);
+
+        private static PointF _nodePaddingZoomFactor = new(0.3f, 0.485f);
 
         #endregion
 
@@ -69,11 +73,11 @@
         /// <summary>
         /// 格元真实左边界
         /// </summary>
-        public int RealLeft => Length * LatticedLeft + Lattice.OriginLeft;
+        public int RealLeft => Length * LatticedLeft + LatticeGrid.OriginLeft;
         /// <summary>
         /// 格元真实上边界
         /// </summary>
-        public int RealTop => Length * LatticedTop + Lattice.OriginTop;
+        public int RealTop => Length * LatticedTop + LatticeGrid.OriginTop;
         /// <summary>
         /// 节点真实左边界
         /// </summary>
@@ -99,11 +103,10 @@
             LatticedLeft = 0;
             LatticedTop = 0;
         }
+
         /// <summary>
         /// 使用已有的栅格化坐标创建
         /// </summary>
-        /// <param name="col"></param>
-        /// <param name="row"></param>
         public LatticeCell(LatticedPoint point)
         {
             LatticedLeft = point.Col;
@@ -143,9 +146,8 @@
         /// <summary>
         /// 格元各个部分的真实坐标矩形
         /// </summary>
-        public Dictionary<Parts, Rectangle> CellPartsRealRect
-        {
-            get => new()
+        public Dictionary<Parts, Rectangle> CellPartsRealRect =>
+            new()
             {
                 [Parts.Leave] = Rectangle.Empty,
                 [Parts.Left] = new(RealLeft, NodeRealTop, Length - NodeWidth, Length - NodePaddingHeight),
@@ -153,7 +155,7 @@
                 [Parts.LeftTop] = new(RealLeft, RealTop, Length - NodeWidth, Length - NodeHeight),
                 [Parts.Node] = NodeRealRect
             };
-        }
+
         /// <summary>
         /// 获取坐标在格元上所处的部分
         /// </summary>
@@ -161,12 +163,11 @@
         /// <returns></returns>
         public Parts GetPartPointOn(Point point)
         {
-            foreach (var pair in CellPartsRealRect)
+            foreach (var (key, rect) in CellPartsRealRect)
             {
-                var rect = pair.Value;
                 if (rect.Contains(point))
                 {
-                    return pair.Key;
+                    return key;
                 }
             }
             return Parts.Leave;

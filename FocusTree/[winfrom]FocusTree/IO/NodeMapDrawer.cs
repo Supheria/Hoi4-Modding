@@ -1,5 +1,4 @@
 ﻿using FocusTree.Data.Focus;
-using FocusTree.UI;
 using System.Numerics;
 
 namespace FocusTree.IO
@@ -59,20 +58,21 @@ namespace FocusTree.IO
 
         #region ==== 输出图片 ====
 
-        static NodeMapDrawer Drawer;
-        public static void SaveasImage(FocusGraph Graph, string toSavePath)
+        private static NodeMapDrawer? _drawer;
+        public static void SaveImage(FocusGraph? graph, string toSavePath)
         {
-            if (Graph == null && GraphBox.IsNull) { return; }
-            var canvas = GetCanvas(Graph);
-            Graphics g = Graphics.FromImage(canvas);
+            if (graph is null)
+                return;
+            var canvas = GetCanvas(graph);
+            var g = Graphics.FromImage(canvas);
             g.Clear(Color.White);
 
-            Drawer = new(Graph.FocusList.Count + 1);
-            foreach (var focus in Graph.FocusList)
+            _drawer = new(graph.FocusNodes.Length + 1);
+            foreach (var focus in graph.FocusNodes)
             {
-                DrawNodeLinks(g, Graph, focus);
+                DrawNodeLinks(g, graph, focus);
             }
-            foreach (var focus in Graph.FocusList)
+            foreach (var focus in graph.FocusNodes)
             {
                 var drawingRect = NodeDrawingRect(focus);
                 g.FillRectangle(
@@ -80,8 +80,8 @@ namespace FocusTree.IO
                     drawingRect
                     );
                 DrawNodeInfo(g, drawingRect, focus);
-                Drawer.StepNext();
-                Drawer.Text = $"{Graph.Name}.jpg: {(int)(Drawer.Percent)}%";
+                _drawer.StepNext();
+                _drawer.Text = $"{graph.Name}.jpg: {(int)_drawer.Percent}%";
             }
             g.Flush();
             g.Dispose();
@@ -89,19 +89,20 @@ namespace FocusTree.IO
             toSavePath = Path.ChangeExtension(toSavePath, ".jpg");
             canvas.Save(toSavePath);
             canvas.Dispose();
-            Drawer.Close();
+            _drawer.Close();
         }
 
         #endregion
 
         #region ==== 绘图信息 ====
 
-        static SizeF NodeSize = new(600f, 666f);
-        static Vector2 ScalingUnit { get { return new(NodeSize.Width + 10f, NodeSize.Height + 80f); } }
-        static float Border = 1000f;
-        private static Image GetCanvas(FocusGraph Graph)
+        private static readonly SizeF NodeSize = new(600f, 666f);
+        private static Vector2 ScalingUnit => new(NodeSize.Width + 10f, NodeSize.Height + 80f);
+        private const float Border = 1000f;
+
+        private static Image GetCanvas(FocusGraph graph)
         {
-            var rect = Graph.GetMetaRect();
+            var rect = graph.GetMetaRect();
             Point center = new(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
             var size = new Size(
                 (int)(center.X * ScalingUnit.X + Border * 2),
@@ -109,7 +110,7 @@ namespace FocusTree.IO
                 );
             return new Bitmap(size.Width, size.Height);
         }
-        private static RectangleF NodeDrawingRect(FocusData focus)
+        private static RectangleF NodeDrawingRect(FocusNode focus)
         {
             var point = focus.LatticedPoint;
             return new(
@@ -123,20 +124,15 @@ namespace FocusTree.IO
         #endregion
 
         #region ==== 绘图 ====
-        private static void DrawNodeLinks(Graphics g, FocusGraph Graph, FocusData focus)
+        private static void DrawNodeLinks(Graphics g, FocusGraph graph, FocusNode focus)
         {
             var drawingRect = NodeDrawingRect(focus);
             var requires = focus.Requires;
-            // 对于根节点，requires 为 null
-            if (requires == null)
-            {
-                return;
-            }
             foreach (var requireGroup in requires)
             {
                 foreach (var require in requireGroup)
                 {
-                    var todrawingRect = NodeDrawingRect(Graph[require]);
+                    var todrawingRect = NodeDrawingRect(graph[require]);
 
                     var startLoc = new Point((int)(drawingRect.X + drawingRect.Width / 2), (int)(drawingRect.Y + drawingRect.Height / 2)); // x -> 中间, y -> 下方
                     var endLoc = new Point((int)(todrawingRect.X + todrawingRect.Width / 2), (int)(todrawingRect.Y + todrawingRect.Height / 2)); // x -> 中间, y -> 上方
@@ -148,7 +144,7 @@ namespace FocusTree.IO
                 }
             }
         }
-        private static void DrawNodeInfo(Graphics g, RectangleF drawingRect, FocusData focus)
+        private static void DrawNodeInfo(Graphics g, RectangleF drawingRect, FocusNode focus)
         {
             var name = focus.Name;
             var duration = $"{focus.Duration}日";

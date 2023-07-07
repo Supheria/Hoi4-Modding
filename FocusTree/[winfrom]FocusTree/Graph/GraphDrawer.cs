@@ -1,5 +1,6 @@
 #define PointBmp
 using FocusTree.Data.Focus;
+using FocusTree.Graph.Lattice;
 
 namespace FocusTree.Graph
 {
@@ -71,11 +72,11 @@ namespace FocusTree.Graph
         /// </summary>
         /// <param name="image"></param>
         /// <param name="focus"></param>
-        public static void DrawFocusNodeNormal(Bitmap image, FocusData focus)
+        public static void DrawFocusNodeNormal(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
             var nodeRect = cell.NodeRealRect;
-            if (!Lattice.RectWithin(nodeRect, out nodeRect)) { return; }
+            if (!LatticeGrid.RectWithin(nodeRect, out nodeRect)) { return; }
             if (LatticeCell.Length < ShowNodeNameCellLength)
             {
                 DrawFocusNode(image, nodeRect, null);
@@ -87,11 +88,11 @@ namespace FocusTree.Graph
         /// </summary>
         /// <param name="image"></param>
         /// <param name="focus"></param>
-        public static void DrawFocusNodeSelected(Bitmap image, FocusData focus)
+        public static void DrawFocusNodeSelected(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
             var nodeRect = cell.NodeRealRect;
-            if (!Lattice.RectWithin(nodeRect, out nodeRect)) { return; }
+            if (!LatticeGrid.RectWithin(nodeRect, out nodeRect)) { return; }
             if (LatticeCell.Length < ShowNodeNameCellLength)
             {
                 DrawFocusNode(image, nodeRect, FocusNodeBG_Selected);
@@ -282,7 +283,7 @@ namespace FocusTree.Graph
             if (p1.Y == p2.Y)
             {
                 Rectangle lineRect = new(Math.Min(p1.X, p2.X), p1.Y - halfLineWidth, Math.Abs(p1.X - p2.X) + halfLineWidth, RequireLineWidth);
-                if (Lattice.RectWithin(lineRect, out lineRect))
+                if (LatticeGrid.RectWithin(lineRect, out lineRect))
                 {
                     // top & bottom
                     var bottom = lineRect.Bottom;
@@ -297,7 +298,7 @@ namespace FocusTree.Graph
             else
             {
                 Rectangle lineRect = new(p1.X - halfLineWidth, Math.Min(p1.Y, p2.Y), RequireLineWidth, Math.Abs(p1.Y - p2.Y) + halfLineWidth);
-                if (Lattice.RectWithin(lineRect, out lineRect))
+                if (LatticeGrid.RectWithin(lineRect, out lineRect))
                 {
                     // left & right
                     var right = lineRect.Right;
@@ -327,7 +328,7 @@ namespace FocusTree.Graph
         {
             LatticeCell cell = new(point);
             if (!CellSelectedPartsBG.TryGetValue(cellPart, out var shading)) { return; }
-            if (!Lattice.RectWithin(cell.CellPartsRealRect[cellPart], out var rect)) { return; }
+            if (!LatticeGrid.RectWithin(cell.CellPartsRealRect[cellPart], out var rect)) { return; }
             PointBitmap pImage = new(image);
             pImage.LockBits();
             PointBitmap pBack = new(Background.BackImage);
