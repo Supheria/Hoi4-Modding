@@ -2,8 +2,10 @@
 using FocusTree.Data.Focus;
 using FocusTree.Graph;
 using FocusTree.Graph.Lattice;
-using FocusTree.IO;
+using FocusTree.IO.Csv;
 using FocusTree.IO.FileManage;
+using FocusTree.IO.Xml;
+using LocalUtilities.XmlUtilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.UI.Graph
@@ -64,12 +66,12 @@ namespace FocusTree.UI.Graph
         /// <summary>
         /// 元图的国策列表
         /// </summary>
-        public static List<FocusData> FocusList => Graph is null ? new() : Graph.FocusList;
+        public static FocusNode[] FocusList => Graph is null ? Array.Empty<FocusNode>() : Graph.FocusNodes;
 
         /// <summary>
         /// 元图节点数量
         /// </summary>
-        public static int NodeCount => Graph is null ? 0 : Graph.FocusList.Count;
+        public static int NodeCount => Graph is null ? 0 : Graph.FocusNodes.Length;
         /// <summary>
         /// 元图分支数量
         /// </summary>
@@ -94,7 +96,7 @@ namespace FocusTree.UI.Graph
             if (!ReadOnly)
                 FilePath = filePath;
             FileCache.ClearCache(Graph);
-            if (Path.GetExtension(filePath).ToLower() is ".csv") 
+            if (Path.GetExtension(filePath).ToLower() is ".csv")
                 try
                 {
                     Graph = CsvIO.LoadFromCsv(filePath);
@@ -106,7 +108,7 @@ namespace FocusTree.UI.Graph
                     Program.TestInfo.Show();
                 }
             else
-                Graph = XmlIO.LoadFromXml<FocusGraph>(filePath);
+                Graph = new FocusXmlGraphSerialization().LoadFromXml(filePath);
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -131,7 +133,7 @@ namespace FocusTree.UI.Graph
                     Program.TestInfo.Show();
                 }
             else
-                Graph = XmlIO.LoadFromXml<FocusGraph>(FilePath);
+                Graph = new FocusXmlGraphSerialization().LoadFromXml(FilePath);
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -148,8 +150,8 @@ namespace FocusTree.UI.Graph
                 return;
             }
             ReadOnly = false;
-            FileBackup.Backup<FocusGraph>(FilePath);
-            XmlIO.SaveToXml(Graph, FilePath);
+            Graph.Backup(FilePath);
+            Graph.SaveToXml(FilePath, new FocusXmlGraphSerialization());
             Graph.UpdateLatest();
         }
         /// <summary>
@@ -167,7 +169,7 @@ namespace FocusTree.UI.Graph
             }
             ReadOnly = false;
             FileCache.ClearCache(Graph);
-            XmlIO.SaveToXml(Graph, filePath);
+            Graph.SaveToXml(filePath, new FocusXmlGraphSerialization());
             Graph?.NewHistory();
             FilePath = filePath;
             Program.TestInfo.Renew();
@@ -186,18 +188,18 @@ namespace FocusTree.UI.Graph
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static FocusData GetFocus(int id) => Graph?[id] ?? new();
+        public static FocusNode GetFocus(int id) => Graph?[id] ?? new();
         /// <summary>
         /// 修改元图国策（根据国策数据内的 ID 值索引）
         /// </summary>
         /// <param name="focus"></param>
-        public static void SetFocus(FocusData focus)
+        public static void SetFocus(FocusNode focus)
         {
             if (Graph == null) { return; }
             Graph[focus.Id] = focus;
             Graph.EnqueueHistory();
         }
-        public static void RemoveFocusNode(FocusData focus)
+        public static void RemoveFocusNode(FocusNode focus)
         {
             Graph?.RemoveNode(focus.Id);
             Graph?.EnqueueHistory();
@@ -229,7 +231,7 @@ namespace FocusTree.UI.Graph
         /// 坐标是否处于任何国策节点的绘图区域中
         /// </summary>
         /// <returns>坐标所处于的节点id，若没有返回null</returns>
-        public static bool PointInAnyFocusNode(Point point, [NotNullWhen(true)] out FocusData? focus)
+        public static bool PointInAnyFocusNode(Point point, [NotNullWhen(true)] out FocusNode? focus)
         {
             focus = null;
             if (Graph == null)

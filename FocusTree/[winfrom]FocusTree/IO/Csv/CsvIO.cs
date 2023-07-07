@@ -1,7 +1,7 @@
 ﻿using CSVFile;
 using FocusTree.Data.Focus;
 
-namespace FocusTree.IO
+namespace FocusTree.IO.Csv
 {
     internal class CsvIO
     {
@@ -16,7 +16,7 @@ namespace FocusTree.IO
             {
                 var nodes = new List<CsvFocusData>();
                 ReadGraphFromCsv(path, nodes);
-                return new(path, nodes);
+                return new(Path.GetFileNameWithoutExtension(path), nodes);
             }
             catch (Exception ex)
             {

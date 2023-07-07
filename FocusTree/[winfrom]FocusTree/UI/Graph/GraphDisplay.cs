@@ -41,7 +41,7 @@ namespace FocusTree.UI.Graph
         /// <summary>
         /// 已选中的节点
         /// </summary>
-        public FocusData? SelectedNode
+        public FocusNode? SelectedNode
         {
             get => _selectedNode;
             private set
@@ -51,11 +51,11 @@ namespace FocusTree.UI.Graph
             }
         }
 
-        private FocusData? _selectedNode;
+        private FocusNode? _selectedNode;
         /// <summary>
         /// 预选中的节点
         /// </summary>
-        private FocusData? _prevSelectNode;
+        private FocusNode? _prevSelectNode;
         /// <summary>
         /// 图像拖动指示器
         /// </summary>
@@ -295,7 +295,7 @@ namespace FocusTree.UI.Graph
             }
             if (GraphBox.ReadOnly && MessageBox.Show("[202303052340]是否恢复备份？", "提示", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                FileBackup.Backup<FocusGraph>(GraphBox.FilePath);
+                GraphBox.Graph?.Backup(GraphBox.FilePath);
                 GraphBox.Save();
                 RefreshGraphBox();
                 Parent.UpdateText("恢复备份");
@@ -344,7 +344,7 @@ namespace FocusTree.UI.Graph
         /// </summary>
         LatticeCell.Parts LastCellPart = LatticeCell.Parts.Leave;
         LatticedPoint LatticedPointCursorOn;
-        FocusData FocusNodeToDrag;
+        FocusNode FocusNodeToDrag;
         Rectangle LastPartRealRect;
         bool FirstDrag = true;
         private void DragNode(Point newPoint)
