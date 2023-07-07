@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\_lib\LocalUtilities\LocalUtilities.csproj" />
+    <ProjectReference Include="..\LocalUtilities\LocalUtilities.csproj" />
   </ItemGroup>
 
 </Project>

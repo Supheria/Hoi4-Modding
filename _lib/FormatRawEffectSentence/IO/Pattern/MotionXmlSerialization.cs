@@ -1,11 +1,11 @@
-﻿using FormatRawEffectSentence.Model.Pattern;
+﻿using FormatRawEffectSentence.InternalSign;
+using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.GeneralSerialization;
 using LocalUtilities.Interface;
 using LocalUtilities.XmlUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using FormatRawEffectSentence.InternalSign;
 
 namespace FormatRawEffectSentence.IO.Pattern;
 

@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\FormatRawEffectSentence\FormatRawEffectSentence.csproj" />
+    <ProjectReference Include="..\..\_lib\FormatRawEffectSentence\FormatRawEffectSentence.csproj" />
     <ProjectReference Include="..\..\_lib\LocalUtilities\LocalUtilities.csproj" />
   </ItemGroup>
 

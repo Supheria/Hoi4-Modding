@@ -55,7 +55,7 @@
         <ProjectCapability Include="Msix" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\..\Hoi4 Script Parser\Parser\Parser.csproj" />
+      <ProjectReference Include="..\..\_lib\Hoi4 Script Parser\Parser\Parser.csproj" />
     </ItemGroup>
     <ItemGroup>
       <Page Update="MainGrid.xaml">

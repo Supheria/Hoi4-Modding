@@ -1,12 +1,12 @@
 ﻿using FocusTree.Data.Focus;
 using FocusTree.Graph.Lattice;
 using FormatRawEffectSentence.IO;
+using LocalUtilities.GeneralSerialization;
 using LocalUtilities.Interface;
 using LocalUtilities.XmlUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using LocalUtilities.GeneralSerialization;
 
 namespace FocusTree.IO;
 
