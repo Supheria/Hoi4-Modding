@@ -1,9 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+﻿using LocalUtilities.Interface;
+using LocalUtilities.RegexUtilities;
 using System.Xml;
 using System.Xml.Serialization;
-using LocalUtilities.Interface;
-using LocalUtilities.RegexUtilities;
 
 namespace LocalUtilities.XmlUtilities;
 
@@ -24,74 +22,62 @@ public static class XmlReadTool
         ? Array.Empty<string>()
         : str.Split(XmlGeneralMark.ArraySplitter).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="collection"></param>
-    /// <param name="reader"></param>
-    /// <param name="collectionName"></param>
-    /// <param name="itemSerialization"></param>
-    public static void ReadXmlCollection<T>(this ICollection<T> collection, XmlReader reader, string collectionName, IXmlSerialization<T> itemSerialization)
+    public static void ReadXmlCollection<T>(this ICollection<T> collection, XmlReader reader, string collectionName,
+        IXmlSerialization<T> itemSerialization)
     {
         // 子节点探针
-        if (reader.ReadToDescendant(itemSerialization.LocalName) is false)
+        if (reader.ReadToDescendant(itemSerialization.LocalRootName) is false)
             return;
         do
         {
             if (reader.Name == collectionName && reader.NodeType is XmlNodeType.EndElement)
                 return;
-            if (reader.Name != itemSerialization.LocalName || reader.NodeType is not XmlNodeType.Element) 
+            if (reader.Name != itemSerialization.LocalRootName || reader.NodeType is not XmlNodeType.Element)
                 continue;
-            if (reader.Deserialize(ref itemSerialization))
-                collection.Add(itemSerialization.Source);
+            var item = itemSerialization.Deserialize(reader);
+            if (item is null)
+                return;
+            collection.Add(item);
         } while (reader.Read());
-        throw new($"读取 {itemSerialization.LocalName} 时未能找到结束标签");
+        throw new($"读取 {itemSerialization.LocalRootName} 时未能找到结束标签");
     }
 
-    public static bool Deserialize<T>(this XmlReader reader, ref T obj) where T : IXmlSerializable
+    public static void ReadXmlCollection<TKey, TValue>(this IDictionary<TKey, TValue> collection, XmlReader reader,
+        string collectionName, IXmlSerialization<KeyValuePair<TKey, TValue>> itemSerialization)
     {
-        XmlSerializer serializer = new(obj.GetType());
-        if (serializer.Deserialize(reader) is not T o) 
-            return false;
-        obj = o;
-        return true;
+        // 子节点探针
+        if (reader.ReadToDescendant(itemSerialization.LocalRootName) is false)
+            return;
+        do
+        {
+            if (reader.Name == collectionName && reader.NodeType is XmlNodeType.EndElement)
+                return;
+            if (reader.Name != itemSerialization.LocalRootName || reader.NodeType is not XmlNodeType.Element)
+                continue;
+            var item = itemSerialization.Deserialize(reader);
+            if (item.Key is not null)
+                collection[item.Key] = item.Value;
+        } while (reader.Read());
+        throw new($"读取 {itemSerialization.LocalRootName} 时未能找到结束标签");
     }
 
-    //public static void ReadCollection<TKey, TValue>(XmlReader reader, Dictionary<TKey, TValue> collection, string collectionName,
-    //    string itemName, Func<XmlReader, (TKey, TValue)> addItem) where TKey : notnull
+    public static T? Deserialize<T>(this IXmlSerialization<T> serialization, XmlReader reader)
+    {
+        XmlSerializer serializer = new(serialization.GetType());
+        var o = serializer.Deserialize(reader);
+        serialization = o as IXmlSerialization<T> ?? serialization;
+        return serialization.Source;
+    }
 
-    //{
-    //    // 子节点探针
-    //    if (reader.ReadToDescendant(itemName) is false)
-    //        return;
-    //    do
-    //    {
-    //        if (reader.Name == collectionName && reader.NodeType is XmlNodeType.EndElement)
-    //            return;
-    //        if (reader.Name != itemName || reader.NodeType is not XmlNodeType.Element)
-    //            continue;
-    //        var (key, value) = addItem(reader);
-    //        collection[key] = value;
-    //    } while (reader.Read());
-    //    throw new($"读取 {collectionName} 时未能找到结束标签");
-    //}
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="name"></param>
-    /// <returns>Enum.Parse fail will return null</returns>
-    public static object? GetEnumValue<T>(string? name)
+    public static T? GetEnumValue<T>(string? name) where T : Enum
     {
         try
         {
-            return name is null ? null : Enum.Parse(typeof(T), name);
+            return name is null ? default : (T)Enum.Parse(typeof(T), name);
         }
         catch
         {
-            return null;
+            return default;
         }
     }
 
@@ -99,7 +85,7 @@ public static class XmlReadTool
     /// 
     /// </summary>
     /// <param name="name"></param>
-    /// <returns>int.Parse fail will return -1</returns>
+    /// <returns>int.Parse fail will return null</returns>
     public static int? GetIntValue(string? name)
     {
         try

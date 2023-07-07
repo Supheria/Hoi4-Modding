@@ -1,5 +1,4 @@
-﻿using System.Text;
-using FormatRawEffectSentence.InternalSign;
+﻿using FormatRawEffectSentence.InternalSign;
 using FormatRawEffectSentence.Model.Pattern;
 using static FormatRawEffectSentence.Data.RawPatternArrayUtilities;
 
@@ -66,7 +65,6 @@ internal class LocalRawPatternArray
                 PartIndexOrder =
                 {
                     0,
-                    1,
                 }
             },
         },

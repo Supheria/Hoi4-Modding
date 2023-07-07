@@ -4,8 +4,8 @@ using FocusTree.Graph;
 using FocusTree.Graph.Lattice;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
-using System.Diagnostics.CodeAnalysis;
 using LocalUtilities.XmlUtilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.UI.Graph
 {
@@ -107,7 +107,7 @@ namespace FocusTree.UI.Graph
                     Program.TestInfo.Show();
                 }
             else
-                Graph = new FocusGraphSerialization().LoadFromXml(filePath).Source;
+                Graph = new FocusXmlGraphSerialization().LoadFromXml(filePath);
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -132,7 +132,7 @@ namespace FocusTree.UI.Graph
                     Program.TestInfo.Show();
                 }
             else
-                Graph = new FocusGraphSerialization().LoadFromXml(FilePath).Source;
+                Graph = new FocusXmlGraphSerialization().LoadFromXml(FilePath);
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -150,7 +150,7 @@ namespace FocusTree.UI.Graph
             }
             ReadOnly = false;
             Graph.Backup(FilePath);
-            new FocusGraphSerialization(Graph).SaveToXml(FilePath);
+            Graph.SaveToXml(FilePath, new FocusXmlGraphSerialization());
             Graph.UpdateLatest();
         }
         /// <summary>
@@ -168,7 +168,7 @@ namespace FocusTree.UI.Graph
             }
             ReadOnly = false;
             FileCache.ClearCache(Graph);
-            new FocusGraphSerialization(Graph).SaveToXml(filePath);
+            Graph.SaveToXml(filePath, new FocusXmlGraphSerialization());
             Graph?.NewHistory();
             FilePath = filePath;
             Program.TestInfo.Renew();

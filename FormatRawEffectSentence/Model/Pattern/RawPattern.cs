@@ -1,9 +1,4 @@
-﻿using FormatRawEffectSentence.InternalSign;
-using System.Xml;
-using LocalUtilities.XmlUtilities;
-using LocalUtilities.RegexUtilities;
-
-namespace FormatRawEffectSentence.Model.Pattern;
+﻿namespace FormatRawEffectSentence.Model.Pattern;
 
 public class RawPattern
 {

@@ -2,7 +2,7 @@
 
 public interface ISerialization<T>
 {
-    T Source { get; set; }
+    T? Source { get; set; }
 
-    string LocalName { get; }
+    string LocalRootName { get; }
 }

@@ -1,6 +1,4 @@
-﻿using System.Xml.Serialization;
-
-namespace FocusTree.IO.FileManage
+﻿namespace FocusTree.IO.FileManage
 {
     public interface IBackupable : IFileManageable
     {

@@ -1,14 +1,10 @@
 ﻿using FormatRawEffectSentence.InternalSign;
-using System.Text;
-using System.Xml;
 using FormatRawEffectSentence.IO;
 
 namespace FormatRawEffectSentence.Model;
 
 public class EffectSentence
 {
-    #region ==== 基本变量 ====
-    
     /// <summary>
     /// 执行动作
     /// </summary>
@@ -33,8 +29,6 @@ public class EffectSentence
     /// 子句
     /// </summary>
     public List<EffectSentence> SubSentences { get; } = new();
-
-    #endregion
 
     /// <summary>
     /// 
@@ -71,7 +65,7 @@ public class EffectSentence
     /// 转换为json字符串
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => new EffectSentenceSerialization() { Source = this }.ToString();
+    public override string ToString() => new EffectSentenceStringSerialization { Source = this }.ToString();
 
     /// <summary>
     /// 用json字符串生成

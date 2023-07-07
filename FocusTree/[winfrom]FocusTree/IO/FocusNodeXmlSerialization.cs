@@ -1,27 +1,19 @@
-﻿using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
-using FocusTree.Data.Focus;
+﻿using FocusTree.Data.Focus;
 using FocusTree.Graph.Lattice;
-using FormatRawEffectSentence;
 using FormatRawEffectSentence.IO;
-using LocalUtilities.GeneralSerialization;
 using LocalUtilities.Interface;
 using LocalUtilities.XmlUtilities;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+using LocalUtilities.GeneralSerialization;
 
 namespace FocusTree.IO;
 
 [XmlRoot(nameof(FocusNode))]
-public class FocusNodeSerialization : IXmlSerialization<FocusNode>
+public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerialization<FocusNode>
 {
-
-    public FocusNode Source { get; set; }
-
-    public string LocalName { get; } = nameof(FocusNode);
-
-    public FocusNodeSerialization(FocusNode source) => Source = source;
-
-    public FocusNodeSerialization() : this(new())
+    public FocusNodeXmlSerialization() : base(nameof(FocusNode))
     {
     }
 
@@ -45,7 +37,7 @@ public class FocusNodeSerialization : IXmlSerialization<FocusNode>
 
         while (reader.Read())
         {
-            if (reader.Name == LocalName && reader.NodeType is XmlNodeType.EndElement)
+            if (reader.Name == LocalRootName && reader.NodeType is XmlNodeType.EndElement)
                 break;
             if (reader.NodeType is not XmlNodeType.Element)
                 continue;
@@ -53,13 +45,13 @@ public class FocusNodeSerialization : IXmlSerialization<FocusNode>
             {
                 case nameof(Source.RawEffects):
                     Source.RawEffects.ReadXmlCollection(reader, nameof(Source.RawEffects),
-                        new ValueXmlSerialization<string>("", str => str ?? ""));
+                        new ValueXmlSerialization<string>(str => str ?? ""));
                     break;
                 case nameof(Source.Effects):
-                    Source.Effects.ReadXmlCollection(reader, nameof(Source.Effects), new EffectSentenceSerialization());
+                    Source.Effects.ReadXmlCollection(reader, nameof(Source.Effects), new EffectSentenceXmlSerialization());
                     break;
                 case nameof(Source.Requires):
-                    Source.Requires.ReadXmlCollection(reader, nameof(Source.Requires), new RequireSerialization());
+                    Source.Requires.ReadXmlCollection(reader, nameof(Source.Requires), new RequireXmlSerialization());
                     break;
             }
         }
@@ -67,6 +59,8 @@ public class FocusNodeSerialization : IXmlSerialization<FocusNode>
 
     public void WriteXml(XmlWriter writer)
     {
+        if (Source is null)
+            return;
         writer.WriteAttributeString(nameof(Source.Id), Source.Id.ToString());
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
         writer.WriteAttributeString(nameof(Source.BeginWithStar), Source.BeginWithStar.ToString());
@@ -77,10 +71,10 @@ public class FocusNodeSerialization : IXmlSerialization<FocusNode>
             XmlWriteTool.WriteArrayString(new[]
                 { Source.LatticedPoint.Col.ToString(), Source.LatticedPoint.Row.ToString() }));
 
-        Source.RawEffects.WriteXmlCollection(writer, nameof(Source.RawEffects), new ValueXmlSerialization<string>(""));
+        Source.RawEffects.WriteXmlCollection(writer, nameof(Source.RawEffects), new ValueXmlSerialization<string>());
         //FormatRawEffects(Source.RawEffects, Source.Id);
-        Source.Effects.WriteXmlCollection(writer, nameof(Source.Effects), new EffectSentenceSerialization());
-        Source.Requires.WriteXmlCollection(writer, nameof(Source.Requires), new RequireSerialization());
+        Source.Effects.WriteXmlCollection(writer, nameof(Source.Effects), new EffectSentenceXmlSerialization());
+        Source.Requires.WriteXmlCollection(writer, nameof(Source.Requires), new RequireXmlSerialization());
     }
 
     //[Obsolete("临时使用，作为转换语句格式的过渡")]

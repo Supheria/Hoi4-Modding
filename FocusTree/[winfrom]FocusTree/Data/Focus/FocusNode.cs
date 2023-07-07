@@ -1,11 +1,7 @@
 ﻿#define FORMAT_TEST
 #define RAW_EFFECTS
-using System.Xml;
 using FocusTree.Graph.Lattice;
-using FormatRawEffectSentence;
-using FormatRawEffectSentence.IO;
 using FormatRawEffectSentence.Model;
-using LocalUtilities.XmlUtilities;
 
 namespace FocusTree.Data.Focus
 {
@@ -63,9 +59,5 @@ namespace FocusTree.Data.Focus
         /// 国策效果
         /// </summary>
         public List<EffectSentence> Effects { get; set; } = new();
-
-        public FocusNode()
-        {
-        }
     }
 }

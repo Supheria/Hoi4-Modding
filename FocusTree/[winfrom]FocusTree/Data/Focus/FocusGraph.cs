@@ -2,14 +2,10 @@
 using FocusTree.Graph.Lattice;
 using FocusTree.IO;
 using FocusTree.IO.FileManage;
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
-using System.Text;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 using LocalUtilities;
 using LocalUtilities.XmlUtilities;
+using System.Diagnostics.CodeAnalysis;
+using System.Xml.Serialization;
 
 namespace FocusTree.Data.Focus
 {
@@ -38,7 +34,7 @@ namespace FocusTree.Data.Focus
         /// <returns></returns>
         public FocusNode this[int id]
         {
-            get => FocusCatalog[id]; 
+            get => FocusCatalog[id];
             set => FocusCatalog[id] = value;
         }
 
@@ -356,14 +352,14 @@ namespace FocusTree.Data.Focus
             FocusCatalog = new();
         }
 
-        public FocusGraph(string name, FocusNode[] focusNodes) :  this(name)
+        public FocusGraph(string name, FocusNode[] focusNodes) : this(name)
         {
             foreach (var node in focusNodes)
                 FocusCatalog[node.Id] = node;
             //CreateNodeLinks();
         }
 
-        public FocusGraph(string name, List<CsvFocusData> focusData) :  this(name)
+        public FocusGraph(string name, List<CsvFocusData> focusData) : this(name)
         {
             foreach (var data in focusData)
                 FocusCatalog[data.Id] = new()
@@ -385,14 +381,18 @@ namespace FocusTree.Data.Focus
 
         #endregion
 
-        #region ---- 文件管理 ----
+        //
+        //
+        // IBackupable
+        //
+        //
 
         public string FileManageDirName => $"FG{Name.ToMd5HashString()}";
 
         public string GetHashString(string filePath)
         {
-            new FocusGraphSerialization().SaveToXml(filePath);
-            var file = File.Open(filePath, FileMode.OpenOrCreate);
+            this.SaveToXml(filePath, new FocusXmlGraphSerialization());
+            var file = File.OpenRead(filePath);
             var hash = file.ToMd5HashString();
             file.Close();
             return hash.Aggregate(string.Empty, (current, b) => current + b);
@@ -403,10 +403,11 @@ namespace FocusTree.Data.Focus
             throw new NotImplementedException();
         }
 
-        #endregion
-
-        #region ---- 历史和备份 ----
-
+        //
+        //
+        // IHistoryable
+        //
+        //
         public int HistoryIndex { get; set; } = 0;
         public int CurrentHistoryLength { get; set; } = 0;
         public FormattedData[] History { get; set; } = new FormattedData[20];
@@ -415,15 +416,13 @@ namespace FocusTree.Data.Focus
         {
             var hashString = ((IBackupable)this).GetHashString();
             if (!Directory.Exists(hashString))
-                new FocusGraphSerialization().SaveToXml(this.GetCachePath(hashString));
+                this.SaveToXml(this.GetCachePath(hashString), new FocusXmlGraphSerialization());
             return new(hashString);
         }
         public void Deformat(FormattedData data)
         {
-            FocusCatalog = new FocusGraphSerialization().LoadFromXml(this.GetCachePath(data.Items[0])).Source
-                .FocusCatalog;
+            FocusCatalog = new FocusXmlGraphSerialization().LoadFromXml(this.GetCachePath(data.Items[0]))?.FocusCatalog ??
+                           new();
         }
-
-        #endregion
     }
 }

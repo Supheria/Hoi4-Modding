@@ -1,21 +1,16 @@
-﻿using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
+﻿using LocalUtilities.GeneralSerialization;
 using LocalUtilities.Interface;
 using LocalUtilities.XmlUtilities;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace FocusTree.IO;
 
 [XmlRoot("Require")]
-public class RequireSerialization : IXmlSerialization<HashSet<int>>
+public class RequireXmlSerialization : Serialization<HashSet<int>>, IXmlSerialization<HashSet<int>>
 {
-    public HashSet<int> Source { get; set; }
-
-    public string LocalName { get; } = "Require";
-
-    public RequireSerialization(HashSet<int> source) => Source = source;
-
-    public RequireSerialization() : this(new())
+    public RequireXmlSerialization() : base("Require")
     {
     }
 
@@ -30,6 +25,8 @@ public class RequireSerialization : IXmlSerialization<HashSet<int>>
 
     public void WriteXml(XmlWriter writer)
     {
+        if (Source is null)
+            return;
         writer.WriteValue(XmlWriteTool.WriteArrayString(Source.Select(x => x.ToString()).ToArray()));
     }
 }

@@ -1,8 +1,7 @@
-﻿using System.Text;
-using FormatRawEffectSentence.InternalSign;
-using FormatRawEffectSentence.IO.Pattern;
+﻿using FormatRawEffectSentence.IO.Pattern;
 using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.XmlUtilities;
+using System.Text;
 
 namespace FormatRawEffectSentence.Data;
 
@@ -32,15 +31,15 @@ internal class RawPatternArrayUtilities
     {
         var reverse = new Dictionary<TValueToKey, TKeyToValue>();
         foreach (var (rawKey, rawValues) in rawDictionary)
-        foreach (var rawValue in rawValues)
-            reverse[rawValue] = rawKey;
+            foreach (var rawValue in rawValues)
+                reverse[rawValue] = rawKey;
         return reverse;
     }
 
     internal static RawPattern[] LoadRawPatternArray(string filePath)
     {
 #if DEBUG
-        return new LocalRawPatternArray().Patterns;
+        return new RawPatternArrayXmlSerialization().LoadFromXml(filePath) ?? new LocalRawPatternArray().Patterns;
 #else
          return new RawPatternArraySerialization().LoadFromXml(filePath).Source ?? LocalRawPatternArray.Patterns;
 #endif
@@ -48,6 +47,6 @@ internal class RawPatternArrayUtilities
 
     internal static void SaveRawPatternArray(string filePath, ref RawPattern[] patterns)
     {
-        new RawPatternArraySerialization(patterns).SaveToXml(filePath);
+        patterns.SaveToXml(filePath, new RawPatternArrayXmlSerialization());
     }
 }

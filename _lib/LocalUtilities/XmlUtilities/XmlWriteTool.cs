@@ -1,14 +1,14 @@
-﻿using System.Text;
+﻿using LocalUtilities.Interface;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using LocalUtilities.Interface;
 
 namespace LocalUtilities.XmlUtilities;
 
 public static class XmlWriteTool
 {
     public static string WritePair(string item1, string item2) => $"({item1}){XmlGeneralMark.ArraySplitter}({item2})";
-    
+
     public static string WriteArrayString(string[] elements)
     {
         var sb = new StringBuilder();
@@ -23,27 +23,28 @@ public static class XmlWriteTool
             str = str[..^1];
         return str;
     }
-    
-    public static void WriteXmlCollection<T>(this ICollection<T> collection, XmlWriter writer, string collectionName, IXmlSerialization<T> itemSerialization)
+
+    public static void WriteXmlCollection<T>(this ICollection<T> collection, XmlWriter writer, string collectionName,
+        IXmlSerialization<T> itemSerialization)
     {
         writer.WriteStartElement(collectionName);
         WriteXmlCollection(collection, writer, itemSerialization);
         writer.WriteEndElement();
     }
-    
-    public static void WriteXmlCollection<T>(this ICollection<T> collection, XmlWriter writer, IXmlSerialization<T> itemSerialization)
+
+    public static void WriteXmlCollection<T>(this ICollection<T> collection, XmlWriter writer,
+        IXmlSerialization<T> itemSerialization)
     {
         foreach (var item in collection)
         {
             itemSerialization.Source = item;
-            itemSerialization.WriteXmlComment(writer);
-            writer.Serialize(itemSerialization);
+            itemSerialization.Serialize(writer);
         }
     }
 
-    public static void Serialize<T>(this XmlWriter writer, T obj) where T : IXmlSerializable
+    public static void Serialize<T>(this ISerialization<T> serialization, XmlWriter writer)
     {
-        XmlSerializer serializer = new(obj.GetType());
-        serializer.Serialize(writer, obj);
+        XmlSerializer serializer = new(serialization.GetType());
+        serializer.Serialize(writer, serialization);
     }
 }

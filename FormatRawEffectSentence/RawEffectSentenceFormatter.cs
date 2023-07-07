@@ -1,13 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using System.Text.RegularExpressions;
-using FormatRawEffectSentence.Data;
+﻿using FormatRawEffectSentence.Data;
 using FormatRawEffectSentence.InternalSign;
-using FormatRawEffectSentence.IO;
 using FormatRawEffectSentence.Model;
 using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.RegexUtilities;
-using LocalUtilities.XmlUtilities;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FormatRawEffectSentence
 {
@@ -32,9 +30,9 @@ namespace FormatRawEffectSentence
         /// <returns>如果格式化成功则返回true，否则返回false</returns>
         public static bool Format(string sentence, out List<EffectSentence> formattedList)
         {
-            _rawSentence = sentence;
+            _rawSentence = sentence.Trim();
             _patterns = RawPatternArrayUtilities.LoadRawPatternArray(XmlFilePath);
-            RawPatternArrayUtilities.SaveRawPatternArray(XmlFilePath, ref _patterns);
+            //RawPatternArrayUtilities.SaveRawPatternArray(XmlFilePath, ref _patterns);
             return TestSinglePatterns(out formattedList);
             //return SinglePatternFormatter(sentence, out formattedList) ||
             //       ComplexPatternFormatter(sentence, out formattedList);
@@ -45,8 +43,7 @@ namespace FormatRawEffectSentence
         private static bool TestSinglePatterns(out List<EffectSentence> formattedList)
         {
             formattedList = new();
-            var patterns = RawPatternArrayUtilities.LoadRawPatternArray(XmlFilePath);
-            foreach (var pattern in new LocalRawPatternArray().Patterns)
+            foreach (var pattern in _patterns)
             {
                 if (TestPatternForMatch(pattern, out formattedList))
                     return true;

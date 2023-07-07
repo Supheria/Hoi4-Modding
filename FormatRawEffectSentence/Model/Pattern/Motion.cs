@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using FormatRawEffectSentence.InternalSign;
+﻿using FormatRawEffectSentence.InternalSign;
 using LocalUtilities.RegexUtilities;
 
 namespace FormatRawEffectSentence.Model.Pattern;

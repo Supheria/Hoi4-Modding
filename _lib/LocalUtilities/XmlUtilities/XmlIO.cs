@@ -1,47 +1,35 @@
-﻿using System.Xml.Serialization;
-using LocalUtilities.Interface;
+﻿using LocalUtilities.Interface;
+using System.Xml.Serialization;
 
 namespace LocalUtilities.XmlUtilities;
 
 public static class XmlIO
 {
-    /// <summary>
-    /// 将 FGraph 序列化成 xml
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <param name="path">保存路径</param>
-    public static void SaveToXml<T>(this T? obj, string path) where T : IXmlSerializable
+    public static void SaveToXml<T>(this T obj, string path, IXmlSerialization<T> serialization)
     {
-        if (obj is null)
-            return;
+        serialization.Source = obj;
         var file = File.Create(path);
-        var writer = new XmlSerializer(typeof(T));
-        writer.Serialize(file, obj);
+        var writer = new XmlSerializer(serialization.GetType());
+        writer.Serialize(file, serialization);
         file.Close();
     }
 
-    /// <summary>
-    /// 从 xml 文件中反序列化 FGraph
-    /// </summary>
-    /// <param name="serialization"></param>
-    /// <param name="path">xml文件路径</param>
-    /// <returns>FGraph</returns>
-    public static IXmlSerialization<T> LoadFromXml<T>(this IXmlSerialization<T> serialization, string path)
+    public static T? LoadFromXml<T>(this IXmlSerialization<T> serialization, string path)
     {
         if (!File.Exists(path))
-            return serialization;
+            return serialization.Source;
         var file = File.OpenRead(path);
         try
         {
             var reader = new XmlSerializer(serialization.GetType());
-            var obj = reader.Deserialize(file);
-            serialization = obj as IXmlSerialization<T> ?? serialization;
+            var o = reader.Deserialize(file);
+            serialization = o as IXmlSerialization<T> ?? serialization;
             file.Close();
         }
         catch
         {
             file.Close();
         }
-        return serialization;
+        return serialization.Source;
     }
 }
