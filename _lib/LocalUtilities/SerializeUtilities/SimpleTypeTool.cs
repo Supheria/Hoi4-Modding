@@ -1,6 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using LocalUtilities.RegexUtilities;
+using System.Security.Cryptography;
 using System.Text;
-using LocalUtilities.RegexUtilities;
 
 namespace LocalUtilities.SerializeUtilities;
 

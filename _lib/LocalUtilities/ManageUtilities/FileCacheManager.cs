@@ -1,6 +1,6 @@
-﻿namespace FocusTree.IO.FileManage
+﻿namespace LocalUtilities.ManageUtilities
 {
-    public static class FileCache
+    public static class FileCacheManager
     {
         /// <summary>
         /// 根目录

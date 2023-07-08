@@ -1,7 +1,7 @@
-﻿using FocusTree.Data.Focus;
+﻿using FocusTree.Model.Focus;
 using System.Numerics;
 
-namespace FocusTree.IO
+namespace FocusTree.Utilities
 {
     /// <summary>
     /// 输出带国策信息的图片
@@ -9,7 +9,7 @@ namespace FocusTree.IO
     public class NodeMapDrawer : Form
     {
         private ProgressBar Progress;
-        float Percent { get { return (float)Progress.Value / (float)Progress.Maximum * 100; } }
+        float Percent { get { return Progress.Value / (float)Progress.Maximum * 100; } }
         /// <summary>
         /// 
         /// </summary>

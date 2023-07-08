@@ -1,8 +1,8 @@
 #define PointBmp
-using FocusTree.Data.Focus;
-using FocusTree.Graph.Lattice;
+using FocusTree.Model.Focus;
+using FocusTree.Model.Lattice;
 
-namespace FocusTree.Graph
+namespace FocusTree.Model.WinFormGdiUtilities
 {
     /// <summary>
     /// 国策树绘图工具
@@ -38,19 +38,19 @@ namespace FocusTree.Graph
         /// <summary>
         /// 国策节点文字颜色
         /// </summary>
-        public static Color FocusNodeFG { get; set; } = Color.Black;
+        public static Color FocusNodeFg { get; set; } = Color.Black;
         /// <summary>
         /// 国策节点底色-普遍
         /// </summary>
-        public static Color FocusNodeBG_Normal { get; set; } = Color.White;
+        public static Color FocusNodeBgNormal { get; set; } = Color.White;
         /// <summary>
         /// 国策节点底色-选中
         /// </summary>
-        public static Color FocusNodeBG_Selected { get; set; } = Color.Orange;
+        public static Color FocusNodeBgSelected { get; set; } = Color.Orange;
         /// <summary>
         /// 非国策格元各个部分选中时的底色
         /// </summary>
-        public static Dictionary<LatticeCell.Parts, Color> CellSelectedPartsBG = new()
+        public static Dictionary<LatticeCell.Parts, Color> CellSelectedPartsBg = new()
         {
             [LatticeCell.Parts.Node] = Color.Orange,
             [LatticeCell.Parts.Left] = Color.Gray,
@@ -81,7 +81,7 @@ namespace FocusTree.Graph
             {
                 DrawFocusNode(image, nodeRect, null);
             }
-            else { DrawFocusNode(image, nodeRect, FocusNodeBG_Normal, focus.Name); }
+            else { DrawFocusNode(image, nodeRect, FocusNodeBgNormal, focus.Name); }
         }
         /// <summary>
         /// 绘制选中的国策节点
@@ -95,15 +95,17 @@ namespace FocusTree.Graph
             if (!LatticeGrid.RectWithin(nodeRect, out nodeRect)) { return; }
             if (LatticeCell.Length < ShowNodeNameCellLength)
             {
-                DrawFocusNode(image, nodeRect, FocusNodeBG_Selected);
+                DrawFocusNode(image, nodeRect, FocusNodeBgSelected);
             }
-            else { DrawFocusNode(image, nodeRect, FocusNodeBG_Selected, focus.Name); }
+            else { DrawFocusNode(image, nodeRect, FocusNodeBgSelected, focus.Name); }
         }
+
         /// <summary>
         /// 绘制无文字国策节点
         /// </summary>
         /// <param name="image"></param>
         /// <param name="nodeRect"></param>
+        /// <param name="shading"></param>
         private static void DrawFocusNode(Bitmap image, Rectangle nodeRect, Color? shading)
         {
             if (shading.HasValue)
@@ -131,11 +133,11 @@ namespace FocusTree.Graph
             var fontSizeH = 0.7f * nodeRect.Height / fontHeight;
             var fontSizeW = 0.7f * nodeRect.Width / fontWidth;
             var fontSize = Math.Min(fontSizeH, fontSizeW);
-            string sName = focusName;
+            var sName = focusName;
             if (fontHeight > 1)
             {
                 sName = string.Empty;
-                for (int i = 0; i < fontHeight; i++)
+                for (var i = 0; i < fontHeight; i++)
                 {
                     var start = i * fontWidth;
                     var remain = focusName.Length - start;
@@ -144,15 +146,15 @@ namespace FocusTree.Graph
             }
             var font = new Font(NodeFont, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
             var g = Graphics.FromImage(image);
-            g.DrawString(sName, font, new SolidBrush(FocusNodeFG), nodeRect, NodeFontFormat);
+            g.DrawString(sName, font, new SolidBrush(FocusNodeFg), nodeRect, NodeFontFormat);
             g.Flush(); g.Dispose();
         }
+
         /// <summary>
         /// 仅绘制国策节点的边框
         /// </summary>
         /// <param name="image"></param>
         /// <param name="nodeRect"></param>
-        /// <param name="shading"></param>
         public static void DrawFocusNodeBorderOnly(Bitmap image, Rectangle nodeRect)
         {
             PointBitmap pImage = new(image);
@@ -161,9 +163,9 @@ namespace FocusTree.Graph
             pBack.LockBits();
             // left & right
             var widthDistance = nodeRect.Width - FocusNodeBorderWidth;
-            for (int i = 0; i < FocusNodeBorderWidth; i++)
+            for (var i = 0; i < FocusNodeBorderWidth; i++)
             {
-                for (int j = 0; j < nodeRect.Height; j++)
+                for (var j = 0; j < nodeRect.Height; j++)
                 {
                     var x = nodeRect.Left + i;
                     var y = nodeRect.Top + j;
@@ -174,9 +176,9 @@ namespace FocusTree.Graph
             }
             // top & bottom
             var heightDistance = nodeRect.Height - FocusNodeBorderWidth;
-            for (int i = FocusNodeBorderWidth; i < nodeRect.Width - FocusNodeBorderWidth; i++)
+            for (var i = FocusNodeBorderWidth; i < nodeRect.Width - FocusNodeBorderWidth; i++)
             {
-                for (int j = 0; j < FocusNodeBorderWidth; j++)
+                for (var j = 0; j < FocusNodeBorderWidth; j++)
                 {
                     var x = nodeRect.Left + i;
                     var y = nodeRect.Top + j;
@@ -200,9 +202,9 @@ namespace FocusTree.Graph
             pImage.LockBits();
             PointBitmap pBack = new(Background.BackImage);
             pBack.LockBits();
-            for (int i = 0; i < nodeRect.Width; i++)
+            for (var i = 0; i < nodeRect.Width; i++)
             {
-                for (int j = 0; j < nodeRect.Height; j++)
+                for (var j = 0; j < nodeRect.Height; j++)
                 {
                     var x = nodeRect.Left + i;
                     var y = nodeRect.Top + j;
@@ -226,7 +228,6 @@ namespace FocusTree.Graph
         /// 绘制关系线
         /// </summary>
         /// <param name="image"></param>
-        /// <param name="pen"></param>
         /// <param name="startLoc"></param>
         /// <param name="endLoc"></param>
         public static void DrawRequireLine(Bitmap image, LatticedPoint startLoc, LatticedPoint endLoc)
@@ -266,13 +267,13 @@ namespace FocusTree.Graph
                 DrawCrossHollowLine(image, new(x3, y3), new(x3, y3 - halfPaddingHeight));
             }
         }
+
         /// <summary>
         /// 绘制横纵空心直线
         /// </summary>
         /// <param name="image"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="pen"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
         private static void DrawCrossHollowLine(Bitmap image, Point p1, Point p2)
         {
             PointBitmap pImage = new(image);
@@ -287,7 +288,7 @@ namespace FocusTree.Graph
                 {
                     // top & bottom
                     var bottom = lineRect.Bottom;
-                    for (int i = 0; i < lineRect.Width; i++)
+                    for (var i = 0; i < lineRect.Width; i++)
                     {
                         var x = lineRect.Left + i;
                         pImage.SetPixel(x, lineRect.Top, GetInverseColor(pBack.GetPixel(x, lineRect.Top)));
@@ -327,15 +328,15 @@ namespace FocusTree.Graph
         public static void DrawSelectedCellPart(Bitmap image, LatticedPoint point, LatticeCell.Parts cellPart)
         {
             LatticeCell cell = new(point);
-            if (!CellSelectedPartsBG.TryGetValue(cellPart, out var shading)) { return; }
+            if (!CellSelectedPartsBg.TryGetValue(cellPart, out var shading)) { return; }
             if (!LatticeGrid.RectWithin(cell.CellPartsRealRect[cellPart], out var rect)) { return; }
             PointBitmap pImage = new(image);
             pImage.LockBits();
             PointBitmap pBack = new(Background.BackImage);
             pBack.LockBits();
-            for (int i = 0; i < rect.Width; i++)
+            for (var i = 0; i < rect.Width; i++)
             {
-                for (int j = 0; j < rect.Height; j++)
+                for (var j = 0; j < rect.Height; j++)
                 {
                     var x = rect.Left + i;
                     var y = rect.Top + j;
@@ -357,10 +358,10 @@ namespace FocusTree.Graph
         /// <returns></returns>
         private static Color GetInverseColor(Color color)
         {
-            var R = 255 - color.R;
-            var G = 255 - color.G;
-            var B = 255 - color.B;
-            return Color.FromArgb(color.A, R, G, B);
+            var r = 255 - color.R;
+            var g = 255 - color.G;
+            var b = 255 - color.B;
+            return Color.FromArgb(color.A, r, g, b);
         }
         /// <summary>
         /// 混合二色
@@ -370,11 +371,11 @@ namespace FocusTree.Graph
         /// <returns></returns>
         private static Color GetMixedColor(Color color1, Color color2)
         {
-            var A = (color1.A + color2.A) / 2;
-            var R = (color1.R + color2.R) / 2;
-            var G = (color1.G + color2.G) / 2;
-            var B = (color1.B + color2.B) / 2;
-            return Color.FromArgb(A, R, G, B);
+            var a = (color1.A + color2.A) / 2;
+            var r = (color1.R + color2.R) / 2;
+            var g = (color1.G + color2.G) / 2;
+            var b = (color1.B + color2.B) / 2;
+            return Color.FromArgb(a, r, g, b);
         }
 
         #endregion

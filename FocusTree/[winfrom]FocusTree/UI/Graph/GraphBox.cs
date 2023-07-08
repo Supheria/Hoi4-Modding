@@ -1,11 +1,8 @@
-﻿using FocusTree.Data;
-using FocusTree.Data.Focus;
-using FocusTree.Graph;
-using FocusTree.Graph.Lattice;
-using FocusTree.IO.Csv;
-using FocusTree.IO.FileManage;
+﻿using FocusTree.IO.Csv;
 using FocusTree.IO.Xml;
-using LocalUtilities.SerializeUtilities;
+using FocusTree.Model.Focus;
+using FocusTree.Model.Lattice;
+using LocalUtilities.ManageUtilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.UI.Graph
@@ -75,7 +72,7 @@ namespace FocusTree.UI.Graph
         /// <summary>
         /// 元图分支数量
         /// </summary>
-        public static int BranchCount => Graph is null ? 0 : Graph.GetBranches(Graph.GetRootNodes(), false, false).Count;
+        public static int BranchCount => Graph?.BranchNumber ?? 0;
         /// <summary>
         /// 元图备份列表
         /// </summary>
@@ -95,11 +92,11 @@ namespace FocusTree.UI.Graph
             ReadOnly = Graph?.IsBackupFile(filePath) ?? false;
             if (!ReadOnly)
                 FilePath = filePath;
-            FileCache.ClearCache(Graph);
+            FileCacheManager.ClearCache(Graph);
             if (Path.GetExtension(filePath).ToLower() is ".csv")
                 try
                 {
-                    Graph = CsvIO.LoadFromCsv(filePath);
+                    Graph = CsvLoader.LoadFromCsv(filePath);
                 }
                 catch (Exception e)
                 {
@@ -120,11 +117,11 @@ namespace FocusTree.UI.Graph
         {
             if (!File.Exists(FilePath)) { return; }
             ReadOnly = false;
-            FileCache.ClearCache(Graph);
+            FileCacheManager.ClearCache(Graph);
             if (Path.GetExtension(FilePath).ToLower() is ".csv")
                 try
                 {
-                    Graph = CsvIO.LoadFromCsv(FilePath);
+                    Graph = CsvLoader.LoadFromCsv(FilePath);
                 }
                 catch (Exception e)
                 {
@@ -168,7 +165,7 @@ namespace FocusTree.UI.Graph
                 return;
             }
             ReadOnly = false;
-            FileCache.ClearCache(Graph);
+            FileCacheManager.ClearCache(Graph);
             Graph.SaveToXml(filePath, new FocusXmlGraphSerialization());
             Graph?.NewHistory();
             FilePath = filePath;
@@ -217,7 +214,7 @@ namespace FocusTree.UI.Graph
         /// </summary>
         public static void AutoLayoutAllFocusNodes()
         {
-            Graph?.ResetAllNodesLatticedPoint();
+            Graph?.AutoSetAllNodesPosition();
             Graph?.EnqueueHistory();
         }
         /// <summary>
@@ -247,7 +244,8 @@ namespace FocusTree.UI.Graph
         /// </summary>
         public static void DeleteBackup()
         {
-            Graph?.DeleteBackup();
+            if (MessageBox.Show("是否要删除当前备份？", "提示", MessageBoxButtons.YesNo) is DialogResult.Yes)
+                Graph?.DeleteBackup();
         }
     }
 }

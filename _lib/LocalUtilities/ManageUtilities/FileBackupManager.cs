@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using LocalUtilities.ManageUtilities.Interface;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
-namespace FocusTree.IO.FileManage
+namespace LocalUtilities.ManageUtilities
 {
-    public static class FileBackup
+
+    public static class FileBackupManager
     {
         /// <summary>
         /// 根目录
@@ -18,7 +20,7 @@ namespace FocusTree.IO.FileManage
         /// <summary>
         /// 对象根目录
         /// </summary>
-        private static string DirectoryName<T>(this T obj) where T : IBackupable?
+        private static string DirectoryName<T>(this T obj) where T : IFileBackupManageable?
         {
             if (obj is null)
                 return "";
@@ -32,7 +34,7 @@ namespace FocusTree.IO.FileManage
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>root\obj file manage\obj hash\date time</returns>
-        private static string GetBackupFilePath<T>(this T obj) where T : IBackupable =>
+        private static string GetBackupFilePath<T>(this T obj) where T : IFileBackupManageable =>
             Path.Combine(obj.DirectoryName(), obj.GetHashString(), $"BK{DateTime.Now:yyyyMMddHHmmss}");
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace FocusTree.IO.FileManage
         /// <param name="obj"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        private static string GetBackupFilePath<T>(this T obj, string path) where T : IBackupable =>
+        private static string GetBackupFilePath<T>(this T obj, string path) where T : IFileBackupManageable =>
             Path.Combine(obj.DirectoryName(), obj.GetHashString(path), $"BK{DateTime.Now:yyyyMMddHHmmss}");
 
         /// <summary>
@@ -50,7 +52,7 @@ namespace FocusTree.IO.FileManage
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="path">要备份的文件路径</param>
-        public static void Backup<T>(this T obj, string path) where T : IBackupable
+        public static void Backup<T>(this T obj, string path) where T : IFileBackupManageable
         {
             try
             {
@@ -73,7 +75,7 @@ namespace FocusTree.IO.FileManage
         /// <param name="obj"></param>
         /// <param name="path">要查找的文件路径</param>
         /// <returns>文件列表(备份文件路径, 备份名)，列表第一元素是文件路径本身</returns>
-        public static List<(string, string)> GetBackupsList<T>(this T obj, string path) where T : IBackupable
+        public static List<(string, string)> GetBackupsList<T>(this T obj, string path) where T : IFileBackupManageable
         {
             List<(string, string)> result = new();
             var objManageDir = Path.GetDirectoryName(obj.IsBackupFile(path)
@@ -115,14 +117,11 @@ namespace FocusTree.IO.FileManage
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj">要删除的备份对象</param>
-        public static void DeleteBackup<T>(this T obj) where T : IBackupable
+        public static void DeleteBackup<T>(this T obj) where T : IFileBackupManageable
         {
             var objRootDir = Path.GetDirectoryName(obj.GetBackupFilePath());
-            if (!Directory.Exists(objRootDir) || MessageBox.Show("是否要删除当前备份？", "提示", MessageBoxButtons.YesNo) == DialogResult.No)
-            {
-                return;
-            }
-            Directory.Delete(objRootDir, true);
+            if (Directory.Exists(objRootDir))
+                Directory.Delete(objRootDir, true);
         }
         /// <summary>
         /// 清空根目录并打成压缩包
@@ -145,7 +144,7 @@ namespace FocusTree.IO.FileManage
         /// <param name="obj"></param>
         /// <param name="path">要查询的文件路径</param>
         /// <returns></returns>
-        public static bool IsBackupFile<T>(this T obj, string path) where T : IBackupable?
+        public static bool IsBackupFile<T>(this T obj, string path) where T : IFileBackupManageable?
         {
             var match = Regex.Match(Path.GetFileName(path), "^BK(\\d){4}((\\d){2}){5}$");
             return match.Success && obj.DirectoryName() == Path.GetDirectoryName(Path.GetDirectoryName(path));

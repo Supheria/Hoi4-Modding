@@ -1,9 +1,7 @@
-﻿#define FORMAT_TEST
-#define RAW_EFFECTS
-using FocusTree.Graph.Lattice;
+﻿using FocusTree.Model.Lattice;
 using FormatRawEffectSentence.Model;
 
-namespace FocusTree.Data.Focus
+namespace FocusTree.Model.Focus
 {
     /// <summary>
     /// 国策节点控制类

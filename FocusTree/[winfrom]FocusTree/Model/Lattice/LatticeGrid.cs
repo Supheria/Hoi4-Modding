@@ -1,15 +1,14 @@
 ﻿#define DEBUG
 
 
-namespace FocusTree.Graph.Lattice
+namespace FocusTree.Model.Lattice
 {
     /// <summary>
     /// 栅格
     /// </summary>
-    static class LatticeGrid
+    internal static class LatticeGrid
     {
-        #region ==== 基本参数 ====
-
+        private const float FloatComparisonTolerance = 0.1f;
         /// <summary>
         /// 栅格绘图区域矩形
         /// </summary>
@@ -23,26 +22,20 @@ namespace FocusTree.Graph.Lattice
         /// </summary>
         public static int OriginTop { get; set; }
 
-        #endregion
-
-        #region ==== 绘图工具 ====
-
         /// <summary>
         /// 格元边框宽度
         /// </summary>
-        public static Pen CellPen = new(Color.FromArgb(200, Color.AliceBlue), 1.5f);
+        public static Pen CellPen { get; } = new(Color.FromArgb(200, Color.AliceBlue), 1.5f);
+
         /// <summary>
         /// 节点边框宽度
         /// </summary>
-        public static Pen NodePen = new(Color.FromArgb(150, Color.Orange), 1.75f);
+        public static Pen NodePen { get; } = new(Color.FromArgb(150, Color.Orange), 1.75f);
+
         /// <summary>
         /// 坐标辅助线绘制用笔
         /// </summary>
-        public static Pen GuidePen = new(Color.FromArgb(200, Color.Red), 1.75f);
-
-        #endregion
-
-        #region ==== 绘制栅格 ====
+        public static Pen GuidePen { get; } = new(Color.FromArgb(200, Color.Red), 1.75f);
 
         /// <summary>
         /// 绘制无限制栅格，并调用绘制委托列表
@@ -77,9 +70,9 @@ namespace FocusTree.Graph.Lattice
             offSetTop += DrawRect.Top;
             var colNum = DrawRect.Width / LatticeCell.Length + 2;
             var rowNum = DrawRect.Height / LatticeCell.Length + 2;
-            for (int i = 0; i < colNum; i++)
+            for (var i = 0; i < colNum; i++)
             {
-                for (int j = 0; j < rowNum; j++)
+                for (var j = 0; j < rowNum; j++)
                 {
                     var cellLeft = offsetLeft + i * LatticeCell.Length;
                     var cellTop = offSetTop + j * LatticeCell.Length;
@@ -88,34 +81,25 @@ namespace FocusTree.Graph.Lattice
                     //
                     // draw cell
                     //
-                    if (CrossLineWithin(new(cellLeft, cellBottom), new(cellRight, cellBottom), CellPen.Width, out var p1, out var p2))
-                    {
+                    if (CrossLineWithin(new(cellLeft, cellBottom), new(cellRight, cellBottom), CellPen.Width,
+                            out var p1, out var p2))
                         g.DrawLine(CellPen, p1, p2);
-                    }
-                    if (CrossLineWithin(new(cellRight, cellTop), new(cellRight, cellBottom), CellPen.Width, out p1, out p2))
-                    {
+                    if (CrossLineWithin(new(cellRight, cellTop), new(cellRight, cellBottom), CellPen.Width, out p1,
+                            out p2))
                         g.DrawLine(CellPen, p1, p2);
-                    }
                     var nodeLeft = cellLeft + LatticeCell.NodePaddingWidth;
                     var nodeTop = cellTop + LatticeCell.NodePaddingHeight;
                     //
                     // draw node
                     //
                     if (CrossLineWithin(new(nodeLeft, nodeTop), new(cellRight, nodeTop), NodePen.Width, out p1, out p2))
-                    {
                         g.DrawLine(NodePen, p1, p2);
-                    }
-                    if (CrossLineWithin(new(nodeLeft, nodeTop), new(cellLeft, cellBottom), NodePen.Width, out p1, out p2))
-                    {
+                    if (CrossLineWithin(new(nodeLeft, nodeTop), new(cellLeft, cellBottom), NodePen.Width, out p1,
+                            out p2))
                         g.DrawLine(NodePen, p1, p2);
-                    }
                 }
             }
         }
-
-        #endregion
-
-        #region ==== 范围裁剪 ====
 
         /// <summary>
         /// 获取给定横纵直线在栅格绘图区域内的矩形
@@ -130,7 +114,7 @@ namespace FocusTree.Graph.Lattice
         {
             endMin = endMax = PointF.Empty;
             var halfLineWidth = (lineWidth / 2);
-            if (p1.Y == p2.Y)
+            if (Math.Abs(p1.Y - p2.Y) < FloatComparisonTolerance)
             {
                 if (!CrossLineWithin(p1.Y, DrawRect.Top, DrawRect.Bottom, (p1.X + halfLineWidth, p2.X + halfLineWidth), DrawRect.Left, DrawRect.Right, out var xMin, out var xMax)) { return false; }
                 endMin = new(xMin, p1.Y);
@@ -147,7 +131,7 @@ namespace FocusTree.Graph.Lattice
         private static bool CrossLineWithin(float theSame, float theSameLimitMin, float theSameLimitMax, (float, float) ends, float endLimitMin, float endLimitMax, out float endMin, out float endMax)
         {
             endMin = endMax = 0;
-            if (ends.Item1 == ends.Item2 || theSame < theSameLimitMin || theSame > theSameLimitMax) { return false; }
+            if (Math.Abs(ends.Item1 - ends.Item2) < FloatComparisonTolerance || theSame < theSameLimitMin || theSame > theSameLimitMax) { return false; }
             endMin = Math.Min(ends.Item1, ends.Item2);
             endMax = Math.Max(ends.Item1, ends.Item2);
             if (endMin >= endLimitMax) { return false; }
@@ -156,6 +140,7 @@ namespace FocusTree.Graph.Lattice
             if (endMax > endLimitMax) { endMax = endLimitMax; }
             return true;
         }
+
         /// <summary>
         /// 获取给定的矩形在栅格绘图区域内的矩形
         /// </summary>
@@ -194,7 +179,5 @@ namespace FocusTree.Graph.Lattice
             saveRect = new(left, top, right - left, bottom - top);
             return true;
         }
-
-        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿using FocusTree.Data.Focus;
+﻿using FocusTree.Model.Focus;
 using LocalUtilities.SerializeUtilities;
 using LocalUtilities.SerializeUtilities.Interface;
 using System.Xml;

@@ -1,41 +1,39 @@
 ﻿using System.Text.RegularExpressions;
-using System.Xml.Serialization;
 
 namespace FocusTree.IO.Csv
 {
-    public struct CsvFocusData
+    public class CsvFocusData
     {
         /// <summary>
         /// 节点ID
         /// </summary>
-        [XmlAttribute("ID")]
-        public int Id { get; } = 0;
+        public int Id { get; }
         /// <summary>
         /// 国策名称
         /// </summary>
-        public string Name { get; } = "";
+        public string Name { get; }
         /// <summary>
         /// 字段是否以 * 开头
         /// </summary>
-        public bool BeginWithStar { get; } = false;
+        public bool BeginWithStar { get; }
 
         /// <summary>
         /// 实施天数
         /// </summary>
-        public int Duration { get; } = 0;
+        public int Duration { get; }
         /// <summary>
         /// 国策效果
         /// </summary>
-        public List<string> RawEffects { get; } = new();
+        public List<string> RawEffects { get; }
         /// <summary>
         /// 国策描述
         /// </summary>
-        public string Description { get; } = "";
+        public string Description { get; }
 
         /// <summary>
         /// 备注
         /// </summary>
-        public string Ps { get; } = "";
+        public string Ps { get; }
 
         public List<HashSet<int>> Requires { get; } = new();
 

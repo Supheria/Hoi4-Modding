@@ -1,4 +1,4 @@
-﻿namespace FocusTree.IO.FileManage
+﻿namespace LocalUtilities.ManageUtilities
 {
     public interface IFileManageable
     {

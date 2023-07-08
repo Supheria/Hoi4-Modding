@@ -1,4 +1,4 @@
-﻿using FocusTree.Graph;
+﻿using FocusTree.Model.Lattice;
 using FocusTree.UI.Graph;
 
 namespace FocusTree.UI.NodeToolDialogs

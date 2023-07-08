@@ -1,15 +1,15 @@
-﻿#define test_format
+﻿
+#define test_format
 
-using FocusTree.Data.Focus;
-using FocusTree.Graph.Lattice;
+using FocusTree.Model.Focus;
+using FocusTree.Model.Lattice;
+using FormatRawEffectSentence;
 using FormatRawEffectSentence.IO;
+using LocalUtilities.SerializeUtilities;
+using LocalUtilities.SerializeUtilities.Interface;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using FocusTree.Utilities.test;
-using FormatRawEffectSentence;
-using LocalUtilities.SerializeUtilities.Interface;
-using LocalUtilities.SerializeUtilities;
 
 namespace FocusTree.IO.Xml;
 

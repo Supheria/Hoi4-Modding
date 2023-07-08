@@ -1,4 +1,4 @@
-﻿namespace FocusTree.Graph
+﻿namespace FocusTree.Model.WinFormGdiUtilities
 {
     public static class ImageDrawer
     {
@@ -10,9 +10,9 @@
             pTarget.LockBits();
             var right = toRect.Right;
             var bottom = toRect.Bottom;
-            for (int x = toRect.X; x < right; x++)
+            for (var x = toRect.X; x < right; x++)
             {
-                for (int y = toRect.Y; y < bottom; y++)
+                for (var y = toRect.Y; y < bottom; y++)
                 {
                     var pixel = pSource.GetPixel(x, y);
                     if (!ignoreTransparent || pixel.A != 0 || pixel.R != 0 || pixel.G != 0 || pixel.B != 0)

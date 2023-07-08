@@ -1,6 +1,9 @@
-﻿namespace FocusTree.Data
+﻿using LocalUtilities.SerializeUtilities;
+using LocalUtilities.SerializeUtilities.Interface;
+
+namespace LocalUtilities.ManageUtilities.Interface
 {
-    public interface IHistoryable : IFormattable
+    public interface IHistoryRecordable : IFormattedObject
     {
         /// <summary>
         /// 历史记录指针

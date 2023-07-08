@@ -1,11 +1,13 @@
-﻿namespace FocusTree.Data
+﻿using LocalUtilities.ManageUtilities.Interface;
+
+namespace LocalUtilities.ManageUtilities
 {
-    public static class ObjectHistory
+    public static class ObjectHistoryManager
     {
         /// <summary>
         /// 较最近一次保存是否已被编辑
         /// </summary>
-        public static bool IsEdit<T>(this T obj) where T : IHistoryable
+        public static bool IsEdit<T>(this T obj) where T : IHistoryRecordable
         {
             return obj.LatestIndex != obj.HistoryIndex;
         }
@@ -13,24 +15,24 @@
         /// 判断是否有下一个历史记录
         /// </summary>
         /// <returns>是否有下一个历史记录</returns>
-        public static bool HasNextHistory<T>(this T obj) where T : IHistoryable => obj.HistoryIndex + 1 < obj.CurrentHistoryLength;
+        public static bool HasNextHistory<T>(this T obj) where T : IHistoryRecordable => obj.HistoryIndex + 1 < obj.CurrentHistoryLength;
         /// <summary>
         /// 判断是否有上一个历史记录
         /// </summary>
         /// <returns>是否有上一个历史记录</returns>
-        public static bool HasPrevHistory<T>(this T obj) where T : IHistoryable => obj.HistoryIndex > 0;
+        public static bool HasPrevHistory<T>(this T obj) where T : IHistoryRecordable => obj.HistoryIndex > 0;
 
         /// <summary>
         /// 将当前的状态添加到历史记录（会使后续的记录失效）
         /// </summary>
         //[Obsolete("我不确定这东西有没有Bug，看起来很玄乎")]
-        public static void EnqueueHistory<T>(this T obj) where T : IHistoryable
+        public static void EnqueueHistory<T>(this T obj) where T : IHistoryRecordable
         {
             //if (obj.IsEdit() == false)
             //{
             //    return;
             //}
-            var data = obj.Format();
+            var data = obj.ToFormattedData();
             // 第一个历史记录
             if (obj.CurrentHistoryLength == 0)
             {
@@ -64,21 +66,21 @@
         /// <summary>
         /// 撤回 (已检查 HasPrevHistory())
         /// </summary>
-        public static void Undo<T>(this T obj) where T : IHistoryable
+        public static void Undo<T>(this T obj) where T : IHistoryRecordable
         {
             if (obj.HasPrevHistory() == false)
             {
                 return;
             }
             obj.HistoryIndex--;
-            obj.Deformat(obj.History[obj.HistoryIndex]);
+            obj.FromFormattedData(obj.History[obj.HistoryIndex]);
         }
 
         /// <summary>
         /// 重做 (已检查 HasNextHistory())
         /// </summary>
         /// <exception cref="IndexOutOfRangeException">访问的历史记录越界</exception>
-        public static void Redo<T>(this T obj) where T : IHistoryable
+        public static void Redo<T>(this T obj) where T : IHistoryRecordable
         {
             if (obj.HasNextHistory() == false)
             {
@@ -89,14 +91,14 @@
             {
                 throw new IndexOutOfRangeException("[2302191735] 历史记录越界");
             }
-            obj.Deformat(obj.History[obj.HistoryIndex]);
+            obj.FromFormattedData(obj.History[obj.HistoryIndex]);
         }
         /// <summary>
         /// 清空历史记录并将当前的状态添加到历史记录
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        public static void NewHistory<T>(this T obj) where T : IHistoryable
+        public static void NewHistory<T>(this T obj) where T : IHistoryRecordable
         {
             obj.CurrentHistoryLength = 0;
             obj.HistoryIndex = 0;
@@ -106,6 +108,6 @@
         /// <summary>
         /// 更新最近一次的保存
         /// </summary>
-        public static void UpdateLatest<T>(this T obj) where T : IHistoryable => obj.LatestIndex = obj.HistoryIndex;
+        public static void UpdateLatest<T>(this T obj) where T : IHistoryRecordable => obj.LatestIndex = obj.HistoryIndex;
     }
 }

@@ -43,7 +43,7 @@ public class RegexPatternTool
 
     private static readonly string[] ExclusiveOrUnlimitedCollection =
     {
-        @"\[\^[^]]+\]", 
+        @"\[\^[^]]+\]",
         @"(?<!\\)\.",
     };
 

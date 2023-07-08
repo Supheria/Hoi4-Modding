@@ -1,6 +1,4 @@
-﻿using FocusTree.Graph.Lattice;
-
-namespace FocusTree.Graph
+﻿namespace FocusTree.Model.Lattice
 {
     /// <summary>
     /// 格元

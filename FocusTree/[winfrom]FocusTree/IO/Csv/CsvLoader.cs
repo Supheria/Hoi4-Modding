@@ -1,9 +1,9 @@
 ﻿using CSVFile;
-using FocusTree.Data.Focus;
+using FocusTree.Model.Focus;
 
 namespace FocusTree.IO.Csv
 {
-    internal class CsvIO
+    internal class CsvLoader
     {
         /// <summary>
         /// 从 xml 文件中反序列化 FGraph
@@ -57,7 +57,7 @@ namespace FocusTree.IO.Csv
             var data = ReadCsv(path);
 
             // 上一次循环处理的节点 <id>
-            TreeNode<int>? last = null;
+            CsvTreeNode<int>? last = null;
 
             // 循环处理到的行数
             var rowCount = 0;
@@ -85,7 +85,7 @@ namespace FocusTree.IO.Csv
                 // 节点是其中一个根节点时 
                 if (last == null)
                 {
-                    last = new TreeNode<int>(rowCount, 0);
+                    last = new CsvTreeNode<int>(rowCount, 0);
                     nodes.Add(focusData);
                     // 这里不需要添加它的 Require
                     continue; // 这个要加的
@@ -96,7 +96,7 @@ namespace FocusTree.IO.Csv
                 // 如果新节点与上一节点的右移距离等于1，则新节点是上一节点的子节点
                 if (level == last.Level + 1)
                 {
-                    var newNode = new TreeNode<int>(focusData.Id, last.Level + 1); // 新节点
+                    var newNode = new CsvTreeNode<int>(focusData.Id, last.Level + 1); // 新节点
 
                     newNode.SetParent(last);
 
@@ -116,7 +116,7 @@ namespace FocusTree.IO.Csv
                     } // 当指向的父节点是新节点所在列的父节点时结束循环
                     while (last is not null && level - 1 != last.Level);
                     // 这个是同级节点
-                    var newNode = new TreeNode<int>(rowCount, level); // lastNode指向新的节点
+                    var newNode = new CsvTreeNode<int>(rowCount, level); // lastNode指向新的节点
                     nodes.Add(focusData);
                     if (last is null) // 新节点是根节点时直接添加
                     {
@@ -129,26 +129,7 @@ namespace FocusTree.IO.Csv
                         last = newNode;
                     }
                 }
-                //==
             }
-        }
-    }
-
-    internal class TreeNode<T>
-    {
-        public T Value;
-        public int Level;
-        public TreeNode<T>? Parent { get; set; }
-        public HashSet<TreeNode<T>> Children { get; private set; } = new();
-        public TreeNode(T value, int level)
-        {
-            Value = value;
-            Level = level;
-        }
-        public void SetParent(TreeNode<T> parent)
-        {
-            Parent = parent;
-            Parent.Children.Add(this);
         }
     }
 }

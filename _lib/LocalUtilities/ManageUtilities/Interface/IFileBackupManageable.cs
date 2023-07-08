@@ -1,6 +1,6 @@
-﻿namespace FocusTree.IO.FileManage
+﻿namespace LocalUtilities.ManageUtilities.Interface
 {
-    public interface IBackupable : IFileManageable
+    public interface IFileBackupManageable : IFileManageable
     {
         /// <summary>
         /// 获取对象哈希值字符串

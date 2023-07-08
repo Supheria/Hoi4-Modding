@@ -1,11 +1,11 @@
 ﻿using FormatRawEffectSentence.Data;
+using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model;
 using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.RegexUtilities;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
-using FormatRawEffectSentence.LocalSign;
 
 namespace FormatRawEffectSentence
 {
@@ -21,7 +21,7 @@ namespace FormatRawEffectSentence
         private static RawPattern[] _patterns = Array.Empty<RawPattern>();
 
         private record MotionCollect(Motions Motion, (Types Type, string Value) Value);
-        
+
         public static bool Format(string sentence, out List<EffectSentence> formattedList)
         {
             _rawSentence = sentence.Trim();

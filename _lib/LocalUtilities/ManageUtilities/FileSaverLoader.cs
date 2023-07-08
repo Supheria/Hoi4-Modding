@@ -1,9 +1,9 @@
 ﻿using LocalUtilities.SerializeUtilities.Interface;
 using System.Xml.Serialization;
 
-namespace LocalUtilities.SerializeUtilities;
+namespace LocalUtilities.ManageUtilities;
 
-public static class XmlIO
+public static class FileSaverLoader
 {
     public static void SaveToXml<T>(this T obj, string path, IXmlSerialization<T> serialization)
     {

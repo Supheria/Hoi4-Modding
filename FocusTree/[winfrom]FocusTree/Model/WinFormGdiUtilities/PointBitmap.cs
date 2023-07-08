@@ -1,11 +1,11 @@
 ﻿using System.Drawing.Imaging;
 
-namespace FocusTree.Graph
+namespace FocusTree.Model.WinFormGdiUtilities
 {
     /// <summary>
     /// 指针法 Bitmap 颜色赋值，来源 https://www.cnblogs.com/ybqjymy/p/12897892.html
     /// </summary>
-    class PointBitmap
+    internal class PointBitmap
     {
         /// <summary>
         /// 指向的源图片
@@ -14,11 +14,11 @@ namespace FocusTree.Graph
         /// <summary>
         /// 指针首地址
         /// </summary>
-        private IntPtr _intPointer = IntPtr.Zero;
+        private nint _intPointer = nint.Zero;
         /// <summary>
         /// 数据存储结构
         /// </summary>
-        private BitmapData? _bmpData = null;
+        private BitmapData? _bmpData;
         /// <summary>
         /// 图片位深
         /// </summary>
