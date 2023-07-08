@@ -9,18 +9,21 @@ namespace FocusTree.IO.Csv
         /// 从 xml 文件中反序列化 FGraph
         /// </summary>
         /// <param name="path">xml文件路径</param>
+        /// <param name="focusGraph"></param>
         /// <returns>FGraph</returns>
-        public static FocusGraph LoadFromCsv(string path)
+        public static string LoadFromCsv(string path, out FocusGraph? focusGraph)
         {
+            focusGraph = null;
             try
             {
                 var nodes = new List<CsvFocusData>();
                 ReadGraphFromCsv(path, nodes);
-                return new(Path.GetFileNameWithoutExtension(path), nodes);
+                focusGraph = new(Path.GetFileNameWithoutExtension(path), nodes);
+                return "";
             }
             catch (Exception ex)
             {
-                throw new($"[2304130225]无法读取{path}。\n{ex.Message}");
+                return ex.Message;
             }
         }
 

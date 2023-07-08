@@ -109,14 +109,14 @@ internal class LocalRawPatternArray
             },
         },
 
-        new(false, @$"{AddClausesString}|{SubClausesString}个数", new[]
+        new(false, @$"{AddSubClausesString}个数", new[]
         {
             @$"获得1个科研槽",
             @$"增加10个建筑位",
             @$"移除1个民用工厂",
         })
         {
-            Motion = new(0, @$"({AddClausesString}|{SubClausesString})(\d+)个({CollectZnChar}+)", ReverseMotionConditionMap(new()
+            Motion = new(0, @$"({AddSubClausesString})(\d+)个({CollectZnChar}+)", ReverseMotionConditionMap(new()
             {
                 [Motions.Add] = AddClauses,
                 [Motions.Sub] = SubClauses,
@@ -127,6 +127,27 @@ internal class LocalRawPatternArray
                 {
                     2,
                     1,
+                }
+            },
+        },
+
+        new(false, @$"（某国）值{AddSubClausesString}点", new[]
+        {
+            @$"（人类村落）厌战降低50点",
+        })
+        {
+            Trigger = new(Types.State, @$"（({CollectZnChar}+)）"),
+            Motion = new(1, @$"({CollectZnChar}+)({AddSubClausesString})({NumericValue})点", ReverseMotionConditionMap(new()
+            {
+                [Motions.Add] = AddClauses,
+                [Motions.Sub] = SubClauses,
+            })),
+            Value = new(Types.Variable)
+            {
+                PartIndexOrder =
+                {
+                    0,
+                    2,
                 }
             },
         },

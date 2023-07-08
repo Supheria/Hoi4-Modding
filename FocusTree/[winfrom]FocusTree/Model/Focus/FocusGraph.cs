@@ -2,7 +2,6 @@ using FocusTree.IO.Csv;
 using FocusTree.IO.Xml;
 using FocusTree.Model.Lattice;
 using LocalUtilities.ManageUtilities;
-using LocalUtilities.ManageUtilities.Interface;
 using LocalUtilities.SerializeUtilities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -139,20 +138,28 @@ namespace FocusTree.Model.Focus
             return FocusGraphUtilities.GetNodesLatticedRect(ref focusNodes);
         }
 
-        public string FileManageDirName => $"FG{Name.ToMd5HashString()}";
-
-        public string GetHashString(string filePath)
-        {
-            this.SaveToXml(filePath, new FocusXmlGraphSerialization());
-            var file = File.OpenRead(filePath);
-            var hash = file.ToMd5HashString();
-            file.Close();
-            return hash.Aggregate(string.Empty, (current, b) => current + b);
-        }
-
         //
         // interface
         //
+
+        public string FileManageDirName => $"FG{Name.ToMd5HashString()}";
+
+        private string CachePath => this.GetCachePath("hash test");
+
+        public string GetHashString()
+        {
+            this.SaveToXml(CachePath, new FocusXmlGraphSerialization());
+            using var data = new FileStream(CachePath, FileMode.Open);
+            return data.ToMd5HashString();
+        }
+
+        public string GetHashStringFromFilePath(string filePath)
+        {
+            new FocusXmlGraphSerialization().LoadFromXml(filePath)
+                ?.SaveToXml(CachePath, new FocusXmlGraphSerialization());
+            using var data = new FileStream(CachePath, FileMode.Open);
+            return data.ToMd5HashString();
+        }
 
         public int HistoryIndex { get; set; }
 
@@ -164,7 +171,7 @@ namespace FocusTree.Model.Focus
 
         public FormattedData ToFormattedData()
         {
-            var hashString = ((IFileBackupManageable)this).GetHashString();
+            var hashString = this.GetHashString();
             if (!Directory.Exists(hashString))
                 this.SaveToXml(this.GetCachePath(hashString), new FocusXmlGraphSerialization());
             return new(hashString);

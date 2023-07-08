@@ -56,7 +56,7 @@ namespace FocusTree.UI.Graph
                     return;
                 }
             }
-            GraphFrom_Openfile.Filter = "xml文件|*.xml|csv文件|*.csv";
+            GraphFrom_Openfile.Filter = "xml文件|*.xml|csv文件|*.csv|yml文件|*.yml";
             if (GraphFrom_Openfile.ShowDialog() == DialogResult.Cancel)
             {
                 return;
@@ -101,10 +101,10 @@ namespace FocusTree.UI.Graph
         private void GraphFrom_Menu_file_backup_open_ReadBackupList(object sender, EventArgs e)
         {
             var backupList = GraphBox.BackupList;
+            GraphFrom_Menu_file_backup_open.DropDownItems.Clear();
             if (backupList.Count <= 1)
                 return;
             GraphFrom_Menu_file_backup_open.Visible = false;
-            GraphFrom_Menu_file_backup_open.DropDownItems.Clear();
             GraphFrom_Menu_file_backup_open.Visible = true;
             foreach (var pair in backupList)
             {

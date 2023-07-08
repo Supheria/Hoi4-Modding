@@ -11,19 +11,19 @@ internal class RawPatternArrayUtilities
     internal const string CollectZnChar = @"[\u4e00-\u9fa5]";
     internal const string CollectZnMark = @"[？《》]";
 
-    internal static string AddClausesString => new StringBuilder().AppendJoin('|', AddClauses).ToString();
-    internal static readonly string[] AddClauses = new[]
-    {
+    internal static readonly string[] AddClauses = {
         "增加",
         "获得",
         "添加",
+        "升高",
     };
 
-    internal static string SubClausesString => new StringBuilder().AppendJoin('|', SubClauses).ToString();
-    internal static readonly string[] SubClauses = new[]
-    {
+    internal static readonly string[] SubClauses = {
         "移除",
+        "降低",
     };
+
+    internal static string AddSubClausesString => new StringBuilder().AppendJoin('|', AddClauses).Append('|').AppendJoin('|', SubClauses).ToString();
 
     internal static Dictionary<TValueToKey, TKeyToValue> ReverseDictionary<TKeyToValue, TValueToKey>(
         Dictionary<TKeyToValue, TValueToKey[]> rawDictionary)
@@ -49,5 +49,6 @@ internal class RawPatternArrayUtilities
     internal static void SaveRawPatternArray(string filePath, ref RawPattern[] patterns)
     {
         patterns.SaveToXml(filePath, new RawPatternArrayXmlSerialization());
+        //patterns.SaveToYaml(filePath);
     }
 }

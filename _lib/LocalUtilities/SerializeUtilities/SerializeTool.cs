@@ -1,5 +1,4 @@
-﻿using LocalUtilities.SerializeUtilities.Interface;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 
 namespace LocalUtilities.SerializeUtilities;

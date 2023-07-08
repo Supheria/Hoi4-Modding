@@ -1,6 +1,5 @@
 ﻿using FormatRawEffectSentence.LocalSign;
 using LocalUtilities.SerializeUtilities;
-using LocalUtilities.SerializeUtilities.Interface;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;

@@ -1,6 +1,5 @@
 ﻿using FormatRawEffectSentence.Model;
 using LocalUtilities.SerializeUtilities;
-using LocalUtilities.SerializeUtilities.Interface;
 using System.Text;
 
 namespace FormatRawEffectSentence.IO;

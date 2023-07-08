@@ -1,4 +1,6 @@
 ﻿using FocusTree.IO.Csv;
+using FocusTree.IO.Xml;
+using LocalUtilities.ManageUtilities;
 
 namespace FocusTree.Model.Focus;
 
@@ -224,4 +226,17 @@ internal static class FocusGraphUtilities
             focusNodesMap[linkId] = focus;
         }
     }
+
+    internal static string LoadFromFile(string filePath, out FocusGraph? focusGraph)
+    {
+        var extension = Path.GetExtension(filePath).ToLower();
+        return extension switch
+        {
+            ".csv" => CsvLoader.LoadFromCsv(filePath, out focusGraph),
+            _ => new FocusXmlGraphSerialization().LoadFromXml(filePath, out focusGraph)
+        };
+    }
+
+    internal static void SaveToFile(this FocusGraph focusGraph, string filePath) =>
+        focusGraph.SaveToXml(Path.ChangeExtension(filePath, ".xml"), new FocusXmlGraphSerialization());
 }

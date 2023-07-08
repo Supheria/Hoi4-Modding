@@ -1,9 +1,9 @@
-﻿using LocalUtilities.SerializeUtilities.Interface;
+﻿using LocalUtilities.SerializeUtilities;
 using System.Xml.Serialization;
 
 namespace LocalUtilities.ManageUtilities;
 
-public static class FileSaverLoader
+public static class XmlFileSaverLoader
 {
     public static void SaveToXml<T>(this T obj, string path, IXmlSerialization<T> serialization)
     {
@@ -12,6 +12,28 @@ public static class FileSaverLoader
         var writer = new XmlSerializer(serialization.GetType());
         writer.Serialize(file, serialization);
         file.Close();
+    }
+
+    public static string LoadFromXml<T>(this IXmlSerialization<T> serialization, string path, out T? obj)
+    {
+        obj = default;
+        if (!File.Exists(path))
+            return $"{path} is not existed.";
+        var file = File.OpenRead(path);
+        try
+        {
+            var reader = new XmlSerializer(serialization.GetType());
+            var o = reader.Deserialize(file);
+            serialization = o as IXmlSerialization<T> ?? serialization;
+            obj = serialization.Source;
+            file.Close();
+            return "";
+        }
+        catch (Exception e)
+        {
+            file.Close();
+            return e.Message;
+        }
     }
 
     public static T? LoadFromXml<T>(this IXmlSerialization<T> serialization, string path)

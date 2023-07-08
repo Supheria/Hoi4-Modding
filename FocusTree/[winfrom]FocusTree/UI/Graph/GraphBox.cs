@@ -1,6 +1,4 @@
-﻿using FocusTree.IO.Csv;
-using FocusTree.IO.Xml;
-using FocusTree.Model.Focus;
+﻿using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
 using LocalUtilities.ManageUtilities;
 using System.Diagnostics.CodeAnalysis;
@@ -93,19 +91,13 @@ namespace FocusTree.UI.Graph
             if (!ReadOnly)
                 FilePath = filePath;
             FileCacheManager.ClearCache(Graph);
-            if (Path.GetExtension(filePath).ToLower() is ".csv")
-                try
-                {
-                    Graph = CsvLoader.LoadFromCsv(filePath);
-                }
-                catch (Exception e)
-                {
-                    Graph = null;
-                    Program.TestInfo.Append(e.Message);
-                    Program.TestInfo.Show();
-                }
-            else
-                Graph = new FocusXmlGraphSerialization().LoadFromXml(filePath);
+            var message = FocusGraphUtilities.LoadFromFile(filePath, out var focusGraph);
+            if (message is not "")
+            {
+                Program.TestInfo.Append(message);
+                Program.TestInfo.Show();
+            }
+            Graph = focusGraph;
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -118,19 +110,13 @@ namespace FocusTree.UI.Graph
             if (!File.Exists(FilePath)) { return; }
             ReadOnly = false;
             FileCacheManager.ClearCache(Graph);
-            if (Path.GetExtension(FilePath).ToLower() is ".csv")
-                try
-                {
-                    Graph = CsvLoader.LoadFromCsv(FilePath);
-                }
-                catch (Exception e)
-                {
-                    Graph = null;
-                    Program.TestInfo.Append(e.Message);
-                    Program.TestInfo.Show();
-                }
-            else
-                Graph = new FocusXmlGraphSerialization().LoadFromXml(FilePath);
+            var message = FocusGraphUtilities.LoadFromFile(FilePath, out var focusGraph);
+            if (message is not "")
+            {
+                Program.TestInfo.Append(message);
+                Program.TestInfo.Show();
+            }
+            Graph = focusGraph;
             Graph?.NewHistory();
             Program.TestInfo.Renew();
         }
@@ -141,14 +127,9 @@ namespace FocusTree.UI.Graph
         {
             if (Graph is null)
                 return;
-            if (Path.GetExtension(FilePath).ToLower() is ".csv")
-            {
-                SaveToNew(Path.ChangeExtension(FilePath, ".xml"));
-                return;
-            }
             ReadOnly = false;
             Graph.Backup(FilePath);
-            Graph.SaveToXml(FilePath, new FocusXmlGraphSerialization());
+            Graph.SaveToFile(FilePath);
             Graph.UpdateLatest();
         }
         /// <summary>
@@ -166,8 +147,8 @@ namespace FocusTree.UI.Graph
             }
             ReadOnly = false;
             FileCacheManager.ClearCache(Graph);
-            Graph.SaveToXml(filePath, new FocusXmlGraphSerialization());
-            Graph?.NewHistory();
+            Graph.SaveToFile(FilePath);
+            Graph.NewHistory();
             FilePath = filePath;
             Program.TestInfo.Renew();
         }

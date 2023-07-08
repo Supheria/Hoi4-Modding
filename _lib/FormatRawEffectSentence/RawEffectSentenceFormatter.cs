@@ -26,6 +26,7 @@ namespace FormatRawEffectSentence
         {
             _rawSentence = sentence.Trim();
             _patterns = RawPatternArrayUtilities.LoadRawPatternArray(XmlFilePath);
+
             //RawPatternArrayUtilities.SaveRawPatternArray(XmlFilePath, ref _patterns);
             return TestSinglePatterns(out formattedList);
             //return SinglePatternFormatter(sentence, out formattedList) ||

@@ -1,9 +1,8 @@
-namespace LocalUtilities.SerializeUtilities
-{
-    public class FormattedData
-    {
-        public string[] Items { get; }
+namespace LocalUtilities.SerializeUtilities;
 
-        public FormattedData(params string[] data) => Items = data;
-    }
+public class FormattedData
+{
+    public string[] Items { get; }
+
+    public FormattedData(params string[] data) => Items = data;
 }
