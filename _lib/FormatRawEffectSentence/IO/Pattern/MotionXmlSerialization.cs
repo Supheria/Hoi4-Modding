@@ -1,7 +1,6 @@
-﻿using FormatRawEffectSentence.InternalSign;
+﻿using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -21,11 +20,11 @@ public class MotionXmlSerialization : Serialization<Motion>, IXmlSerialization<M
 
     public void ReadXml(XmlReader reader)
     {
-        var partIndex = XmlReadTool.GetIntValue(reader.GetAttribute(nameof(Source.PartIndex))) ?? -1;
+        var partIndex = SimpleTypeTool.GetIntValue(reader.GetAttribute(nameof(Source.PartIndex))) ?? -1;
         var pattern = reader.GetAttribute(nameof(Source.Pattern)) ?? "";
         Source = new(partIndex, pattern);
         if (partIndex is -1)
-            Source.ConditionMap[""] = XmlReadTool.GetEnumValue<Motions>(reader.GetAttribute(LocalNameMotion));
+            Source.ConditionMap[""] = SimpleTypeTool.GetEnumValue<Motions>(reader.GetAttribute(LocalNameMotion));
         else
             Source.ConditionMap.ReadXmlCollection(reader, LocalRootName, new MotionConditionXmlSerialization());
     }

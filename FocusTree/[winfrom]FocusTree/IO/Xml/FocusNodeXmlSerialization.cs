@@ -1,15 +1,14 @@
-﻿#define test_format
+﻿
+#define test_format
 
-using FocusTree.Data.Focus;
-using FocusTree.Graph.Lattice;
+using FocusTree.Model.Focus;
+using FocusTree.Model.Lattice;
+using FormatRawEffectSentence;
 using FormatRawEffectSentence.IO;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using FocusTree.Utilities.test;
-using FormatRawEffectSentence;
 
 namespace FocusTree.IO.Xml;
 
@@ -24,17 +23,17 @@ public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerializa
 
     public void ReadXml(XmlReader reader)
     {
-        var latticedPoint = XmlReadTool.ReadArrayString(reader.GetAttribute(nameof(Source.LatticedPoint)));
+        var latticedPoint = SimpleTypeTool.ReadArrayString(reader.GetAttribute(nameof(Source.LatticedPoint)));
         Source = new()
         {
-            Id = XmlReadTool.GetIntValue(reader.GetAttribute(nameof(Source.Id))) ?? 0,
+            Id = SimpleTypeTool.GetIntValue(reader.GetAttribute(nameof(Source.Id))) ?? 0,
             Name = reader.GetAttribute(nameof(Source.Name)) ?? "",
-            BeginWithStar = XmlReadTool.GetBoolValue(reader.GetAttribute(nameof(Source.BeginWithStar))) ?? false,
-            Duration = XmlReadTool.GetIntValue(reader.GetAttribute(nameof(Source.Duration))) ?? 0,
+            BeginWithStar = SimpleTypeTool.GetBoolValue(reader.GetAttribute(nameof(Source.BeginWithStar))) ?? false,
+            Duration = SimpleTypeTool.GetIntValue(reader.GetAttribute(nameof(Source.Duration))) ?? 0,
             Description = reader.GetAttribute(nameof(Source.Description)) ?? "",
             Ps = reader.GetAttribute(nameof(Source.Ps)) ?? "",
             LatticedPoint = latticedPoint.Length > 1
-                ? new(XmlReadTool.GetIntValue(latticedPoint[0]) ?? 0, XmlReadTool.GetIntValue(latticedPoint[1]) ?? 0)
+                ? new(SimpleTypeTool.GetIntValue(latticedPoint[0]) ?? 0, SimpleTypeTool.GetIntValue(latticedPoint[1]) ?? 0)
                 : new LatticedPoint(),
         };
 
@@ -71,7 +70,7 @@ public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerializa
         writer.WriteAttributeString(nameof(Source.Description), Source.Description);
         writer.WriteAttributeString(nameof(Source.Ps), Source.Ps);
         writer.WriteAttributeString(nameof(Source.LatticedPoint),
-            XmlWriteTool.WriteArrayString(new[]
+            SimpleTypeTool.WriteArrayString(new[]
                 { Source.LatticedPoint.Col.ToString(), Source.LatticedPoint.Row.ToString() }));
 
         Source.RawEffects.WriteXmlCollection(writer, nameof(Source.RawEffects), new RawEffectXmlSerialization());

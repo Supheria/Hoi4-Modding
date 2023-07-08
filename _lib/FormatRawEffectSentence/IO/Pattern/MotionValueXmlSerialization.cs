@@ -1,7 +1,6 @@
-﻿using FormatRawEffectSentence.InternalSign;
+﻿using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -19,7 +18,7 @@ public class MotionValueXmlSerialization : Serialization<MotionValue>, IXmlSeria
 
     public void ReadXml(XmlReader reader)
     {
-        var valueType = XmlReadTool.GetEnumValue<Types>(reader.GetAttribute(nameof(Source.Type)));
+        var valueType = SimpleTypeTool.GetEnumValue<Types>(reader.GetAttribute(nameof(Source.Type)));
         Source = new(valueType);
         Source.PartIndexOrder.ReadXmlCollection(reader, LocalRootName, new MotionValuePartIndexOrderXmlSerialization());
     }

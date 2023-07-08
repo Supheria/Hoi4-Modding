@@ -1,10 +1,11 @@
-using FocusTree.Data;
 using FocusTree.UI.Graph;
+using LocalUtilities.ManageUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Drawing.Text;
 
 namespace FocusTree.UI.NodeToolDialogs
 {
-    public partial class NodeInfoDialog : ToolDialog, IHistoryable
+    public partial class NodeInfoDialog : ToolDialog, IHistoryRecordable
     {
         private bool _doFontScale = false;
         private bool _doTextEditCheck = false;
@@ -384,23 +385,25 @@ namespace FocusTree.UI.NodeToolDialogs
         public int CurrentHistoryLength { get; set; } = 0;
         public FormattedData[] History { get; set; } = new FormattedData[50];
         public int LatestIndex { get; set; } = 0;
-        public FormattedData Format()
+
+        #endregion
+
+        public FormattedData ToFormattedData()
         {
             return new FormattedData(
                 FocusName.Text,
                 Duration.Text,
                 Effects.Text,
                 Descript.Text
-                );
-        }
-        public void Deformat(FormattedData data)
-        {
-            FocusName.Text = data.Items[0];
-            Duration.Text = data.Items[1]; ;
-            Descript.Text = data.Items[2]; ;
-            Effects.Text = data.Items[3]; ;
+            );
         }
 
-        #endregion
+        public void FromFormattedData(FormattedData data)
+        {
+            FocusName.Text = data.Items[0];
+            Duration.Text = data.Items[1];
+            Descript.Text = data.Items[2];
+            Effects.Text = data.Items[3];
+        }
     }
 }

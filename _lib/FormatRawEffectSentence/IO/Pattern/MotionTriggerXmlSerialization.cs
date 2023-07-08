@@ -1,7 +1,6 @@
-﻿using FormatRawEffectSentence.InternalSign;
+﻿using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -19,7 +18,7 @@ public class MotionTriggerXmlSerialization : Serialization<MotionTrigger>, IXmlS
 
     public void ReadXml(XmlReader reader)
     {
-        var type = XmlReadTool.GetEnumValue<Types>(reader.GetAttribute(nameof(Source.Type)));
+        var type = SimpleTypeTool.GetEnumValue<Types>(reader.GetAttribute(nameof(Source.Type)));
         var pattern = reader.GetAttribute(nameof(Source.Pattern)) ?? "";
         Source = new(type, pattern);
     }

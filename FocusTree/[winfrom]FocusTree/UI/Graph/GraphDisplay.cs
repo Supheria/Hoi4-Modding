@@ -1,11 +1,10 @@
 //#define MOUSE_DRAG_FREE
-
-using FocusTree.Data.Focus;
-using FocusTree.Graph;
-using FocusTree.Graph.Lattice;
-using FocusTree.IO.FileManage;
+using FocusTree.Model.Focus;
+using FocusTree.Model.Lattice;
+using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.UI.Controls;
 using FocusTree.UI.NodeToolDialogs;
+using LocalUtilities.ManageUtilities;
 
 namespace FocusTree.UI.Graph
 {

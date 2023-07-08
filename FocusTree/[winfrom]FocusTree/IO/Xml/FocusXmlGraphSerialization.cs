@@ -1,6 +1,5 @@
-﻿using FocusTree.Data.Focus;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+﻿using FocusTree.Model.Focus;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;

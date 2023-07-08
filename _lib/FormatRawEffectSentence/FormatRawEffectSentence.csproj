@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="InternalSign\" />
+    <Folder Include="LocalSign\" />
   </ItemGroup>
 
   <ItemGroup>

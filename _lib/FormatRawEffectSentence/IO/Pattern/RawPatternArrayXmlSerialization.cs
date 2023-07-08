@@ -1,6 +1,5 @@
 ﻿using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;

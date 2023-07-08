@@ -1,6 +1,5 @@
-﻿using FormatRawEffectSentence.InternalSign;
-using LocalUtilities.Interface;
-using LocalUtilities.XmlUtilities;
+﻿using FormatRawEffectSentence.LocalSign;
+using LocalUtilities.SerializeUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -22,7 +21,7 @@ public class MotionConditionXmlSerialization : Serialization<KeyValuePair<string
     public void ReadXml(XmlReader reader)
     {
         var condition = reader.GetAttribute(LocalNamePartIndex) ?? "";
-        var motion = XmlReadTool.GetEnumValue<Motions>(reader.GetAttribute(LocalNameMotion));
+        var motion = SimpleTypeTool.GetEnumValue<Motions>(reader.GetAttribute(LocalNameMotion));
         Source = new(condition, motion);
 
     }

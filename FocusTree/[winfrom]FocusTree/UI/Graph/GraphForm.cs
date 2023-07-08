@@ -1,12 +1,11 @@
 //#define DEBUG
 
-using FocusTree.Graph;
-using FocusTree.Graph.Lattice;
-using FocusTree.IO;
-using FocusTree.IO.FileManage;
 using FocusTree.IO.Xml;
+using FocusTree.Model.Lattice;
+using FocusTree.Model.WinFormGdiUtilities;
+using FocusTree.Utilities;
 using FocusTree.Utilities.test;
-using LocalUtilities.XmlUtilities;
+using LocalUtilities.ManageUtilities;
 using System.Diagnostics;
 using System.IO.Compression;
 
@@ -57,7 +56,7 @@ namespace FocusTree.UI.Graph
                     return;
                 }
             }
-            GraphFrom_Openfile.Filter = "xml文件|*.xml|csv文件|*.csv";
+            GraphFrom_Openfile.Filter = "xml文件|*.xml|csv文件|*.csv|yml文件|*.yml";
             if (GraphFrom_Openfile.ShowDialog() == DialogResult.Cancel)
             {
                 return;
@@ -102,10 +101,10 @@ namespace FocusTree.UI.Graph
         private void GraphFrom_Menu_file_backup_open_ReadBackupList(object sender, EventArgs e)
         {
             var backupList = GraphBox.BackupList;
+            GraphFrom_Menu_file_backup_open.DropDownItems.Clear();
             if (backupList.Count <= 1)
                 return;
             GraphFrom_Menu_file_backup_open.Visible = false;
-            GraphFrom_Menu_file_backup_open.DropDownItems.Clear();
             GraphFrom_Menu_file_backup_open.Visible = true;
             foreach (var pair in backupList)
             {
@@ -152,7 +151,7 @@ namespace FocusTree.UI.Graph
                 return;
             }
             var zipPath = Path.Combine(folderBrowser.SelectedPath, DateTime.Now.ToString("yyyy年MM月dd日 HH时mm分ss秒") + ".ftbp");
-            FileBackup.Clear(zipPath);
+            FileBackupManager.Clear(zipPath);
             GraphFrom_StatusStrip_status.Text = "备份已打包";
         }
         private void GraphFrom_Menu_file_backup_unpack_Click(object sender, EventArgs e)
@@ -165,7 +164,7 @@ namespace FocusTree.UI.Graph
                 return;
             }
             var zipPath = GraphFrom_Openfile.FileName;
-            ZipFile.ExtractToDirectory(zipPath, FileBackup.RootDirectoryName, true);
+            ZipFile.ExtractToDirectory(zipPath, FileBackupManager.RootDirectoryName, true);
             GraphFrom_StatusStrip_status.Text = "备份已解包";
         }
 
@@ -438,7 +437,7 @@ namespace FocusTree.UI.Graph
         {
             if (GraphBox.Edited is false)
             {
-                FileCache.Clear();
+                FileCacheManager.Clear();
                 return;
             }
             var result = MessageBox.Show("是否保存当前编辑？", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);

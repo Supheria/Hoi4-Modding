@@ -41,7 +41,11 @@ public class RegexPatternTool
     private static string ReplaceExclusiveOrUnlimitedCollection(string s) =>
         s.Substring(s.Length - 1, 1) is "." ? @"[^\s]" : s.Insert(s.Length - 1, @"\s");
 
-    private static readonly string[] ExclusiveOrUnlimitedCollection = new[] { @"\[\^[^]]+\]", @"(?<!\\)\." };
+    private static readonly string[] ExclusiveOrUnlimitedCollection =
+    {
+        @"\[\^[^]]+\]",
+        @"(?<!\\)\.",
+    };
 
     /// <summary>
     /// make such as "[^a]" to "[^a\s]", ".*" to "[^\s]*"
