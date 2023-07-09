@@ -1,5 +1,5 @@
 ﻿using FormatRawEffectSentence.LocalSign;
-using LocalUtilities.RegexUtilities;
+using LocalUtilities.StringUtilities;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 
@@ -13,6 +13,10 @@ public class MotionTrigger
     {
         Type = type;
         Pattern = pattern is "" ? pattern : RegexPatternTool.ExcludeBlankInExclusiveOrUnlimitedCollection(pattern);
+    }
+
+    public MotionTrigger(Types type) : this(type, "")
+    {
     }
 
     public MotionTrigger() : this(Types.None, "")

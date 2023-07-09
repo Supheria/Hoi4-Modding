@@ -1,4 +1,5 @@
 ﻿using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -17,7 +18,7 @@ public class MotionValuePartIndexOrderXmlSerialization : Serialization<int>, IXm
     public void ReadXml(XmlReader reader)
     {
         reader.Read();
-        var index = SimpleTypeTool.GetIntValue(reader.Value);
+        var index = reader.Value.ToInt();
         if (index is not null)
             Source = (int)index;
     }

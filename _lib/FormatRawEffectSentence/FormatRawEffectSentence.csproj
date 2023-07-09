@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="LocalSign\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LocalUtilities\LocalUtilities.csproj" />
   </ItemGroup>
 

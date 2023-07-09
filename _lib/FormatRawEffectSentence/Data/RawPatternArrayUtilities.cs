@@ -2,28 +2,53 @@
 using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.ManageUtilities;
 using System.Text;
+using LocalUtilities.StringUtilities;
 
 namespace FormatRawEffectSentence.Data;
 
 internal class RawPatternArrayUtilities
 {
-    internal const string NumericValue = @"[\d]+\.?[\d]*%?";
-    internal const string CollectZnChar = @"[\u4e00-\u9fa5]";
-    internal const string CollectZnMark = @"[？《》]";
+    internal static string NumericValue => @"[\d]+\.?[\d]*%?";
 
-    internal static readonly string[] AddClauses = {
+    internal static string CollectZnChar => @"[\u4e00-\u9fa5]";
+
+    internal static string CollectZnMark => @"[？《》]";
+
+    internal static string AddSubString => CombineStringArrays(AddWords, SubWords);
+
+    internal static string[] AddWords => new[]
+    {
         "增加",
         "获得",
         "添加",
         "升高",
     };
 
-    internal static readonly string[] SubClauses = {
+    internal static string[] SubWords => new[]
+    {
         "移除",
         "降低",
     };
 
-    internal static string AddSubClausesString => new StringBuilder().AppendJoin('|', AddClauses).Append('|').AppendJoin('|', SubClauses).ToString();
+    internal static string AbleUnableString => CombineStringArrays(AbleWords, UnableWords);
+
+    internal static string[] AbleWords => new[]
+    {
+        "可以",
+        "是",
+    };
+
+    internal static string[] UnableWords => new[]
+    {
+        "不能",
+        "不可以",
+        "否",
+    };
+
+    private static string CombineStringArrays(params string[][] stringArrays) => new StringBuilder()
+        .AppendJoin('|', stringArrays, (sb, value) => sb
+            .AppendJoin('|', value))
+        .ToString();
 
     internal static Dictionary<TValueToKey, TKeyToValue> ReverseDictionary<TKeyToValue, TValueToKey>(
         Dictionary<TKeyToValue, TValueToKey[]> rawDictionary)

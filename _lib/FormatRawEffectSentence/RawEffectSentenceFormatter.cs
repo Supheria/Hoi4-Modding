@@ -135,14 +135,14 @@ namespace FormatRawEffectSentence
             //// 将平均灵力值固定为50%
             //// 将世界观固定为唯心世界观
             //else if (MatchSinglePatternEffectSentence(rawSentence, null, "将(.+)固定为([\u4e00-\u9fa5\\d%]+)",
-            //             parts => new(Motions.Fixed,
+            //             parts => new(Motions.Lock,
             //                 (Types.Variable, parts[0] + PublicSplitter + parts[1])),
             //             out sentence))
             //    formattedList = new() { sentence };
             //// 单语句-移除固定
             //// 移除对势力规模的固定
             //else if (MatchSinglePatternEffectSentence(rawSentence, null, "移除对(.+)的固定",
-            //             parts => new(Motions.Unpin, (Types.Variable, parts[0])),
+            //             parts => new(Motions.Unlock, (Types.Variable, parts[0])),
             //             out sentence))
             //    formattedList = new() { sentence };
             //// 单语句-加|减值

@@ -1,5 +1,6 @@
 ﻿using FormatRawEffectSentence.Model;
 using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
 using System.Text;
 
 namespace FormatRawEffectSentence.IO;
@@ -43,5 +44,5 @@ public class EffectSentenceStringSerialization : Serialization<EffectSentence>
     private string TypePairToString() => Source is null ? "" : $"({Source.Type}),({Source.TriggerType})";
 
     private string ValuePairToString() =>
-        Source is null ? "" : $"({Source.Value}),({SimpleTypeTool.WriteArrayString(Source.Triggers)})";
+        Source is null ? "" : $"({Source.Value}),({Source.Triggers.ToArrayString()})";
 }

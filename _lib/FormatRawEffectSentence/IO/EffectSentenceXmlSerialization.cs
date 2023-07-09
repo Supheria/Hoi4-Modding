@@ -1,6 +1,7 @@
 ﻿using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model;
 using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -14,14 +15,12 @@ public class EffectSentenceXmlSerialization : EffectSentenceStringSerialization,
 
     public void ReadXml(XmlReader reader)
     {
-        var motion = SimpleTypeTool.GetEnumValue<Motions>(reader.GetAttribute(nameof(Source.Motion)));
+        var motion = reader.GetAttribute(nameof(Source.Motion)).ToEnum<Motions>();
         var typePair = reader.GetAttribute(LocalNameType);
         var valuePair = reader.GetAttribute(LocalNameValue);
-        var (valueType, triggerType) = SimpleTypeTool.ReadPair(typePair, (Types.None, Types.None),
-            SimpleTypeTool.GetEnumValue<Types>,
-            SimpleTypeTool.GetEnumValue<Types>);
-        var (value, triggers) = SimpleTypeTool.ReadPair(valuePair, ("", Array.Empty<string>()),
-            str => str, SimpleTypeTool.ReadArrayString);
+        var (valueType, triggerType) = typePair.ToPair(Types.None, Types.None, StringSimpleTypeConverter.ToEnum<Types>,
+            StringSimpleTypeConverter.ToEnum<Types>);
+        var (value, triggers) = valuePair.ToPair("", Array.Empty<string>(), str => str, StringSimpleTypeConverter.ToArray);
         Source = new(motion, valueType, value, triggerType, triggers);
 
         Source.SubSentences.ReadXmlCollection(reader, LocalRootName, new EffectSentenceXmlSerialization());
@@ -33,9 +32,9 @@ public class EffectSentenceXmlSerialization : EffectSentenceStringSerialization,
             return;
         writer.WriteAttributeString(nameof(Source.Motion), Source.Motion.ToString());
         writer.WriteAttributeString(LocalNameType,
-            SimpleTypeTool.WritePair(Source.Type.ToString(), Source.TriggerType.ToString()));
+            StringSimpleTypeConverter.ToArrayString(Source.Type, Source.TriggerType));
         writer.WriteAttributeString(LocalNameValue,
-            SimpleTypeTool.WritePair(Source.Value, SimpleTypeTool.WriteArrayString(Source.Triggers)));
+            StringSimpleTypeConverter.ToArrayString(Source.Value, Source.Triggers.ToArrayString()));
 
         Source.SubSentences.WriteXmlCollection(writer, new EffectSentenceXmlSerialization());
     }

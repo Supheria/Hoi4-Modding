@@ -3,6 +3,7 @@ using FocusTree.IO.Xml;
 using FocusTree.Model.Lattice;
 using LocalUtilities.ManageUtilities;
 using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.Model.Focus

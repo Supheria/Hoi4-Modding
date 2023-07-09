@@ -6,6 +6,7 @@ using FocusTree.Model.Lattice;
 using FormatRawEffectSentence;
 using FormatRawEffectSentence.IO;
 using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -23,17 +24,17 @@ public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerializa
 
     public void ReadXml(XmlReader reader)
     {
-        var latticedPoint = SimpleTypeTool.ReadArrayString(reader.GetAttribute(nameof(Source.LatticedPoint)));
+        var latticedPoint = reader.GetAttribute(nameof(Source.LatticedPoint)).ToArray();
         Source = new()
         {
-            Id = SimpleTypeTool.GetIntValue(reader.GetAttribute(nameof(Source.Id))) ?? 0,
+            Id = reader.GetAttribute(nameof(Source.Id)).ToInt() ?? 0,
             Name = reader.GetAttribute(nameof(Source.Name)) ?? "",
-            BeginWithStar = SimpleTypeTool.GetBoolValue(reader.GetAttribute(nameof(Source.BeginWithStar))) ?? false,
-            Duration = SimpleTypeTool.GetIntValue(reader.GetAttribute(nameof(Source.Duration))) ?? 0,
+            BeginWithStar = reader.GetAttribute(nameof(Source.BeginWithStar)).ToBool() ?? false,
+            Duration = reader.GetAttribute(nameof(Source.Duration)).ToInt() ?? 0,
             Description = reader.GetAttribute(nameof(Source.Description)) ?? "",
             Ps = reader.GetAttribute(nameof(Source.Ps)) ?? "",
             LatticedPoint = latticedPoint.Length > 1
-                ? new(SimpleTypeTool.GetIntValue(latticedPoint[0]) ?? 0, SimpleTypeTool.GetIntValue(latticedPoint[1]) ?? 0)
+                ? new(latticedPoint[0].ToInt() ?? 0, latticedPoint[1].ToInt() ?? 0)
                 : new LatticedPoint(),
         };
 
@@ -70,8 +71,7 @@ public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerializa
         writer.WriteAttributeString(nameof(Source.Description), Source.Description);
         writer.WriteAttributeString(nameof(Source.Ps), Source.Ps);
         writer.WriteAttributeString(nameof(Source.LatticedPoint),
-            SimpleTypeTool.WriteArrayString(new[]
-                { Source.LatticedPoint.Col.ToString(), Source.LatticedPoint.Row.ToString() }));
+            StringSimpleTypeConverter.ToArrayString(Source.LatticedPoint.Col, Source.LatticedPoint.Row));
 
         Source.RawEffects.WriteXmlCollection(writer, nameof(Source.RawEffects), new RawEffectXmlSerialization());
         FormatRawEffects();

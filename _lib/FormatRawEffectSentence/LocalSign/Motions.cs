@@ -62,15 +62,15 @@ public enum Motions
     /// <summary>
     /// 固定
     /// </summary>
-    Fixed = Modify | (Sub ^ Modify) << 1,
+    Lock = Modify | (Sub ^ Modify) << 1,
     /// <summary>
     /// 取消固定
     /// </summary>
-    Unpin = Modify | (Fixed ^ Modify) << 1,
+    Unlock = Modify | (Lock ^ Modify) << 1,
     /// <summary>
     /// 获得
     /// </summary>
-    Gain = Modify | (Unpin ^ Modify) << 1,
+    Gain = Modify | (Unlock ^ Modify) << 1,
     /// <summary>
     /// 移除
     /// </summary>

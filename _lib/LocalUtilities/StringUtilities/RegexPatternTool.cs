@@ -1,6 +1,7 @@
 ﻿using System.Text;
+using LocalUtilities.RegexUtilities;
 
-namespace LocalUtilities.RegexUtilities;
+namespace LocalUtilities.StringUtilities;
 
 public class RegexPatternTool
 {
@@ -15,7 +16,7 @@ public class RegexPatternTool
             // remove the condition limit part of "look behind", some like (?<=pattern)
             if (RegexMatchTool.GetMatch(ignore, @"\(\?.+\)(.+)", out var m))
                 ignore = m.Groups[1].Value;
-            // add together the escape mark at start
+            // if escaped also add the escape mark
             ignore = RegexMatchTool.GetMatch(ignore, @"\\.+", out m) ? m.Groups[0].Value[..2] : part[..1];
             ignores.Add(ignore);
         }

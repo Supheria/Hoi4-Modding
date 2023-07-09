@@ -1,5 +1,5 @@
 ﻿using FormatRawEffectSentence.LocalSign;
-using LocalUtilities.RegexUtilities;
+using LocalUtilities.StringUtilities;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 
@@ -25,7 +25,8 @@ public class Motion
 
     public Motion(int partIndex, string pattern, Dictionary<string, Motions> conditionMap) : this(partIndex, pattern)
     {
-        ConditionMap = conditionMap;
+        foreach (var (condition, motion) in conditionMap)
+            ConditionMap[condition] = motion;
     }
 
     public Motion(Motions motion, string pattern) : this(-1, pattern)

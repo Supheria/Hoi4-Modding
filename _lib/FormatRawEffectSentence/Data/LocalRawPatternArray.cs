@@ -43,7 +43,7 @@ internal class LocalRawPatternArray
             @$"将世界观固定为唯心世界观",
         })
         {
-            Motion = new(Motions.Fixed, @$"将({CollectZnChar}+)固定为({CollectZnChar}+|{NumericValue})"),
+            Motion = new(Motions.Lock, @$"将({CollectZnChar}+)固定为({CollectZnChar}+|{NumericValue})"),
             Value = new(Types.Variable)
             {
                 PartIndexOrder =
@@ -59,7 +59,7 @@ internal class LocalRawPatternArray
             @$"移除对势力规模的固定",
         })
         {
-            Motion = new(Motions.Unpin, @$"移除对({CollectZnChar}+)的固定"),
+            Motion = new(Motions.Unlock, @$"移除对({CollectZnChar}+)的固定"),
             Value = new(Types.Variable)
             {
                 PartIndexOrder =
@@ -109,17 +109,17 @@ internal class LocalRawPatternArray
             },
         },
 
-        new(false, @$"{AddSubClausesString}个数", new[]
+        new(false, @$"{AddSubString}个数", new[]
         {
             @$"获得1个科研槽",
             @$"增加10个建筑位",
             @$"移除1个民用工厂",
         })
         {
-            Motion = new(0, @$"({AddSubClausesString})(\d+)个({CollectZnChar}+)", ReverseMotionConditionMap(new()
+            Motion = new(0, @$"({AddSubString})(\d+)个({CollectZnChar}+)", ReverseMotionConditionMap(new()
             {
-                [Motions.Add] = AddClauses,
-                [Motions.Sub] = SubClauses,
+                [Motions.Add] = AddWords,
+                [Motions.Sub] = SubWords,
             })),
             Value = new(Types.Variable)
             {
@@ -131,16 +131,16 @@ internal class LocalRawPatternArray
             },
         },
 
-        new(false, @$"（某国）值{AddSubClausesString}点", new[]
+        new(false, @$"（某国）值{AddSubString}点", new[]
         {
             @$"（人类村落）厌战降低50点",
         })
         {
             Trigger = new(Types.State, @$"（({CollectZnChar}+)）"),
-            Motion = new(1, @$"({CollectZnChar}+)({AddSubClausesString})({NumericValue})点", ReverseMotionConditionMap(new()
+            Motion = new(1, @$"({CollectZnChar}+)({AddSubString})({NumericValue})点", ReverseMotionConditionMap(new()
             {
-                [Motions.Add] = AddClauses,
-                [Motions.Sub] = SubClauses,
+                [Motions.Add] = AddWords,
+                [Motions.Sub] = SubWords,
             })),
             Value = new(Types.Variable)
             {
@@ -148,6 +148,78 @@ internal class LocalRawPatternArray
                 {
                     0,
                     2,
+                }
+            },
+        },
+
+        new(false, @$"宣战可用性", new[]
+        {
+            @$"规则修改：不能宣战",
+            @$"规则修改：可以宣战",
+            @$"不能宣战",
+        })
+        {
+            Motion = new(0, @$"(?:规则修改：)?({AbleUnableString})(宣战)", ReverseMotionConditionMap(new()
+            {
+                [Motions.Gain] = AbleWords,
+                [Motions.Remove] = UnableWords,
+            })),
+            Value = new(Types.Availability)
+            {
+                PartIndexOrder =
+                {
+                    1,
+                }
+            },
+        },
+
+        new(false, @$"可以开启某项决议", new[]
+        {
+            @$"可以通过决议发动周边国家的内战使其变为附庸",
+        })
+        {
+            Motion = new(Motions.Gain, @$"可以通过(决议)({CollectZnChar}+)"),
+            Value = new(Types.Availability)
+            {
+                PartIndexOrder =
+                {
+                    0,
+                    1,
+                }
+            },
+        },
+
+        new(false, @$"开启某项决议", new[]
+        {
+            @$"?",
+        })
+        {
+            Motion = new(Motions.Start, @$"开启({CollectZnChar}+)决议"),
+            Value = new(Types.Resolution)
+            {
+                PartIndexOrder =
+                {
+                    0,
+                }
+            },
+        },
+
+        new(false, @$"自动获得核心可用性", new[]
+        {
+            @$"幽灵种族的省份将自动获得核心：是",
+        })
+        {
+            Trigger = new(Types.Province, @$"([^的]+)"),
+            Motion = new(1, @$"的省份将(自动获得核心)：(是|否)", ReverseMotionConditionMap(new()
+            {
+                [Motions.Gain] = AbleWords,
+                [Motions.Remove] = UnableWords,
+            })),
+            Value = new(Types.Availability)
+            {
+                PartIndexOrder =
+                {
+                    0,
                 }
             },
         },

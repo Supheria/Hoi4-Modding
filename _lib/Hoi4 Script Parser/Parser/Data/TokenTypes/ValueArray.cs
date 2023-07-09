@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Parser.Utilities;
+using LocalUtilities.StringUtilities;
 
 namespace Parser.Data.TokenTypes;
 
@@ -25,7 +25,7 @@ public class ValueArray : Token
     public override string ValueToString()
     {
         return new StringBuilder()
-            .AppendJoinExt('\0', Value, (sb, value) => sb
+            .AppendJoin('\0', Value, (sb, value) => sb
                 .Append('(')
                 .AppendJoin(' ', value)
                 .Append(')')

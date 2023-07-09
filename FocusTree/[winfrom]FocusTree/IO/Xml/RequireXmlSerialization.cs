@@ -1,4 +1,5 @@
 ﻿using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -17,7 +18,7 @@ public class RequireXmlSerialization : Serialization<HashSet<int>>, IXmlSerializ
     public void ReadXml(XmlReader reader)
     {
         reader.Read();
-        Source = SimpleTypeTool.ReadArrayString(reader.Value).Select(x => SimpleTypeTool.GetIntValue(x) ?? 0)
+        Source = reader.Value.ToArray().Select(x => x.ToInt() ?? 0)
             .Where(x => x is not 0).ToHashSet();
     }
 
@@ -25,6 +26,6 @@ public class RequireXmlSerialization : Serialization<HashSet<int>>, IXmlSerializ
     {
         if (Source is null)
             return;
-        writer.WriteValue(SimpleTypeTool.WriteArrayString(Source.Select(x => x.ToString()).ToArray()));
+        writer.WriteValue(Source.ToArrayString());
     }
 }
