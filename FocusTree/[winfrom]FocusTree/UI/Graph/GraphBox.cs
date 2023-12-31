@@ -152,7 +152,7 @@ public static class GraphBox
         }
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
-        Graph.SaveToFile(FilePath);
+        Graph.SaveToFile(filePath);
         Graph.NewHistory();
         FilePath = filePath;
         Program.TestInfo.Renew();
