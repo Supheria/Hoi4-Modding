@@ -7,9 +7,9 @@ using System.Xml.Serialization;
 namespace FocusTree.IO.Xml;
 
 [XmlRoot("NationalFocuses")]
-public class FocusXmlGraphSerialization : Serialization<FocusGraph>, IXmlSerialization<FocusGraph>
+public class FocusGraphXmlSerialization : Serialization<FocusGraph>, IXmlSerialization<FocusGraph>
 {
-    public FocusXmlGraphSerialization() : base("NationalFocuses")
+    public FocusGraphXmlSerialization() : base("NationalFocuses")
     {
     }
     public XmlSchema? GetSchema() => null;

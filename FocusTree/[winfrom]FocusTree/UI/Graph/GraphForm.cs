@@ -268,10 +268,10 @@ namespace FocusTree.UI.Graph
             {
                 try
                 {
-                    var graph = new FocusXmlGraphSerialization().LoadFromXml(fileName);
+                    var graph = new FocusGraphXmlSerialization().LoadFromXml(fileName);
                     graph?.ReorderNodeIds();
                     graph?.SaveToXml(Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)),
-                        new FocusXmlGraphSerialization());
+                        new FocusGraphXmlSerialization());
                     suc++;
                     GraphFrom_ProgressBar.PerformStep();
                 }
@@ -302,7 +302,7 @@ namespace FocusTree.UI.Graph
             {
                 try
                 {
-                    var graph = new FocusXmlGraphSerialization().LoadFromXml(fileName);
+                    var graph = new FocusGraphXmlSerialization().LoadFromXml(fileName);
                     var savePath = Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName));
                     NodeMapDrawer.SaveImage(graph, savePath);
                     suc++;

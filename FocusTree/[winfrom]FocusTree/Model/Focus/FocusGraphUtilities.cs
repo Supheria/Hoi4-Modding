@@ -233,10 +233,10 @@ internal static class FocusGraphUtilities
         return extension switch
         {
             ".csv" => CsvLoader.LoadFromCsv(filePath, out focusGraph),
-            _ => new FocusXmlGraphSerialization().LoadFromXml(filePath, out focusGraph)
+            _ => new FocusGraphXmlSerialization().LoadFromXml(filePath, out focusGraph)
         };
     }
 
     internal static void SaveToFile(this FocusGraph focusGraph, string filePath) =>
-        focusGraph.SaveToXml(Path.ChangeExtension(filePath, ".xml"), new FocusXmlGraphSerialization());
+        focusGraph.SaveToXml(Path.ChangeExtension(filePath, ".xml"), new FocusGraphXmlSerialization());
 }
