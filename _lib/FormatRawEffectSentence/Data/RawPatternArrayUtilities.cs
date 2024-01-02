@@ -10,9 +10,9 @@ internal class RawPatternArrayUtilities
 {
     internal static string NumericValue => @"[\d]+\.?[\d]*%?";
 
-    internal static string CollectZnChar => @"[\u4e00-\u9fa5]";
+    internal static string ZnCharCollection => @"[\u4e00-\u9fa5]";
 
-    internal static string CollectZnMark => @"[？《》]";
+    internal static string ZnMarkCollection => @"[？《》]";
 
     internal static string AddSubString => CombineStringArrays(AddWords, SubWords);
 

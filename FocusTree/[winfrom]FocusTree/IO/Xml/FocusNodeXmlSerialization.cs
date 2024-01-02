@@ -1,5 +1,5 @@
 ﻿
-//#define test_format
+#define test_format
 
 using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;

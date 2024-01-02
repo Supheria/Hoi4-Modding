@@ -11,6 +11,7 @@ internal class LocalRawPatternArray
 
     /// <summary>
     /// use [\.] rather than [.] for character collection
+    /// patterns within () mean to retain as key word
     /// </summary>
 #if DEBUG
     internal readonly RawPattern[] Patterns =
@@ -26,8 +27,8 @@ internal class LocalRawPatternArray
             @$"[x] 神灵庙触发事件“道教该如何面对道家？”",
         })
         {
-            Trigger = new(Types.State, @$"（({CollectZnChar}+)）"),
-            Motion = new(Motions.Trigger, @$"触发事件：?“(({CollectZnChar}|{CollectZnMark})+)”。?"),
+            Trigger = new(Types.State, @$"（({ZnCharCollection}+)）"),
+            Motion = new(Motions.Trigger, @$"触发事件：?“(({ZnCharCollection}|{ZnMarkCollection})+)”。?"),
             Value = new(Types.Event)
             {
                 PartIndexOrder =
@@ -43,7 +44,7 @@ internal class LocalRawPatternArray
             @$"将世界观固定为唯心世界观",
         })
         {
-            Motion = new(Motions.Lock, @$"将({CollectZnChar}+)固定为({CollectZnChar}+|{NumericValue})"),
+            Motion = new(Motions.Lock, @$"将({ZnCharCollection}+)固定为({ZnCharCollection}+|{NumericValue})"),
             Value = new(Types.Variable)
             {
                 PartIndexOrder =
@@ -59,7 +60,7 @@ internal class LocalRawPatternArray
             @$"移除对势力规模的固定",
         })
         {
-            Motion = new(Motions.Unlock, @$"移除对({CollectZnChar}+)的固定"),
+            Motion = new(Motions.Unlock, @$"移除对({ZnCharCollection}+)的固定"),
             Value = new(Types.Variable)
             {
                 PartIndexOrder =
@@ -77,8 +78,8 @@ internal class LocalRawPatternArray
             @$"（人类村落）政治点数：+300",
         })
         {
-            Trigger = new(Types.State, @$"（({CollectZnChar}+)）"),
-            Motion = new(1,  @$"({CollectZnChar}+)：?([+-])({NumericValue})", new()
+            Trigger = new(Types.State, @$"（({ZnCharCollection}+)）"),
+            Motion = new(1,  @$"({ZnCharCollection}+)：?([+-])({NumericValue})", new()
             {
                 ["+"] = Motions.Add,
                 ["-"] = Motions.Sub,
@@ -116,7 +117,7 @@ internal class LocalRawPatternArray
             @$"移除1个民用工厂",
         })
         {
-            Motion = new(0, @$"({AddSubString})(\d+)个({CollectZnChar}+)", ReverseMotionConditionMap(new()
+            Motion = new(0, @$"({AddSubString})(\d+)个({ZnCharCollection}+)", ReverseMotionConditionMap(new()
             {
                 [Motions.Add] = AddWords,
                 [Motions.Sub] = SubWords,
@@ -136,8 +137,8 @@ internal class LocalRawPatternArray
             @$"（人类村落）厌战降低50点",
         })
         {
-            Trigger = new(Types.State, @$"（({CollectZnChar}+)）"),
-            Motion = new(1, @$"({CollectZnChar}+)({AddSubString})({NumericValue})点", ReverseMotionConditionMap(new()
+            Trigger = new(Types.State, @$"（({ZnCharCollection}+)）"),
+            Motion = new(1, @$"({ZnCharCollection}+)({AddSubString})({NumericValue})点", ReverseMotionConditionMap(new()
             {
                 [Motions.Add] = AddWords,
                 [Motions.Sub] = SubWords,
@@ -178,7 +179,7 @@ internal class LocalRawPatternArray
             @$"可以通过决议发动周边国家的内战使其变为附庸",
         })
         {
-            Motion = new(Motions.Gain, @$"可以通过(决议)({CollectZnChar}+)"),
+            Motion = new(Motions.Gain, @$"可以通过(决议)({ZnCharCollection}+)"),
             Value = new(Types.Availability)
             {
                 PartIndexOrder =
@@ -194,7 +195,7 @@ internal class LocalRawPatternArray
             @$"?",
         })
         {
-            Motion = new(Motions.Start, @$"开启({CollectZnChar}+)决议"),
+            Motion = new(Motions.Start, @$"开启({ZnCharCollection}+)决议"),
             Value = new(Types.Resolution)
             {
                 PartIndexOrder =
@@ -206,10 +207,10 @@ internal class LocalRawPatternArray
 
         new(false, @$"自动获得核心可用性", new[]
         {
-            @$"幽灵种族的省份将自动获得核心：是",
+            @$"（幽灵种族）的省份将自动获得核心：是",
         })
         {
-            Trigger = new(Types.Province, @$"([^的]+)"),
+            Trigger = new(Types.Province, @$"（({ZnCharCollection}+)）"),
             Motion = new(1, @$"的省份将(自动获得核心)：(是|否)", ReverseMotionConditionMap(new()
             {
                 [Motions.Gain] = AbleWords,
