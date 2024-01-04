@@ -6,7 +6,7 @@ public class MotionValue
 {
     internal Types Type { get; }
 
-    internal List<int> PartIndexOrder { get; } = new();
+    internal List<int> PartIndexOrder { get; } = new() { 0 };
 
     public MotionValue(Types type)
     {

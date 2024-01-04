@@ -29,13 +29,7 @@ internal class LocalRawPatternArray
         {
             Trigger = new(Types.State, @$"（({ZnCharCollection}+)）"),
             Motion = new(Motions.Trigger, @$"触发事件：?“(({ZnCharCollection}|{ZnMarkCollection})+)”。?"),
-            Value = new(Types.Event)
-            {
-                PartIndexOrder =
-                {
-                    0,
-                }
-            },
+            Value = new(Types.Event),
         },
 
         new(false, @$"固定值或类型", new[]
@@ -61,13 +55,7 @@ internal class LocalRawPatternArray
         })
         {
             Motion = new(Motions.Unlock, @$"移除对({ZnCharCollection}+)的固定"),
-            Value = new(Types.Variable)
-            {
-                PartIndexOrder =
-                {
-                    0,
-                }
-            },
+            Value = new(Types.Variable),
         },
 
         new(false, @$"+|-值", new[]
@@ -196,13 +184,7 @@ internal class LocalRawPatternArray
         })
         {
             Motion = new(Motions.Start, @$"开启({ZnCharCollection}+)决议"),
-            Value = new(Types.Resolution)
-            {
-                PartIndexOrder =
-                {
-                    0,
-                }
-            },
+            Value = new(Types.Resolution),
         },
 
         new(false, @$"自动获得核心可用性", new[]
@@ -216,13 +198,16 @@ internal class LocalRawPatternArray
                 [Motions.Gain] = AbleWords,
                 [Motions.Remove] = UnableWords,
             })),
-            Value = new(Types.Availability)
-            {
-                PartIndexOrder =
-                {
-                    0,
-                }
-            },
+            Value = new(Types.Availability),
+        },
+
+        new(false, @$"获得科技", new[]
+        {
+            $@"获得科技：147季无线电",
+        })
+        {
+            Motion = new(Motions.Gain, $@"获得科技：(.+)"),
+            Value = new(Types.Technology),
         },
     };
 }

@@ -80,6 +80,10 @@ public enum Types
     /// 资源
     /// </summary>
     Resource = RegionCore << 1,
+    /// <summary>
+    /// 科技
+    /// </summary>
+    Technology = Resource << 1,
     //
     //
     // 可用性
@@ -88,7 +92,7 @@ public enum Types
     /// <summary>
     /// 可以宣战
     /// </summary>
-    AbleToDeclareWar = Availability | Resource << 1,
+    AbleToDeclareWar = Availability | Technology << 1,
     /// <summary>
     /// 可以自动获取核心
     /// </summary>

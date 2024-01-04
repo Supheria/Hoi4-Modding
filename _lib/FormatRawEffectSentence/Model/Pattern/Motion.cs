@@ -7,6 +7,9 @@ public class Motion
 {
     internal Dictionary<string, Motions> ConditionMap { get; } = new() { [""] = Motions.None };
 
+    /// <summary>
+    /// index of part of motion in the pattern, -1 means to none
+    /// </summary>
     internal int PartIndex { get; }
 
     internal string Pattern { get; }
