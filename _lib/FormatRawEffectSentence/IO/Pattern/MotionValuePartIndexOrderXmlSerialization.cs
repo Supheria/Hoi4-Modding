@@ -7,15 +7,13 @@ using System.Xml.Serialization;
 namespace FormatRawEffectSentence.IO.Pattern;
 
 [XmlRoot("PartIndex")]
-public class MotionValuePartIndexOrderXmlSerialization : Serialization<int>, IXmlSerialization<int>
+public class MotionValuePartIndexOrderXmlSerialization : XmlSerialization<int>
 {
     public MotionValuePartIndexOrderXmlSerialization() : base("PartIndex")
     {
     }
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         reader.Read();
         var index = reader.Value.ToInt();
@@ -23,5 +21,5 @@ public class MotionValuePartIndexOrderXmlSerialization : Serialization<int>, IXm
             Source = (int)index;
     }
 
-    public void WriteXml(XmlWriter writer) => writer.WriteValue(Source);
+    public override void WriteXml(XmlWriter writer) => writer.WriteValue(Source);
 }

@@ -3,10 +3,10 @@ using System.Xml.Serialization;
 
 namespace LocalUtilities.SerializeUtilities;
 
-public static class DeserializeTool
+public static class XmlDeserializeTool
 {
     public static void ReadXmlCollection<T>(this ICollection<T> collection, XmlReader reader, string collectionName,
-        IXmlSerialization<T> itemSerialization)
+        XmlSerialization<T> itemSerialization)
     {
         // 子节点探针
         if (reader.ReadToDescendant(itemSerialization.LocalRootName) is false)
@@ -26,7 +26,7 @@ public static class DeserializeTool
     }
 
     public static void ReadXmlCollection<TKey, TValue>(this IDictionary<TKey, TValue> collection, XmlReader reader,
-        string collectionName, IXmlSerialization<KeyValuePair<TKey, TValue>> itemSerialization)
+        string collectionName, XmlSerialization<KeyValuePair<TKey, TValue>> itemSerialization)
     {
         // 子节点探针
         if (reader.ReadToDescendant(itemSerialization.LocalRootName) is false)
@@ -44,11 +44,11 @@ public static class DeserializeTool
         throw new($"读取 {itemSerialization.LocalRootName} 时未能找到结束标签");
     }
 
-    public static T? Deserialize<T>(this IXmlSerialization<T> serialization, XmlReader reader)
+    public static T? Deserialize<T>(this XmlSerialization<T> serialization, XmlReader reader)
     {
         XmlSerializer serializer = new(serialization.GetType());
         var o = serializer.Deserialize(reader);
-        serialization = o as IXmlSerialization<T> ?? serialization;
+        serialization = o as XmlSerialization<T> ?? serialization;
         return serialization.Source;
     }
 }

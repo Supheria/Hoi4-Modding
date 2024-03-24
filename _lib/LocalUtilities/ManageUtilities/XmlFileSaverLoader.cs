@@ -5,7 +5,7 @@ namespace LocalUtilities.ManageUtilities;
 
 public static class XmlFileSaverLoader
 {
-    public static void SaveToXml<T>(this T obj, string path, IXmlSerialization<T> serialization)
+    public static void SaveToXml<T>(this T obj, string path, XmlSerialization<T> serialization)
     {
         serialization.Source = obj;
         var file = File.Create(path);
@@ -14,7 +14,7 @@ public static class XmlFileSaverLoader
         file.Close();
     }
 
-    public static string LoadFromXml<T>(this IXmlSerialization<T> serialization, string path, out T? obj)
+    public static string LoadFromXml<T>(this XmlSerialization<T> serialization, string path, out T? obj)
     {
         obj = default;
         if (!File.Exists(path))
@@ -24,7 +24,7 @@ public static class XmlFileSaverLoader
         {
             var reader = new XmlSerializer(serialization.GetType());
             var o = reader.Deserialize(file);
-            serialization = o as IXmlSerialization<T> ?? serialization;
+            serialization = o as XmlSerialization<T> ?? serialization;
             obj = serialization.Source;
             file.Close();
             return "";
@@ -36,7 +36,7 @@ public static class XmlFileSaverLoader
         }
     }
 
-    public static T? LoadFromXml<T>(this IXmlSerialization<T> serialization, string path)
+    public static T? LoadFromXml<T>(this XmlSerialization<T> serialization, string path)
     {
         if (!File.Exists(path))
             return serialization.Source;
@@ -45,7 +45,7 @@ public static class XmlFileSaverLoader
         {
             var reader = new XmlSerializer(serialization.GetType());
             var o = reader.Deserialize(file);
-            serialization = o as IXmlSerialization<T> ?? serialization;
+            serialization = o as XmlSerialization<T> ?? serialization;
             file.Close();
         }
         catch

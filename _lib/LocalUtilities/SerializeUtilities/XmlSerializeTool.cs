@@ -3,10 +3,10 @@ using System.Xml.Serialization;
 
 namespace LocalUtilities.SerializeUtilities;
 
-public static class SerializeTool
+public static class XmlSerializeTool
 {
     public static void WriteXmlCollection<T>(this ICollection<T> collection, XmlWriter writer, string collectionName,
-        IXmlSerialization<T> itemSerialization)
+        XmlSerialization<T> itemSerialization)
     {
         if (collectionName is "")
             collection.WriteXmlCollection(writer, itemSerialization);
@@ -18,7 +18,7 @@ public static class SerializeTool
     }
 
     public static void WriteXmlCollection<T>(this ICollection<T> collection, XmlWriter writer,
-        IXmlSerialization<T> itemSerialization)
+        XmlSerialization<T> itemSerialization)
     {
         foreach (var item in collection)
         {
@@ -27,7 +27,7 @@ public static class SerializeTool
         }
     }
 
-    public static void Serialize<T>(this ISerialization<T> serialization, XmlWriter writer)
+    public static void Serialize<T>(this XmlSerialization<T> serialization, XmlWriter writer)
     {
         XmlSerializer serializer = new(serialization.GetType());
         serializer.Serialize(writer, serialization);

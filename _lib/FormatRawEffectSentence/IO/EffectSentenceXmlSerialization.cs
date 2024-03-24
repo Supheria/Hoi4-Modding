@@ -9,11 +9,16 @@ using System.Xml.Serialization;
 namespace FormatRawEffectSentence.IO;
 
 [XmlRoot(nameof(EffectSentence))]
-public class EffectSentenceXmlSerialization : EffectSentenceStringSerialization, IXmlSerialization<EffectSentence>
+public class EffectSentenceXmlSerialization : XmlSerialization<EffectSentence>
 {
-    public XmlSchema? GetSchema() => null;
+    protected const string LocalNameType = "Type";
+    protected const string LocalNameValue = "Value";
 
-    public void ReadXml(XmlReader reader)
+    public EffectSentenceXmlSerialization() : base(nameof(EffectSentence))
+    {
+    }
+
+    public override void ReadXml(XmlReader reader)
     {
         var motion = reader.GetAttribute(nameof(Source.Motion)).ToEnum<Motions>();
         var typePair = reader.GetAttribute(LocalNameType);
@@ -26,7 +31,7 @@ public class EffectSentenceXmlSerialization : EffectSentenceStringSerialization,
         Source.SubSentences.ReadXmlCollection(reader, LocalRootName, new EffectSentenceXmlSerialization());
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source is null)
             return;

@@ -5,15 +5,8 @@ using System.Text;
 
 namespace FormatRawEffectSentence.IO;
 
-public class EffectSentenceStringSerialization : Serialization<EffectSentence>
+public class EffectSentenceStringSerialization : EffectSentenceXmlSerialization
 {
-    protected const string LocalNameType = "Type";
-    protected const string LocalNameValue = "Value";
-
-    public EffectSentenceStringSerialization() : base(nameof(EffectSentence))
-    {
-    }
-
     public override string ToString()
     {
         if (Source is null)

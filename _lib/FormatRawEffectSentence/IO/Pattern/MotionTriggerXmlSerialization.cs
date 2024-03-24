@@ -9,22 +9,20 @@ using System.Xml.Serialization;
 namespace FormatRawEffectSentence.IO.Pattern;
 
 [XmlRoot(nameof(MotionTrigger))]
-public class MotionTriggerXmlSerialization : Serialization<MotionTrigger>, IXmlSerialization<MotionTrigger>
+public class MotionTriggerXmlSerialization : XmlSerialization<MotionTrigger>
 {
     public MotionTriggerXmlSerialization() : base(nameof(MotionTrigger))
     {
     }
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         var type = reader.GetAttribute(nameof(Source.Type)).ToEnum<Types>();
         var pattern = reader.GetAttribute(nameof(Source.Pattern)) ?? "";
         Source = new(type, pattern);
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source is null)
             return;

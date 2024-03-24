@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 namespace FormatRawEffectSentence.IO.Pattern;
 
 [XmlRoot(nameof(Motion))]
-public class MotionXmlSerialization : Serialization<Motion>, IXmlSerialization<Motion>
+public class MotionXmlSerialization : XmlSerialization<Motion>
 {
     private const string LocalNameMotion = "Motion";
 
@@ -17,9 +17,7 @@ public class MotionXmlSerialization : Serialization<Motion>, IXmlSerialization<M
     {
     }
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         var partIndex = reader.GetAttribute(nameof(Source.PartIndex)).ToInt() ?? -1;
         var pattern = reader.GetAttribute(nameof(Source.Pattern)) ?? "";
@@ -30,7 +28,7 @@ public class MotionXmlSerialization : Serialization<Motion>, IXmlSerialization<M
             Source.ConditionMap.ReadXmlCollection(reader, LocalRootName, new MotionConditionXmlSerialization());
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source is null)
             return;

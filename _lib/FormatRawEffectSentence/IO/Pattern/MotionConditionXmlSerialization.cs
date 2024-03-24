@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 namespace FormatRawEffectSentence.IO.Pattern;
 
 [XmlRoot("Condition")]
-public class MotionConditionXmlSerialization : Serialization<KeyValuePair<string, Motions>>, IXmlSerialization<KeyValuePair<string, Motions>>
+public class MotionConditionXmlSerialization : XmlSerialization<KeyValuePair<string, Motions>>
 {
     private const string LocalNamePartIndex = "Pattern";
     private const string LocalNameMotion = "Motion";
@@ -17,9 +17,7 @@ public class MotionConditionXmlSerialization : Serialization<KeyValuePair<string
     {
     }
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         var condition = reader.GetAttribute(LocalNamePartIndex) ?? "";
         var motion = reader.GetAttribute(LocalNameMotion).ToEnum<Motions>();
@@ -27,7 +25,7 @@ public class MotionConditionXmlSerialization : Serialization<KeyValuePair<string
 
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source.Value is Motions.None)
             return;

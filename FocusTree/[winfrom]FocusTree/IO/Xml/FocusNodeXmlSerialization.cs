@@ -14,15 +14,13 @@ using System.Xml.Serialization;
 namespace FocusTree.IO.Xml;
 
 [XmlRoot(nameof(FocusNode))]
-public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerialization<FocusNode>
+public class FocusNodeXmlSerialization : XmlSerialization<FocusNode>
 {
     public FocusNodeXmlSerialization() : base(nameof(FocusNode))
     {
     }
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         var latticedPoint = reader.GetAttribute(nameof(Source.LatticedPoint)).ToArray();
         Source = new()
@@ -60,7 +58,7 @@ public class FocusNodeXmlSerialization : Serialization<FocusNode>, IXmlSerializa
         }
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source is null)
             return;

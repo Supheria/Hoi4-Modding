@@ -7,14 +7,13 @@ using System.Xml.Serialization;
 namespace FocusTree.IO.Xml;
 
 [XmlRoot("NationalFocuses")]
-public class FocusGraphXmlSerialization : Serialization<FocusGraph>, IXmlSerialization<FocusGraph>
+public class FocusGraphXmlSerialization : XmlSerialization<FocusGraph>
 {
     public FocusGraphXmlSerialization() : base("NationalFocuses")
     {
     }
-    public XmlSchema? GetSchema() => null;
 
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         var name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         var focusNodes = new List<FocusNode>();
@@ -22,7 +21,7 @@ public class FocusGraphXmlSerialization : Serialization<FocusGraph>, IXmlSeriali
         Source = new(name, focusNodes.ToArray());
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source is null)
             return;

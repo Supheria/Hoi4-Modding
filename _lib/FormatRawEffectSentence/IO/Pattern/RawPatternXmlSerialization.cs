@@ -7,15 +7,13 @@ using System.Xml.Serialization;
 namespace FormatRawEffectSentence.IO.Pattern;
 
 [XmlRoot(nameof(RawPattern))]
-public class RawPatternXmlSerialization : Serialization<RawPattern>, IXmlSerialization<RawPattern>
+public class RawPatternXmlSerialization : XmlSerialization<RawPattern>
 {
     public RawPatternXmlSerialization() : base(nameof(RawPattern))
     {
     }
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public override void ReadXml(XmlReader reader)
     {
         Source = new();
         do
@@ -39,7 +37,7 @@ public class RawPatternXmlSerialization : Serialization<RawPattern>, IXmlSeriali
         } while (reader.Read());
     }
 
-    public void WriteXml(XmlWriter writer)
+    public override void WriteXml(XmlWriter writer)
     {
         if (Source is null)
             return;
