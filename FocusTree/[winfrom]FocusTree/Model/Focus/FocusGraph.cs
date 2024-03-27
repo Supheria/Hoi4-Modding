@@ -1,14 +1,15 @@
 using FocusTree.IO.Csv;
 using FocusTree.IO.Xml;
 using FocusTree.Model.Lattice;
-using LocalUtilities.ManageUtilities;
+using LocalUtilities.Interface;
+using LocalUtilities.FileUtilities;
 using LocalUtilities.SerializeUtilities;
 using LocalUtilities.StringUtilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.Model.Focus
 {
-    public class FocusGraph : IHistoryRecordable, IFileBackupManageable
+    public class FocusGraph : IHistoryRecordable
     {
         /// <summary>
         /// 以 ID 作为 Key 的所有节点
@@ -145,40 +146,35 @@ namespace FocusTree.Model.Focus
 
         public string FileManageDirName => $"FG{Name.ToMd5HashString()}";
 
-        private string CachePath => this.GetCachePath("hash test");
-
-        public string GetHashString()
-        {
-            this.SaveToXml(CachePath, new FocusGraphXmlSerialization());
-            using var data = new FileStream(CachePath, FileMode.Open);
-            return data.ToMd5HashString();
-        }
-
-        public string GetHashStringFromFilePath(string filePath)
-        {
-            new FocusGraphXmlSerialization().LoadFromXml(filePath)
-                ?.SaveToXml(CachePath, new FocusGraphXmlSerialization());
-            using var data = new FileStream(CachePath, FileMode.Open);
-            return data.ToMd5HashString();
-        }
-
         public int HistoryIndex { get; set; }
 
         public int CurrentHistoryLength { get; set; }
 
-        public FormattedData[] History { get; set; } = new FormattedData[20];
+        public string[] History { get; set; } = new string[20];
 
         public int LatestIndex { get; set; }
 
-        public FormattedData ToFormattedData()
+        public string HashCachePath => this.GetCacheFilePath("hash test");
+
+        public string ToHashString()
         {
-            var hashString = this.GetHashString();
-            if (!Directory.Exists(hashString))
-                this.SaveToXml(this.GetCachePath(hashString), new FocusGraphXmlSerialization());
+            this.SaveToXml(HashCachePath, new FocusGraphXmlSerialization());
+            using var data = new FileStream(HashCachePath, FileMode.Open);
+            var hashString = data.ToMd5HashString(); ;
+            if (!File.Exists(hashString))
+                this.SaveToXml(this.GetCacheFilePath(hashString), new FocusGraphXmlSerialization());
             return new(hashString);
         }
 
-        public void FromFormattedData(FormattedData data) => _focusNodesMap =
-            new FocusGraphXmlSerialization().LoadFromXml(this.GetCachePath(data.Items[0]))?._focusNodesMap ?? new();
+        public string ToHashString(string filePath)
+        {
+            new FocusGraphXmlSerialization().LoadFromXml(filePath)
+                ?.SaveToXml(HashCachePath, new FocusGraphXmlSerialization());
+            using var data = new FileStream(HashCachePath, FileMode.Open);
+            return data.ToMd5HashString();
+        }
+
+        public void FromHashString(string data) => _focusNodesMap =
+            new FocusGraphXmlSerialization().LoadFromXml(this.GetCacheFilePath(data))?._focusNodesMap ?? [];
     }
 }

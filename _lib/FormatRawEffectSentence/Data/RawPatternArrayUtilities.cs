@@ -1,6 +1,6 @@
 ﻿using FormatRawEffectSentence.IO.Pattern;
 using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.ManageUtilities;
+using LocalUtilities.FileUtilities;
 using System.Text;
 using LocalUtilities.StringUtilities;
 

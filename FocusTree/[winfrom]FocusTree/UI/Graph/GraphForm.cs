@@ -5,7 +5,7 @@ using FocusTree.Model.Lattice;
 using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.Utilities;
 using FocusTree.Utilities.test;
-using LocalUtilities.ManageUtilities;
+using LocalUtilities.FileUtilities;
 using System.Diagnostics;
 using System.IO.Compression;
 

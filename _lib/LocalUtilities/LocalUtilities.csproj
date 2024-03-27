@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove=".gitignore" />
+    <None Remove="FileUtilities\2qefdxcx.tiu~" />
     <None Remove="README.md" />
   </ItemGroup>
 

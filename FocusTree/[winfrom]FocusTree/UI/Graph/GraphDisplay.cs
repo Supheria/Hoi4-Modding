@@ -4,7 +4,7 @@ using FocusTree.Model.Lattice;
 using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.UI.Controls;
 using FocusTree.UI.NodeToolDialogs;
-using LocalUtilities.ManageUtilities;
+using LocalUtilities.FileUtilities;
 
 namespace FocusTree.UI.Graph
 {

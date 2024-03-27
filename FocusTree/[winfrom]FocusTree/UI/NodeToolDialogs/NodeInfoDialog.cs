@@ -1,6 +1,7 @@
 using FocusTree.UI.Graph;
-using LocalUtilities.ManageUtilities;
-using LocalUtilities.SerializeUtilities;
+using LocalUtilities.Interface;
+using LocalUtilities.FileUtilities;
+using LocalUtilities.StringUtilities;
 using System.Drawing.Text;
 
 namespace FocusTree.UI.NodeToolDialogs
@@ -12,11 +13,14 @@ namespace FocusTree.UI.NodeToolDialogs
 
         #region ==== 初始化和更新 ====
 
+        public NodeInfoDialog() { }
+
         internal NodeInfoDialog(GraphDisplay display)
         {
             Display = display;
             InitializeComponent();
 
+            FormClosing += NodeInfoDialog_FormClosing;
             VisibleChanged += InfoDialog_VisibleChanged;
             Resize += InfoDialog_Resize;
 
@@ -31,6 +35,11 @@ namespace FocusTree.UI.NodeToolDialogs
             ButtonEvent.Click += ButtonEvent_Click;
 
             DrawClient();
+        }
+
+        private void NodeInfoDialog_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            this.ClearCache();
         }
 
         private void InfoDialog_VisibleChanged(object sender, EventArgs e)
@@ -65,9 +74,9 @@ namespace FocusTree.UI.NodeToolDialogs
             {
                 return;
             }
+            this.EnqueueHistory();
             if (this.IsEdit())
             {
-                this.EnqueueHistory();
                 ButtonEvent.BackColor = Color.Yellow;
             }
             else
@@ -366,6 +375,30 @@ namespace FocusTree.UI.NodeToolDialogs
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
         }
 
+        public string FocusNameText
+        {
+            get => FocusName.Text;
+            set => FocusName.Text = value;
+        }
+
+        public string DurationText
+        {
+            get => Duration.Text;
+            set => Duration.Text = value;
+        }
+
+        public string EffectsText
+        {
+            get => Effects.Text; 
+            set => Effects.Text = value;
+        }
+
+        public string DescriptText
+        {
+            get => Descript.Text; 
+            set => Descript.Text = value;
+        }
+
         System.Windows.Forms.TextBox FocusName = new();
         System.Windows.Forms.PictureBox FocusIcon = new();
         System.Windows.Forms.TextBox Duration = new();
@@ -383,27 +416,42 @@ namespace FocusTree.UI.NodeToolDialogs
 
         public int HistoryIndex { get; set; } = 0;
         public int CurrentHistoryLength { get; set; } = 0;
-        public FormattedData[] History { get; set; } = new FormattedData[50];
+        public string[] History { get; set; } = new string[50];
         public int LatestIndex { get; set; } = 0;
 
+        public string HashCachePath => this.GetCacheFilePath("hash test");
+
+        public string FileManageDirName => "NODE_NFO_DLG";
+
+        public string ToHashString()
+        {
+            this.SaveToXml(HashCachePath, new NodeInfoDialogSerialization());
+            using var data = new FileStream(HashCachePath, FileMode.Open);
+            var hashString = data.ToMd5HashString();
+            if (!File.Exists(hashString))
+                this.SaveToXml(this.GetCacheFilePath(hashString), new NodeInfoDialogSerialization());
+            return hashString;
+        }
+
+        public string ToHashString(string filePath)
+        {
+            new NodeInfoDialogSerialization().LoadFromXml(filePath)
+                ?.SaveToXml(HashCachePath, new NodeInfoDialogSerialization());
+            using var data = new FileStream(HashCachePath, FileMode.Open);
+            return data.ToMd5HashString();
+        }
+
+        public void FromHashString(string data)
+        {
+            var nodeInfoDlg = new NodeInfoDialogSerialization().LoadFromXml(this.GetCacheFilePath(data));
+            if (nodeInfoDlg is null)
+                return;
+            FocusNameText = nodeInfoDlg.FocusNameText;
+            DurationText = nodeInfoDlg.DurationText;
+            DescriptText = nodeInfoDlg.DescriptText;
+            EffectsText = nodeInfoDlg.EffectsText;
+        }
+
         #endregion
-
-        public FormattedData ToFormattedData()
-        {
-            return new FormattedData(
-                FocusName.Text,
-                Duration.Text,
-                Effects.Text,
-                Descript.Text
-            );
-        }
-
-        public void FromFormattedData(FormattedData data)
-        {
-            FocusName.Text = data.Items[0];
-            Duration.Text = data.Items[1];
-            Descript.Text = data.Items[2];
-            Effects.Text = data.Items[3];
-        }
     }
 }

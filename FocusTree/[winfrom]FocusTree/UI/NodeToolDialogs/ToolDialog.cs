@@ -24,8 +24,8 @@ namespace FocusTree.UI.NodeToolDialogs
             Close();
             e.Cancel = true;
             Hide();
-        }
 
+        }
         private void NodeToolDialog_ResizeEnd(object sender, EventArgs e)
         {
             if (Width < 0.4f * Height)
