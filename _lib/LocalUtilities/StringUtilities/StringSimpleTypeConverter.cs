@@ -1,6 +1,5 @@
 ﻿using LocalUtilities.RegexUtilities;
 using System.ComponentModel;
-using System.Reflection;
 using System.Text;
 
 namespace LocalUtilities.StringUtilities;
@@ -91,6 +90,18 @@ public static class StringSimpleTypeConverter
         try
         {
             return str is null ? null : int.Parse(str);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static uint? ToUint(this string? str)
+    {
+        try
+        {
+            return str is null ? null : uint.Parse(str);
         }
         catch
         {
