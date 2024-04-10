@@ -1,6 +1,6 @@
 using FocusTree.UI.Graph;
-using LocalUtilities.Interface;
 using LocalUtilities.FileUtilities;
+using LocalUtilities.Interface;
 using LocalUtilities.StringUtilities;
 using System.Drawing.Text;
 
@@ -389,13 +389,13 @@ namespace FocusTree.UI.NodeToolDialogs
 
         public string EffectsText
         {
-            get => Effects.Text; 
+            get => Effects.Text;
             set => Effects.Text = value;
         }
 
         public string DescriptText
         {
-            get => Descript.Text; 
+            get => Descript.Text;
             set => Descript.Text = value;
         }
 
