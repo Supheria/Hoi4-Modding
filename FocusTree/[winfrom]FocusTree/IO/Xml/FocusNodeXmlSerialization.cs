@@ -31,7 +31,10 @@ public class FocusNodeXmlSerialization : XmlSerialization<FocusNode>
             Description = reader.GetAttribute(nameof(Source.Description)) ?? "",
             Ps = reader.GetAttribute(nameof(Source.Ps)) ?? "",
             LatticedPoint = latticedPoint.Length > 1
-                ? new(latticedPoint[0].ToInt() ?? 0, latticedPoint[1].ToInt() ?? 0)
+                ? new(){
+                    Col = latticedPoint[0].ToInt() ?? 0,
+                    Row = latticedPoint[1].ToInt() ?? 0
+                }
                 : new LatticedPoint(),
         };
 

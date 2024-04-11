@@ -169,7 +169,10 @@ internal static class FocusGraphUtilities
             if (xMetaPoints.TryGetValue(x, out var metaPoint))
             {
                 foreach (var nodePoint in metaPoint)
-                    focusNodesMap[nodePoint.Key].LatticedPoint = new(nodePoint.Value.X - blank, nodePoint.Value.Y);
+                    focusNodesMap[nodePoint.Key].LatticedPoint = new() {
+                        Col = nodePoint.Value.X - blank, 
+                        Row = nodePoint.Value.Y
+                    };
             }
             else { blank++; }
         }

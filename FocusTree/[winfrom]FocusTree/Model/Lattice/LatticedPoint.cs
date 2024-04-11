@@ -10,22 +10,17 @@ namespace FocusTree.Model.Lattice
         /// <summary>
         /// 所在栅格列数
         /// </summary>
-        public int Col { get; }
+        public int Col { get; set; }
 
         /// <summary>
         /// 所在栅格行数
         /// </summary>
-        public int Row { get; }
+        public int Row { get; set; }
 
         public LatticedPoint()
         {
             Col = 0;
             Row = 0;
-        }
-        public LatticedPoint(int col, int row)
-        {
-            Col = col;
-            Row = row;
         }
 
         /// <summary>
@@ -33,8 +28,8 @@ namespace FocusTree.Model.Lattice
         /// </summary>
         public LatticedPoint(Point realPoint)
         {
-            var widthDiff = realPoint.X - LatticeGrid.OriginLeft;
-            var heightDiff = realPoint.Y - LatticeGrid.OriginTop;
+            var widthDiff = realPoint.X - LatticeGrid.OriginX;
+            var heightDiff = realPoint.Y - LatticeGrid.OriginY;
             Col = widthDiff / LatticeCell.Length;
             Row = heightDiff / LatticeCell.Length;
             if (widthDiff < 0) { Col--; }

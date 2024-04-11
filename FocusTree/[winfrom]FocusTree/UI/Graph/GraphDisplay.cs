@@ -327,11 +327,11 @@ namespace FocusTree.UI.Graph
             if (Math.Abs(diffInWidth) > MouseMoveSensibility || Math.Abs(diffInHeight) > MouseMoveSensibility)
             {
 #if MOUSE_DRAG_FREE
-                Lattice.OriginLeft += (newPoint.X - DragMouseFlagPoint.X) / MouseMoveSensibility;
+                Lattice.OriginX += (newPoint.X - DragMouseFlagPoint.X) / MouseMoveSensibility;
                 Lattice.OriginTop += (newPoint.Y - DragMouseFlagPoint.Y) / MouseMoveSensibility;
 #else
-                LatticeGrid.OriginLeft += (newPoint.X - _dragMouseFlagPoint.X) / MouseMoveSensibility * LatticeCell.Length;
-                LatticeGrid.OriginTop += (newPoint.Y - _dragMouseFlagPoint.Y) / MouseMoveSensibility * LatticeCell.Length;
+                LatticeGrid.OriginX += (newPoint.X - _dragMouseFlagPoint.X) / MouseMoveSensibility * LatticeCell.Length;
+                LatticeGrid.OriginY += (newPoint.Y - _dragMouseFlagPoint.Y) / MouseMoveSensibility * LatticeCell.Length;
 #endif
                 _dragMouseFlagPoint = newPoint;
                 Refresh();
@@ -373,7 +373,7 @@ namespace FocusTree.UI.Graph
                 LastPartRealRect = cell.CellPartsRealRect[cellPart];
                 ImageDrawer.DrawImageOn(_lineMapCache, (Bitmap)Image, LastPartRealRect, true);
             }
-            Parent.Text = $"CellSideLength {LatticeCell.Length}, o: {LatticeGrid.OriginLeft}, {LatticeGrid.OriginTop}, cursor: {newPoint}, cellPart: {LastCellPart}";
+            Parent.Text = $"CellSideLength {LatticeCell.Length}, o: {LatticeGrid.OriginX}, {LatticeGrid.OriginY}, cursor: {newPoint}, cellPart: {LastCellPart}";
             Invalidate();
         }
 
@@ -425,8 +425,8 @@ namespace FocusTree.UI.Graph
             var drHeight = LatticeGrid.DrawRect.Height;
             var diffInWidth = args.Location.X - Width / 2;
             var diffInHeight = args.Location.Y - Height / 2;
-            LatticeGrid.OriginLeft += diffInWidth / LatticeCell.Length * drWidth / 200;
-            LatticeGrid.OriginTop += diffInHeight / LatticeCell.Length * drHeight / 200;
+            LatticeGrid.OriginX += diffInWidth / LatticeCell.Length * drWidth / 200;
+            LatticeGrid.OriginY += diffInHeight / LatticeCell.Length * drHeight / 200;
             LatticeCell.Length += args.Delta / 100 * Math.Max(drWidth, drHeight) / 200;
             Refresh();
             Parent.UpdateText("打开节点选项");
@@ -478,8 +478,8 @@ namespace FocusTree.UI.Graph
             //
             //
             LatticeCell.Length = Math.Min(LatticeGrid.DrawRect.Width / (gRect.Width + 1), LatticeGrid.DrawRect.Height / (gRect.Height + 1));
-            LatticeGrid.OriginLeft = (LatticeGrid.DrawRect.Left + LatticeGrid.DrawRect.Width / 2) - (gRect.Left + gRect.Width * LatticeCell.Length / 2);
-            LatticeGrid.OriginTop = (LatticeGrid.DrawRect.Top + LatticeGrid.DrawRect.Height / 2) - (gRect.Top + gRect.Height * LatticeCell.Length / 2);
+            LatticeGrid.OriginX = (LatticeGrid.DrawRect.Left + LatticeGrid.DrawRect.Width / 2) - (gRect.Left + gRect.Width * LatticeCell.Length / 2);
+            LatticeGrid.OriginY = (LatticeGrid.DrawRect.Top + LatticeGrid.DrawRect.Height / 2) - (gRect.Top + gRect.Height * LatticeCell.Length / 2);
             Refresh();
         }
         /// <summary>
@@ -496,15 +496,15 @@ namespace FocusTree.UI.Graph
                 LatticeCell.Length = LatticeCell.LengthMax;
             }
             LatticeCell cell = new(SelectedNode.LatticedPoint);
-            var halfNodeWidth = LatticeCell.NodeWidth / 2;
-            var halfNodeHeight = LatticeCell.NodeHeight / 2;
-            LatticeGrid.OriginLeft += (LatticeGrid.DrawRect.Left + LatticeGrid.DrawRect.Width / 2) - (cell.NodeRealLeft + halfNodeWidth);
-            LatticeGrid.OriginTop += (LatticeGrid.DrawRect.Top + LatticeGrid.DrawRect.Height / 2) - (cell.NodeRealTop + halfNodeHeight);
+            var halfNodeWidth = cell.NodeRealRect.Width / 2;
+            var halfNodeHeight = cell.NodeRealRect.Height / 2;
+            LatticeGrid.OriginX += (LatticeGrid.DrawRect.Left + LatticeGrid.DrawRect.Width / 2) - (cell.NodeRealRect.Left + halfNodeWidth);
+            LatticeGrid.OriginY += (LatticeGrid.DrawRect.Top + LatticeGrid.DrawRect.Height / 2) - (cell.NodeRealRect.Top + halfNodeHeight);
             LatticeGrid.DrawRect = LatticeBound;
             Refresh();
             Cursor.Position = PointToScreen(new Point(
-                cell.NodeRealLeft + halfNodeWidth,
-                cell.NodeRealTop + halfNodeHeight
+                cell.NodeRealRect.Left + halfNodeWidth,
+                cell.NodeRealRect.Top + halfNodeHeight
                 ));
         }
 
@@ -536,6 +536,7 @@ namespace FocusTree.UI.Graph
         public new void Refresh()
         {
             Background.Redraw(Image);
+            DrawBackLattice = true;
             if (DrawBackLattice) { LatticeGrid.Draw(Image); }
             OnRefresh.Invoke((Bitmap)Image);
             Invalidate();

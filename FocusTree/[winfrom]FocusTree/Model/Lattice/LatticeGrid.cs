@@ -14,24 +14,29 @@ namespace FocusTree.Model.Lattice
         /// </summary>
         public static Rectangle DrawRect { get; set; }
         /// <summary>
-        /// 栅格坐标系原点 x 坐标
+        /// 栅格坐标系原点X坐标
         /// </summary>
-        public static int OriginLeft { get; set; }
+        public static int OriginX { get; set; }
         /// <summary>
-        /// 栅格坐标系原点 y 坐标
+        /// 栅格坐标系原点Y坐标
         /// </summary>
-        public static int OriginTop { get; set; }
-
+        public static int OriginY { get; set; }
         /// <summary>
-        /// 格元边框宽度
+        /// 格元边框绘制用笔
         /// </summary>
         public static Pen CellPen { get; } = new(Color.FromArgb(200, Color.AliceBlue), 1.5f);
-
         /// <summary>
-        /// 节点边框宽度
+        /// 节点边框绘制用笔（直线）
         /// </summary>
-        public static Pen NodePen { get; } = new(Color.FromArgb(150, Color.Orange), 1.75f);
-
+        public static Pen NodePenLine { get; } = new(Color.FromArgb(150, Color.Orange), 2f);
+        /// <summary>
+        /// 节点边框绘制用笔（虚线）
+        /// </summary>
+        public static Pen NodePenDash { get; } = new(Color.FromArgb(150, Color.Orange), 2f)
+        {
+            DashStyle = System.Drawing.Drawing2D.DashStyle.Custom,
+            DashPattern = new float[] { 1.25f, 1.25f },
+        };
         /// <summary>
         /// 坐标辅助线绘制用笔
         /// </summary>
@@ -48,8 +53,8 @@ namespace FocusTree.Model.Lattice
             //
             // draw guide line
             //
-            g.DrawLine(GuidePen, new(OriginLeft, DrawRect.Top), new(OriginLeft, DrawRect.Bottom));
-            g.DrawLine(GuidePen, new(DrawRect.Left, OriginTop), new(DrawRect.Right, OriginTop));
+            g.DrawLine(GuidePen, new(OriginX, DrawRect.Top), new(OriginX, DrawRect.Bottom));
+            g.DrawLine(GuidePen, new(DrawRect.Left, OriginY), new(DrawRect.Right, OriginY));
             g.Flush(); g.Dispose();
             //Program.testInfo.InfoText = $"{new Point(ColNumber, RowNumber)}";
             //Program.testInfo.InfoText = $"{Drawing.MethodNumber()}\n" +
@@ -62,43 +67,100 @@ namespace FocusTree.Model.Lattice
         /// <param name="g"></param>
         private static void DrawLatticeCells(Graphics g)
         {
-            var offsetLeft = (OriginLeft - DrawRect.Left) % LatticeCell.Length;
-            var offSetTop = (OriginTop - DrawRect.Top) % LatticeCell.Length;
-            if (offsetLeft > 0) { offsetLeft -= LatticeCell.Length; }
-            if (offSetTop > 0) { offSetTop -= LatticeCell.Length; }
-            offsetLeft += DrawRect.Left;
-            offSetTop += DrawRect.Top;
-            var colNum = DrawRect.Width / LatticeCell.Length + 2;
-            var rowNum = DrawRect.Height / LatticeCell.Length + 2;
+            var cell = new LatticeCell();
+            var cellRect = cell.CellRealRect;
+            var xMany = DrawRect.X - OriginX;
+            var yMany = DrawRect.Y - OriginY;
+            var colOffset = xMany / cellRect.Width - (xMany < 0 ? 1 : 0);
+            var rowOffset = yMany / cellRect.Height - (yMany < 0 ? 1 : 0);
+            cell.LatticedPoint.Col = colOffset;
+            cell.LatticedPoint.Row = rowOffset;
+            var colNum = DrawRect.Width / cellRect.Width + 2;
+            var rowNum = DrawRect.Height / cellRect.Height + 2;
             for (var i = 0; i < colNum; i++)
             {
+                cell.LatticedPoint.Row = rowOffset;
                 for (var j = 0; j < rowNum; j++)
                 {
-                    var cellLeft = offsetLeft + i * LatticeCell.Length;
-                    var cellTop = offSetTop + j * LatticeCell.Length;
-                    var cellRight = cellLeft + LatticeCell.Length;
-                    var cellBottom = cellTop + LatticeCell.Length;
+                    cellRect = cell.CellRealRect;
                     //
                     // draw cell
                     //
-                    if (CrossLineWithin(new(cellLeft, cellBottom), new(cellRight, cellBottom), CellPen.Width,
-                            out var p1, out var p2))
+                    if (CrossLineWithin(
+                        new(cellRect.Left, cellRect.Bottom),
+                        new(cellRect.Right, cellRect.Bottom),
+                        CellPen.Width,
+                        out var p1, out var p2
+                        ))
                         g.DrawLine(CellPen, p1, p2);
-                    if (CrossLineWithin(new(cellRight, cellTop), new(cellRight, cellBottom), CellPen.Width, out p1,
-                            out p2))
+                    if (CrossLineWithin(
+                        new(cellRect.Right, cellRect.Top),
+                        new(cellRect.Right, cellRect.Bottom),
+                        CellPen.Width,
+                        out p1, out p2
+                        ))
                         g.DrawLine(CellPen, p1, p2);
-                    var nodeLeft = cellLeft + LatticeCell.NodePaddingWidth;
-                    var nodeTop = cellTop + LatticeCell.NodePaddingHeight;
+                    var saveAll = RectWithin(cell.NodeRealRect, out var saveRect);
                     //
                     // draw node
                     //
-                    if (CrossLineWithin(new(nodeLeft, nodeTop), new(cellRight, nodeTop), NodePen.Width, out p1, out p2))
-                        g.DrawLine(NodePen, p1, p2);
-                    if (CrossLineWithin(new(nodeLeft, nodeTop), new(cellLeft, cellBottom), NodePen.Width, out p1,
-                            out p2))
-                        g.DrawLine(NodePen, p1, p2);
+                    if (saveRect is not null)
+                    {
+                        if (saveAll)
+                            g.DrawRectangle(NodePenLine, saveRect.Value);
+                        else
+                            g.DrawRectangle(NodePenDash, saveRect.Value);
+                    }
+                    cell.LatticedPoint.Row++;
                 }
+                cell.LatticedPoint.Col++;
             }
+        }
+
+        /// <summary>
+        /// 获取给定的矩形在栅格绘图区域内的矩形
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="saveRect"></param>
+        /// <returns>完全在绘图区域内返回true，否则返回false</returns>
+        public static bool RectWithin(Rectangle rect, out Rectangle? saveRect)
+        {
+            saveRect = null;
+            bool saveAll = true;
+            var left = rect.Left;
+            var right = rect.Right;
+            var top = rect.Top;
+            var bottom = rect.Bottom;
+            if (left < DrawRect.Left)
+            {
+                saveAll = false;
+                if (right <= DrawRect.Left)
+                    return false;
+                left = DrawRect.Left;
+            }
+            if (right > DrawRect.Right)
+            {
+                saveAll = false;
+                if (left >= DrawRect.Right)
+                    return false;
+                right = DrawRect.Right;
+            }
+            if (top < DrawRect.Top)
+            {
+                saveAll = false;
+                if (bottom <= DrawRect.Top)
+                    return false;
+                top = DrawRect.Top;
+            }
+            if (bottom > DrawRect.Bottom)
+            {
+                saveAll = false;
+                if (top >= DrawRect.Bottom)
+                    return false;
+                bottom = DrawRect.Bottom;
+            }
+            saveRect = new(left, top, right - left, bottom - top);
+            return saveAll;
         }
 
         /// <summary>
@@ -116,13 +178,27 @@ namespace FocusTree.Model.Lattice
             var halfLineWidth = (lineWidth / 2);
             if (Math.Abs(p1.Y - p2.Y) < FloatComparisonTolerance)
             {
-                if (!CrossLineWithin(p1.Y, DrawRect.Top, DrawRect.Bottom, (p1.X + halfLineWidth, p2.X + halfLineWidth), DrawRect.Left, DrawRect.Right, out var xMin, out var xMax)) { return false; }
+                if (!CrossLineWithin(
+                    p1.Y, 
+                    DrawRect.Top, DrawRect.Bottom, 
+                    (p1.X + halfLineWidth, p2.X + halfLineWidth), 
+                    DrawRect.Left, DrawRect.Right, 
+                    out var xMin, out var xMax
+                    ))
+                    return false;
                 endMin = new(xMin, p1.Y);
                 endMax = new(xMax, p1.Y);
             }
             else
             {
-                if (!CrossLineWithin(p1.X, DrawRect.Left, DrawRect.Right, (p1.Y + halfLineWidth, p2.Y + halfLineWidth), DrawRect.Top, DrawRect.Bottom, out var yMin, out var yMax)) { return false; }
+                if (!CrossLineWithin(
+                    p1.X, 
+                    DrawRect.Left, DrawRect.Right, 
+                    (p1.Y + halfLineWidth, p2.Y + halfLineWidth), 
+                    DrawRect.Top, DrawRect.Bottom, 
+                    out var yMin, out var yMax
+                    ))
+                    return false;
                 endMin = new(p1.X, yMin);
                 endMax = new(p1.X, yMax);
             }
@@ -138,45 +214,6 @@ namespace FocusTree.Model.Lattice
             if (endMax <= endLimitMin) { return false; }
             if (endMin < endLimitMin) { endMin = endLimitMin; }
             if (endMax > endLimitMax) { endMax = endLimitMax; }
-            return true;
-        }
-
-        /// <summary>
-        /// 获取给定的矩形在栅格绘图区域内的矩形
-        /// </summary>
-        /// <param name="rect">给定的矩形</param>
-        /// <param name="saveRect">在绘图区域内的可能被裁剪过的矩形（默认为 empty）</param>
-        /// <returns>如果给定的矩形完全超出了绘图区域，返回false；否则返回true</returns>
-        public static bool RectWithin(Rectangle rect, out Rectangle saveRect)
-        {
-            saveRect = Rectangle.Empty;
-            var left = rect.Left;
-            var right = rect.Right;
-            var top = rect.Top;
-            var bottom = rect.Bottom;
-            var drRight = DrawRect.Right;
-            var drBottom = DrawRect.Bottom;
-            if (left < DrawRect.Left)
-            {
-                if (right <= DrawRect.Left) { return false; }
-                left = DrawRect.Left;
-            }
-            if (right > drRight)
-            {
-                if (left >= drRight) { return false; }
-                right = drRight;
-            }
-            if (top < DrawRect.Top)
-            {
-                if (bottom <= DrawRect.Top) { return false; }
-                top = DrawRect.Top;
-            }
-            if (bottom > DrawRect.Bottom)
-            {
-                if (top >= drBottom) { return false; }
-                bottom = drBottom;
-            }
-            saveRect = new(left, top, right - left, bottom - top);
             return true;
         }
     }
