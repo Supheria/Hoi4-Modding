@@ -169,7 +169,11 @@ internal static class FocusGraphUtilities
             if (xMetaPoints.TryGetValue(x, out var metaPoint))
             {
                 foreach (var nodePoint in metaPoint)
-                    focusNodesMap[nodePoint.Key].LatticedPoint = new(nodePoint.Value.X - blank, nodePoint.Value.Y);
+                    focusNodesMap[nodePoint.Key].LatticedPoint = new()
+                    {
+                        Col = nodePoint.Value.X - blank,
+                        Row = nodePoint.Value.Y
+                    };
             }
             else { blank++; }
         }
@@ -227,16 +231,21 @@ internal static class FocusGraphUtilities
         }
     }
 
-    internal static string LoadFromFile(string filePath, out FocusGraph? focusGraph)
+    internal static string? LoadFromFile(string filePath, out FocusGraph? focusGraph)
     {
         var extension = Path.GetExtension(filePath).ToLower();
-        return extension switch
+        switch (extension)
         {
-            ".csv" => CsvLoader.LoadFromCsv(filePath, out focusGraph),
-            _ => new FocusGraphXmlSerialization().LoadFromXml(filePath, out focusGraph)
-        };
+            case ".csv":
+                return CsvLoader.LoadFromCsv(filePath, out focusGraph);
+            default:
+                focusGraph = new FocusGraphXmlSerialization().LoadFromXml(out var message, filePath);
+                return message;
+        }
     }
 
-    internal static void SaveToFile(this FocusGraph focusGraph, string filePath) =>
-        focusGraph.SaveToXml(Path.ChangeExtension(filePath, ".xml"), new FocusGraphXmlSerialization());
+    internal static void SaveToFile(this FocusGraph focusGraph, string filePath)
+    {
+        new FocusGraphXmlSerialization() { Source = focusGraph }.SaveToXml(Path.ChangeExtension(filePath, ".xml"));
+    }
 }

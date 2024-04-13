@@ -6,41 +6,29 @@ using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO.Pattern;
 
-[XmlRoot(nameof(RawPattern))]
-public class RawPatternXmlSerialization : XmlSerialization<RawPattern>
+public class RawPatternXmlSerialization() : XmlSerialization<RawPattern>(new())
 {
-    public RawPatternXmlSerialization() : base(nameof(RawPattern))
-    {
-    }
+    public override string LocalName => nameof(RawPattern);
 
     public override void ReadXml(XmlReader reader)
     {
-        Source = new();
-        do
+        while (reader.Read())
         {
-            if (reader.Name == LocalRootName && reader.NodeType is XmlNodeType.EndElement)
+            if (reader.Name == LocalName && reader.NodeType is XmlNodeType.EndElement)
                 break;
             if (reader.NodeType is not XmlNodeType.Element)
                 continue;
-            if (reader.Name == new MotionTriggerXmlSerialization().LocalRootName)
-            {
+            if (reader.Name == new MotionTriggerXmlSerialization().LocalName)
                 Source.Trigger = new MotionTriggerXmlSerialization().Deserialize(reader) ?? new();
-            }
-            else if (reader.Name == new MotionXmlSerialization().LocalRootName)
-            {
+            else if (reader.Name == new MotionXmlSerialization().LocalName)
                 Source.Motion = new MotionXmlSerialization().Deserialize(reader) ?? new();
-            }
-            else if (reader.Name == new MotionValueXmlSerialization().LocalRootName)
-            {
+            else if (reader.Name == new MotionValueXmlSerialization().LocalName)
                 Source.Value = new MotionValueXmlSerialization().Deserialize(reader) ?? new();
-            }
-        } while (reader.Read());
+        }
     }
 
     public override void WriteXml(XmlWriter writer)
     {
-        if (Source is null)
-            return;
         writer.WriteComment($"{(Source.IsComplex ? "complex" : "single")}: {Source.Title}");
         foreach (var sample in Source.Samples)
             writer.WriteComment($"{sample}");

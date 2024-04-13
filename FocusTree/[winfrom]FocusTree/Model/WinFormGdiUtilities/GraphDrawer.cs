@@ -55,7 +55,12 @@ namespace FocusTree.Model.WinFormGdiUtilities
             [LatticeCell.Parts.Node] = Color.Orange,
             [LatticeCell.Parts.Left] = Color.Gray,
             [LatticeCell.Parts.Top] = Color.Gray,
-            [LatticeCell.Parts.LeftTop] = Color.Gray
+            [LatticeCell.Parts.Right] = Color.Gray,
+            [LatticeCell.Parts.Bottom] = Color.Gray,
+            [LatticeCell.Parts.LeftTop] = Color.Gray,
+            [LatticeCell.Parts.TopRight] = Color.Gray,
+            [LatticeCell.Parts.LeftBottom] = Color.Gray,
+            [LatticeCell.Parts.BottomRight] = Color.Gray,
         };
 
         #endregion
@@ -75,13 +80,15 @@ namespace FocusTree.Model.WinFormGdiUtilities
         public static void DrawFocusNodeNormal(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
-            var nodeRect = cell.NodeRealRect;
-            if (!LatticeGrid.RectWithin(nodeRect, out nodeRect)) { return; }
-            if (LatticeCell.Length < ShowNodeNameCellLength)
+            var nodeRect = cell.NodeRealRect();
+            _ = LatticeGrid.RectWithin(nodeRect, out var saveRect);
+            if (saveRect is null)
+                return;
+            if (LatticeCell.CellData.EdgeLength < ShowNodeNameCellLength)
             {
-                DrawFocusNode(image, nodeRect, null);
+                DrawFocusNode(image, saveRect.Value, null);
             }
-            else { DrawFocusNode(image, nodeRect, FocusNodeBgNormal, focus.Name); }
+            else { DrawFocusNode(image, saveRect.Value, FocusNodeBgNormal, focus.Name); }
         }
         /// <summary>
         /// 绘制选中的国策节点
@@ -91,13 +98,15 @@ namespace FocusTree.Model.WinFormGdiUtilities
         public static void DrawFocusNodeSelected(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
-            var nodeRect = cell.NodeRealRect;
-            if (!LatticeGrid.RectWithin(nodeRect, out nodeRect)) { return; }
-            if (LatticeCell.Length < ShowNodeNameCellLength)
+            var nodeRect = cell.NodeRealRect();
+            _ = LatticeGrid.RectWithin(nodeRect, out var saveRect);
+            if (saveRect is null) 
+                return;
+            if (LatticeCell.CellData.EdgeLength < ShowNodeNameCellLength)
             {
-                DrawFocusNode(image, nodeRect, FocusNodeBgSelected);
+                DrawFocusNode(image, saveRect.Value, FocusNodeBgSelected);
             }
-            else { DrawFocusNode(image, nodeRect, FocusNodeBgSelected, focus.Name); }
+            else { DrawFocusNode(image, saveRect.Value, FocusNodeBgSelected, focus.Name); }
         }
 
         /// <summary>
@@ -235,32 +244,32 @@ namespace FocusTree.Model.WinFormGdiUtilities
             var colDiff = endLoc.Col - startLoc.Col;
             var rowDiff = endLoc.Row - startLoc.Row;
             LatticeCell cell = new(startLoc);
-            var halfPaddingHeight = LatticeCell.NodePaddingHeight / 2;
-            var halfPaddingWidth = LatticeCell.NodePaddingWidth / 2;
-            var halfNodeWidth = LatticeCell.NodeWidth / 2;
+            var halfPaddingHeight = cell.NodePadding().Height / 2;
+            var halfPaddingWidth = cell.NodePadding().Width / 2;
+            var halfNodeWidth = cell.NodeRealRect().Width / 2;
 
-            var x1 = cell.NodeRealLeft + halfNodeWidth;
-            var y1 = cell.NodeRealTop;
-            var y2 = cell.RealTop + halfPaddingHeight;
+            var x1 = cell.NodeRealRect().Left + halfNodeWidth;
+            var y1 = cell.NodeRealRect().Top;
+            var y2 = cell.CellRealRect().Top + halfPaddingHeight;
             DrawCrossHollowLine(image, new(x1, y1), new(x1, y2));
             if (rowDiff < 0)
             {
-                cell.LatticedLeft += colDiff;
-                var x2 = cell.NodeRealLeft + halfNodeWidth;
+                cell.LatticedPoint.Col += colDiff;
+                var x2 = cell.NodeRealRect().Left + halfNodeWidth;
                 if (Math.Abs(colDiff) > 0)
                 {
                     DrawCrossHollowLine(image, new(x1, y2), new(x2, y2));
                 }
-                cell.LatticedTop += rowDiff + 1;
-                DrawCrossHollowLine(image, new(x2, y2), new(x2, cell.RealTop));
+                cell.LatticedPoint.Row += rowDiff + 1;
+                DrawCrossHollowLine(image, new(x2, y2), new(x2, cell.CellRealRect().Top));
             }
             else
             {
-                cell.LatticedLeft += colDiff < 0 ? colDiff + 1 : colDiff;
-                var x2 = cell.RealLeft + halfPaddingWidth;
+                cell.LatticedPoint.Col += colDiff < 0 ? colDiff + 1 : colDiff;
+                var x2 = cell.CellRealRect().Left + halfPaddingWidth;
                 DrawCrossHollowLine(image, new(x1, y2), new(x2, y2));
-                cell.LatticedTop += rowDiff + 1;
-                var y3 = cell.RealTop + halfPaddingHeight;
+                cell.LatticedPoint.Row += rowDiff + 1;
+                var y3 = cell.CellRealRect().Top + halfPaddingHeight;
                 DrawCrossHollowLine(image, new(x2, y2), new(x2, y3));
                 var x3 = x2 + (colDiff < 0 ? -(halfPaddingWidth + halfNodeWidth) : halfPaddingWidth + halfNodeWidth);
                 DrawCrossHollowLine(image, new(x2, y3), new(x3, y3));
@@ -284,8 +293,10 @@ namespace FocusTree.Model.WinFormGdiUtilities
             if (p1.Y == p2.Y)
             {
                 Rectangle lineRect = new(Math.Min(p1.X, p2.X), p1.Y - halfLineWidth, Math.Abs(p1.X - p2.X) + halfLineWidth, RequireLineWidth);
-                if (LatticeGrid.RectWithin(lineRect, out lineRect))
+                _ = LatticeGrid.RectWithin(lineRect, out var saveRect);
+                if (saveRect is not null)
                 {
+                    lineRect = saveRect.Value;
                     // top & bottom
                     var bottom = lineRect.Bottom;
                     for (var i = 0; i < lineRect.Width; i++)
@@ -299,8 +310,10 @@ namespace FocusTree.Model.WinFormGdiUtilities
             else
             {
                 Rectangle lineRect = new(p1.X - halfLineWidth, Math.Min(p1.Y, p2.Y), RequireLineWidth, Math.Abs(p1.Y - p2.Y) + halfLineWidth);
-                if (LatticeGrid.RectWithin(lineRect, out lineRect))
+                _ = LatticeGrid.RectWithin(lineRect, out var saveRect);
+                if (saveRect is not null)
                 {
+                    lineRect = saveRect.Value;
                     // left & right
                     var right = lineRect.Right;
                     for (int j = 0; j < lineRect.Height; j++)
@@ -328,18 +341,21 @@ namespace FocusTree.Model.WinFormGdiUtilities
         public static void DrawSelectedCellPart(Bitmap image, LatticedPoint point, LatticeCell.Parts cellPart)
         {
             LatticeCell cell = new(point);
-            if (!CellSelectedPartsBg.TryGetValue(cellPart, out var shading)) { return; }
-            if (!LatticeGrid.RectWithin(cell.CellPartsRealRect[cellPart], out var rect)) { return; }
+            if (!CellSelectedPartsBg.TryGetValue(cellPart, out var shading))
+                return;
+            _ = LatticeGrid.RectWithin(cell.CellPartsRealRect(cellPart), out var saveRect);
+            if (saveRect is null)
+                return;
             PointBitmap pImage = new(image);
             pImage.LockBits();
             PointBitmap pBack = new(Background.BackImage);
             pBack.LockBits();
-            for (var i = 0; i < rect.Width; i++)
+            for (var i = 0; i < saveRect.Value.Width; i++)
             {
-                for (var j = 0; j < rect.Height; j++)
+                for (var j = 0; j < saveRect.Value.Height; j++)
                 {
-                    var x = rect.Left + i;
-                    var y = rect.Top + j;
+                    var x = saveRect.Value.Left + i;
+                    var y = saveRect.Value.Top + j;
                     pImage.SetPixel(x, y, GetMixedColor(pBack.GetPixel(x, y), shading));
                 }
             }

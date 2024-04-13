@@ -12,32 +12,30 @@ using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
-[XmlRoot(nameof(FocusNode))]
-public class FocusNodeXmlSerialization : XmlSerialization<FocusNode>
+public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
 {
-    public FocusNodeXmlSerialization() : base(nameof(FocusNode))
-    {
-    }
+    public override string LocalName => nameof(FocusNode);
 
     public override void ReadXml(XmlReader reader)
     {
+        Source.Id = reader.GetAttribute(nameof(Source.Id)).ToInt() ?? 0;
+        Source.Name = reader.GetAttribute(nameof(Source.Name)) ?? "";
+        Source.BeginWithStar = reader.GetAttribute(nameof(Source.BeginWithStar)).ToBool() ?? false;
+        Source.Duration = reader.GetAttribute(nameof(Source.Duration)).ToInt() ?? 0;
+        Source.Description = reader.GetAttribute(nameof(Source.Description)) ?? "";
+        Source.Ps = reader.GetAttribute(nameof(Source.Ps)) ?? "";
         var latticedPoint = reader.GetAttribute(nameof(Source.LatticedPoint)).ToArray();
-        Source = new()
-        {
-            Id = reader.GetAttribute(nameof(Source.Id)).ToInt() ?? 0,
-            Name = reader.GetAttribute(nameof(Source.Name)) ?? "",
-            BeginWithStar = reader.GetAttribute(nameof(Source.BeginWithStar)).ToBool() ?? false,
-            Duration = reader.GetAttribute(nameof(Source.Duration)).ToInt() ?? 0,
-            Description = reader.GetAttribute(nameof(Source.Description)) ?? "",
-            Ps = reader.GetAttribute(nameof(Source.Ps)) ?? "",
-            LatticedPoint = latticedPoint.Length > 1
-                ? new(latticedPoint[0].ToInt() ?? 0, latticedPoint[1].ToInt() ?? 0)
-                : new LatticedPoint(),
-        };
+        Source.LatticedPoint = latticedPoint.Length > 1
+            ? new()
+            {
+                Col = latticedPoint[0].ToInt() ?? 0,
+                Row = latticedPoint[1].ToInt() ?? 0
+            }
+            : new();
 
         while (reader.Read())
         {
-            if (reader.Name == LocalRootName && reader.NodeType is XmlNodeType.EndElement)
+            if (reader.Name == LocalName && reader.NodeType is XmlNodeType.EndElement)
                 break;
             if (reader.NodeType is not XmlNodeType.Element)
                 continue;
@@ -59,8 +57,6 @@ public class FocusNodeXmlSerialization : XmlSerialization<FocusNode>
 
     public override void WriteXml(XmlWriter writer)
     {
-        if (Source is null)
-            return;
         writer.WriteAttributeString(nameof(Source.Id), Source.Id.ToString());
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
         writer.WriteAttributeString(nameof(Source.BeginWithStar), Source.BeginWithStar.ToString());

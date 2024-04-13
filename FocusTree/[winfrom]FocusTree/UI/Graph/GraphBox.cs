@@ -1,4 +1,5 @@
-﻿using FocusTree.Model.Focus;
+﻿using FocusTree.IO.Xml;
+using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
 using LocalUtilities.FileUtilities;
 using System.Diagnostics.CodeAnalysis;
@@ -95,7 +96,7 @@ public static class GraphBox
             FilePath = filePath;
         FileCacheManager.ClearCache(Graph);
         var message = FocusGraphUtilities.LoadFromFile(filePath, out var focusGraph);
-        if (message is not "")
+        if (message is not null)
         {
             Program.TestInfo.Append(message);
             Program.TestInfo.Show();
@@ -114,7 +115,7 @@ public static class GraphBox
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
         var message = FocusGraphUtilities.LoadFromFile(FilePath, out var focusGraph);
-        if (message is not "")
+        if (message is not null)
         {
             Program.TestInfo.Append(message);
             Program.TestInfo.Show();
@@ -226,10 +227,10 @@ public static class GraphBox
         focus = null;
         if (Graph == null)
             return false;
-        LatticeCell cell = new(new(point));
+        LatticeCell cell = new(point);
         if (!Graph.ContainLatticedPoint(cell.LatticedPoint, out focus))
             return false;
-        var part = cell.GetPartPointOn(point);
+        var part = cell.PointOnCellPart(point);
         return part is LatticeCell.Parts.Node;
     }
 

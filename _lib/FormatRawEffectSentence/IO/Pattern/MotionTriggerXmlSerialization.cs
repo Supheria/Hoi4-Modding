@@ -8,12 +8,9 @@ using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO.Pattern;
 
-[XmlRoot(nameof(MotionTrigger))]
-public class MotionTriggerXmlSerialization : XmlSerialization<MotionTrigger>
+public class MotionTriggerXmlSerialization() : XmlSerialization<MotionTrigger>(new())
 {
-    public MotionTriggerXmlSerialization() : base(nameof(MotionTrigger))
-    {
-    }
+    public override string LocalName => nameof(MotionTrigger);
 
     public override void ReadXml(XmlReader reader)
     {

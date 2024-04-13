@@ -5,25 +5,21 @@ using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
-[XmlRoot("NationalFocuses")]
-public class FocusGraphXmlSerialization : XmlSerialization<FocusGraph>
+public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
 {
-    public FocusGraphXmlSerialization() : base("NationalFocuses")
-    {
-    }
+    public override string LocalName => "NationalFocuses";
 
     public override void ReadXml(XmlReader reader)
     {
+        //Name
         var name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         var focusNodes = new List<FocusNode>();
-        focusNodes.ReadXmlCollection(reader, LocalRootName, new FocusNodeXmlSerialization());
+        focusNodes.ReadXmlCollection(reader, LocalName, new FocusNodeXmlSerialization());
         Source = new(name, focusNodes.ToArray());
     }
 
     public override void WriteXml(XmlWriter writer)
     {
-        if (Source is null)
-            return;
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
         Source.FocusNodes.WriteXmlCollection(writer, new FocusNodeXmlSerialization());
     }
