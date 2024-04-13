@@ -14,9 +14,11 @@ public class RawPatternArrayXmlSerialization() : XmlSerialization<RawPattern[]>(
     {
         var patterns = new List<RawPattern>();
         patterns.ReadXmlCollection(reader, LocalName, new RawPatternXmlSerialization());
-        Source = patterns.Count is 0 ? null : patterns.ToArray();
+        Source = patterns.Count is 0 ? [] : patterns.ToArray();
     }
 
-    public override void WriteXml(XmlWriter writer) =>
-        Source?.WriteXmlCollection(writer, new RawPatternXmlSerialization());
+    public override void WriteXml(XmlWriter writer)
+    {
+        Source.WriteXmlCollection(writer, new RawPatternXmlSerialization());
+    }
 }

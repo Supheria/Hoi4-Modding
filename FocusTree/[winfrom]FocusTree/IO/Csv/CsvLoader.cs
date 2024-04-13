@@ -11,7 +11,7 @@ namespace FocusTree.IO.Csv
         /// <param name="path">xml文件路径</param>
         /// <param name="focusGraph"></param>
         /// <returns>FGraph</returns>
-        public static string LoadFromCsv(string path, out FocusGraph? focusGraph)
+        public static string? LoadFromCsv(string path, out FocusGraph? focusGraph)
         {
             focusGraph = null;
             try
@@ -19,7 +19,7 @@ namespace FocusTree.IO.Csv
                 var nodes = new List<CsvFocusData>();
                 ReadGraphFromCsv(path, nodes);
                 focusGraph = new(Path.GetFileNameWithoutExtension(path), nodes);
-                return "";
+                return null;
             }
             catch (Exception ex)
             {

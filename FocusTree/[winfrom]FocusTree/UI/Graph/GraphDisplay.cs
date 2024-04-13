@@ -343,7 +343,7 @@ namespace FocusTree.UI.Graph
         /// </summary>
         LatticeCell.Parts LastCellPart = LatticeCell.Parts.Leave;
         LatticedPoint LatticedPointCursorOn;
-        FocusNode FocusNodeToDrag;
+        FocusNode FocusNodeToDrag = new();
         Rectangle LastPartRealRect;
         bool FirstDrag = true;
         private void DragNode(Point newPoint)

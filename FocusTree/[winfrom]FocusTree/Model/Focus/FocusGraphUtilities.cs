@@ -231,7 +231,7 @@ internal static class FocusGraphUtilities
         }
     }
 
-    internal static string LoadFromFile(string filePath, out FocusGraph? focusGraph)
+    internal static string? LoadFromFile(string filePath, out FocusGraph? focusGraph)
     {
         var extension = Path.GetExtension(filePath).ToLower();
         switch (extension)

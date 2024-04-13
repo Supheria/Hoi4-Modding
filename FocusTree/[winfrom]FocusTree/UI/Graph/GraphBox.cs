@@ -95,7 +95,7 @@ public static class GraphBox
         if (!ReadOnly)
             FilePath = filePath;
         FileCacheManager.ClearCache(Graph);
-        var focusGraph = new FocusGraphXmlSerialization().LoadFromXml(out var message, filePath);
+        var message = FocusGraphUtilities.LoadFromFile(filePath, out var focusGraph);
         if (message is not null)
         {
             Program.TestInfo.Append(message);
@@ -115,7 +115,7 @@ public static class GraphBox
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
         var message = FocusGraphUtilities.LoadFromFile(FilePath, out var focusGraph);
-        if (message is not "")
+        if (message is not null)
         {
             Program.TestInfo.Append(message);
             Program.TestInfo.Show();
