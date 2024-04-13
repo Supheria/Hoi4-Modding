@@ -4,12 +4,9 @@ using System.Xml.Serialization;
 
 namespace FocusTree.UI.NodeToolDialogs;
 
-[XmlRoot(nameof(NodeInfoDialog))]
-public class NodeInfoDialogSerialization : XmlSerialization<NodeInfoDialog>
+public class NodeInfoDialogSerialization() : XmlSerialization<NodeInfoDialog>(new())
 {
-    public NodeInfoDialogSerialization() : base(nameof(NodeInfoDialog))
-    {
-    }
+    public override string LocalName => nameof(NodeInfoDialog);
 
     public override void ReadXml(XmlReader reader)
     {

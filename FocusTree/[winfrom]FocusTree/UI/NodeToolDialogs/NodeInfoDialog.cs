@@ -425,25 +425,25 @@ namespace FocusTree.UI.NodeToolDialogs
 
         public string ToHashString()
         {
-            this.SaveToXml(HashCachePath, new NodeInfoDialogSerialization());
+            new NodeInfoDialogSerialization() { Source = this }.SaveToXml(HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             var hashString = data.ToMd5HashString();
             if (!File.Exists(hashString))
-                this.SaveToXml(this.GetCacheFilePath(hashString), new NodeInfoDialogSerialization());
+                new NodeInfoDialogSerialization() { Source = this }.SaveToXml(this.GetCacheFilePath(hashString));
             return hashString;
         }
 
         public string ToHashString(string filePath)
         {
-            new NodeInfoDialogSerialization().LoadFromXml(filePath)
-                ?.SaveToXml(HashCachePath, new NodeInfoDialogSerialization());
+            var dialog = new NodeInfoDialogSerialization().LoadFromXml(out _, filePath);
+            new NodeInfoDialogSerialization() { Source = dialog }.SaveToXml(HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             return data.ToMd5HashString();
         }
 
         public void FromHashString(string data)
         {
-            var nodeInfoDlg = new NodeInfoDialogSerialization().LoadFromXml(this.GetCacheFilePath(data));
+            var nodeInfoDlg = new NodeInfoDialogSerialization().LoadFromXml(out _, this.GetCacheFilePath(data));
             if (nodeInfoDlg is null)
                 return;
             FocusNameText = nodeInfoDlg.FocusNameText;

@@ -80,11 +80,11 @@ namespace FocusTree.Model.WinFormGdiUtilities
         public static void DrawFocusNodeNormal(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
-            var nodeRect = cell.NodeRealRect;
+            var nodeRect = cell.NodeRealRect();
             _ = LatticeGrid.RectWithin(nodeRect, out var saveRect);
             if (saveRect is null)
                 return;
-            if (LatticeCell.Length < ShowNodeNameCellLength)
+            if (LatticeCell.CellData.EdgeLength < ShowNodeNameCellLength)
             {
                 DrawFocusNode(image, saveRect.Value, null);
             }
@@ -98,11 +98,11 @@ namespace FocusTree.Model.WinFormGdiUtilities
         public static void DrawFocusNodeSelected(Bitmap image, FocusNode focus)
         {
             LatticeCell cell = new(focus.LatticedPoint);
-            var nodeRect = cell.NodeRealRect;
+            var nodeRect = cell.NodeRealRect();
             _ = LatticeGrid.RectWithin(nodeRect, out var saveRect);
             if (saveRect is null) 
                 return;
-            if (LatticeCell.Length < ShowNodeNameCellLength)
+            if (LatticeCell.CellData.EdgeLength < ShowNodeNameCellLength)
             {
                 DrawFocusNode(image, saveRect.Value, FocusNodeBgSelected);
             }
@@ -244,32 +244,32 @@ namespace FocusTree.Model.WinFormGdiUtilities
             var colDiff = endLoc.Col - startLoc.Col;
             var rowDiff = endLoc.Row - startLoc.Row;
             LatticeCell cell = new(startLoc);
-            var halfPaddingHeight = cell.NodePadding.Height / 2;
-            var halfPaddingWidth = cell.NodePadding.Width / 2;
-            var halfNodeWidth = cell.NodeRealRect.Width / 2;
+            var halfPaddingHeight = cell.NodePadding().Height / 2;
+            var halfPaddingWidth = cell.NodePadding().Width / 2;
+            var halfNodeWidth = cell.NodeRealRect().Width / 2;
 
-            var x1 = cell.NodeRealRect.Left + halfNodeWidth;
-            var y1 = cell.NodeRealRect.Top;
-            var y2 = cell.CellRealRect.Top + halfPaddingHeight;
+            var x1 = cell.NodeRealRect().Left + halfNodeWidth;
+            var y1 = cell.NodeRealRect().Top;
+            var y2 = cell.CellRealRect().Top + halfPaddingHeight;
             DrawCrossHollowLine(image, new(x1, y1), new(x1, y2));
             if (rowDiff < 0)
             {
                 cell.LatticedPoint.Col += colDiff;
-                var x2 = cell.NodeRealRect.Left + halfNodeWidth;
+                var x2 = cell.NodeRealRect().Left + halfNodeWidth;
                 if (Math.Abs(colDiff) > 0)
                 {
                     DrawCrossHollowLine(image, new(x1, y2), new(x2, y2));
                 }
                 cell.LatticedPoint.Row += rowDiff + 1;
-                DrawCrossHollowLine(image, new(x2, y2), new(x2, cell.CellRealRect.Top));
+                DrawCrossHollowLine(image, new(x2, y2), new(x2, cell.CellRealRect().Top));
             }
             else
             {
                 cell.LatticedPoint.Col += colDiff < 0 ? colDiff + 1 : colDiff;
-                var x2 = cell.CellRealRect.Left + halfPaddingWidth;
+                var x2 = cell.CellRealRect().Left + halfPaddingWidth;
                 DrawCrossHollowLine(image, new(x1, y2), new(x2, y2));
                 cell.LatticedPoint.Row += rowDiff + 1;
-                var y3 = cell.CellRealRect.Top + halfPaddingHeight;
+                var y3 = cell.CellRealRect().Top + halfPaddingHeight;
                 DrawCrossHollowLine(image, new(x2, y2), new(x2, y3));
                 var x3 = x2 + (colDiff < 0 ? -(halfPaddingWidth + halfNodeWidth) : halfPaddingWidth + halfNodeWidth);
                 DrawCrossHollowLine(image, new(x2, y3), new(x3, y3));
@@ -343,7 +343,7 @@ namespace FocusTree.Model.WinFormGdiUtilities
             LatticeCell cell = new(point);
             if (!CellSelectedPartsBg.TryGetValue(cellPart, out var shading))
                 return;
-            _ = LatticeGrid.RectWithin(cell.CellPartsRealRect[cellPart], out var saveRect);
+            _ = LatticeGrid.RectWithin(cell.CellPartsRealRect(cellPart), out var saveRect);
             if (saveRect is null)
                 return;
             PointBitmap pImage = new(image);

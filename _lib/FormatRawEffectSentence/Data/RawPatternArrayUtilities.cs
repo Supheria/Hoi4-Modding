@@ -73,7 +73,7 @@ internal class RawPatternArrayUtilities
 
     internal static void SaveRawPatternArray(string filePath, ref RawPattern[] patterns)
     {
-        patterns.SaveToXml(filePath, new RawPatternArrayXmlSerialization());
+        new RawPatternArrayXmlSerialization() { Source = patterns }.SaveToXml(filePath);
         //patterns.SaveToYaml(filePath);
     }
 }

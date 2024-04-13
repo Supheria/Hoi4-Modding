@@ -275,10 +275,9 @@ public partial class GraphForm : ResizeableForm
         {
             try
             {
-                var graph = new FocusGraphXmlSerialization().LoadFromXml(fileName);
-                graph?.ReorderNodeIds();
-                graph?.SaveToXml(Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)),
-                    new FocusGraphXmlSerialization());
+                var graph = new FocusGraphXmlSerialization().LoadFromXml(out _, fileName);
+                graph.ReorderNodeIds();
+                new FocusGraphXmlSerialization() { Source = graph }.SaveToXml(Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
                 suc++;
                 GraphFrom_ProgressBar.PerformStep();
             }
@@ -309,7 +308,7 @@ public partial class GraphForm : ResizeableForm
         {
             try
             {
-                var graph = new FocusGraphXmlSerialization().LoadFromXml(fileName);
+                var graph = new FocusGraphXmlSerialization().LoadFromXml(out _, fileName);
                 var savePath = Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName));
                 NodeMapDrawer.SaveImage(graph, savePath);
                 suc++;
@@ -452,7 +451,7 @@ public partial class GraphForm : ResizeableForm
             ClientRectangle.Height - GraphFrom_Menu.Height - GraphFrom_StatusStrip.Height
             );
         Background.DrawNew(_display.Image);
+        LatticeGrid.GridData.DrawRect = _display.LatticeBound;
         _display.Refresh();
-        LatticeGrid.DrawRect = _display.LatticeBound;
     }
 }

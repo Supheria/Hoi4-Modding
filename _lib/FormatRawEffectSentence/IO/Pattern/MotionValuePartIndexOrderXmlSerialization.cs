@@ -6,12 +6,9 @@ using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO.Pattern;
 
-[XmlRoot("PartIndex")]
-public class MotionValuePartIndexOrderXmlSerialization : XmlSerialization<int>
+public class MotionValuePartIndexOrderXmlSerialization() : XmlSerialization<int>(new())
 {
-    public MotionValuePartIndexOrderXmlSerialization() : base("PartIndex")
-    {
-    }
+    public override string LocalName => "PartIndex";
 
     public override void ReadXml(XmlReader reader)
     {
@@ -21,5 +18,8 @@ public class MotionValuePartIndexOrderXmlSerialization : XmlSerialization<int>
             Source = (int)index;
     }
 
-    public override void WriteXml(XmlWriter writer) => writer.WriteValue(Source);
+    public override void WriteXml(XmlWriter writer)
+    {
+        writer.WriteValue(Source);
+    }
 }

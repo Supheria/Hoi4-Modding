@@ -4,12 +4,9 @@ using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
-[XmlRoot("RawEffect")]
-public class RawEffectXmlSerialization : XmlSerialization<string>
+public class RawEffectXmlSerialization() : XmlSerialization<string>("")
 {
-    public RawEffectXmlSerialization() : base("RawEffect")
-    {
-    }
+    public override string LocalName => "RawEffect";
 
     public override void ReadXml(XmlReader reader)
     {
@@ -17,5 +14,8 @@ public class RawEffectXmlSerialization : XmlSerialization<string>
         Source = reader.Value;
     }
 
-    public override void WriteXml(XmlWriter writer) => writer.WriteValue(Source);
+    public override void WriteXml(XmlWriter writer)
+    {
+        writer.WriteValue(Source);
+    }
 }

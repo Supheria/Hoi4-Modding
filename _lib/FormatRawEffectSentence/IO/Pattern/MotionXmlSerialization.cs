@@ -8,14 +8,9 @@ using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO.Pattern;
 
-[XmlRoot(nameof(Motion))]
-public class MotionXmlSerialization : XmlSerialization<Motion>
+public class MotionXmlSerialization() : XmlSerialization<Motion>(new())
 {
-    private const string LocalNameMotion = "Motion";
-
-    public MotionXmlSerialization() : base(nameof(Motion))
-    {
-    }
+    public override string LocalName => "Motion";
 
     public override void ReadXml(XmlReader reader)
     {
@@ -23,19 +18,17 @@ public class MotionXmlSerialization : XmlSerialization<Motion>
         var pattern = reader.GetAttribute(nameof(Source.Pattern)) ?? "";
         Source = new(partIndex, pattern);
         if (partIndex is -1)
-            Source.ConditionMap[""] = reader.GetAttribute(LocalNameMotion).ToEnum<Motions>();
+            Source.ConditionMap[""] = reader.GetAttribute(LocalName).ToEnum<Motions>();
         else
-            Source.ConditionMap.ReadXmlCollection(reader, LocalRootName, new MotionConditionXmlSerialization());
+            Source.ConditionMap.ReadXmlCollection(reader, LocalName, new MotionConditionXmlSerialization());
     }
 
     public override void WriteXml(XmlWriter writer)
     {
-        if (Source is null)
-            return;
         writer.WriteAttributeString(nameof(Source.Pattern), Source.Pattern);
         writer.WriteAttributeString(nameof(Source.PartIndex), Source.PartIndex.ToString());
         if (Source.PartIndex is -1)
-            writer.WriteAttributeString(LocalNameMotion, Source.ConditionMap[""].ToString());
+            writer.WriteAttributeString(LocalName, Source.ConditionMap[""].ToString());
         else
             Source.ConditionMap.WriteXmlCollection(writer, new MotionConditionXmlSerialization());
     }

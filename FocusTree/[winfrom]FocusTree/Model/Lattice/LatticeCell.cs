@@ -1,5 +1,5 @@
-﻿using System.Xml;
-
+﻿using LocalUtilities.FileUtilities;
+using LocalUtilities.Interface;
 namespace FocusTree.Model.Lattice
 {
     /// <summary>
@@ -7,92 +7,62 @@ namespace FocusTree.Model.Lattice
     /// </summary>
     public class LatticeCell
     {
-        #region ==== 设置宽高和间距 ====
-
+        public static CellData CellData { get; set; } = new CellDataXmlSerialization().LoadFromXml(out _);
         /// <summary>
-        /// 格元边长（限制最小值和最大值）
+        /// 节点与格元的间隔
         /// </summary>
-        public static int Length
+        public Size NodePadding() => new(
+            (int)(CellData.EdgeLength * CellData.NodePaddingWidthFactor),
+            (int)(CellData.EdgeLength * CellData.NodePaddingHeightFactor
+            ));
+
+        public Rectangle CellRealRect()
         {
-            get => _sideLength;
-            set => _sideLength = value < LengthMin ? LengthMin : value > LengthMax ? LengthMax : value;
-        }
-
-        private static int _sideLength = 30;
-        /// <summary>
-        /// 最小尺寸
-        /// </summary>
-        public static int LengthMin { get; set; } = 25;
-        /// <summary>
-        /// 最大尺寸
-        /// </summary>
-        public static int LengthMax { get; set; } = 125;
-
-        public Size NodePadding => new(
-            (int)(Length * NodePaddingZoomFactor.X), 
-            (int)(Length * NodePaddingZoomFactor.Y));
-        /// <summary>
-        /// 节点空隙系数（0.3 < X < 0.7, 0.3 < Y < 0.7)
-        /// </summary>
-        public static PointF NodePaddingZoomFactor
-        {
-            get => _nodePaddingZoomFactor;
-            set => _nodePaddingZoomFactor = new(value.X < 0.1f ? 0.1f : value.X > 0.7f ? 0.7f : value.X, value.Y < 0.1f ? 0.1f : value.Y > 0.7f ? 0.7f : value.Y);
-        }
-
-        private static PointF _nodePaddingZoomFactor = new(0.333f, 0.333f);
-
-        #endregion
-
-        #region ==== 坐标 ====
-
-        /// <summary>
-        /// 格元栅格化坐标
-        /// </summary>
-        public LatticedPoint LatticedPoint { get; set; } = new();
-
-        public Rectangle CellRealRect => new(
-            Length * LatticedPoint.Col + LatticeGrid.OriginX,
-            Length * LatticedPoint.Row + LatticeGrid.OriginY, 
-            Length, Length
+            return new(
+            CellData.EdgeLength * LatticedPoint.Col + LatticeGrid.GridData.OriginX,
+            CellData.EdgeLength * LatticedPoint.Row + LatticeGrid.GridData.OriginY,
+            CellData.EdgeLength, CellData.EdgeLength
             );
+        }
         /// <summary>
         /// 节点真实坐标矩形
         /// </summary>
-        public Rectangle NodeRealRect
+        public Rectangle NodeRealRect()
         {
-            get
-            {
-                var cellRect = CellRealRect;
-                var nodePadding = NodePadding;
-                return new(
-                    cellRect.Left + nodePadding.Width, cellRect.Top + nodePadding.Height,
-                    Length - nodePadding.Width * 2, Length - nodePadding.Height * 2);
-            }
+            var cellRect = CellRealRect();
+            var nodePadding = NodePadding();
+            return new(
+                cellRect.Left + nodePadding.Width, cellRect.Top + nodePadding.Height,
+                cellRect.Width - nodePadding.Width * 2, cellRect.Height - nodePadding.Height * 2);
         }
-
-        #endregion
-
-        #region ==== 构造函数 ====
-
         /// <summary>
-        /// 默认构造函数
+        /// 格元栅格化坐标
         /// </summary>
-        public LatticeCell()
+        public LatticedPoint LatticedPoint { get; set; }
+
+        public LatticeCell() : this(new LatticedPoint())
         {
+
         }
 
+        public LatticeCell(LatticedPoint latticedPoint)
+        {
+            LatticedPoint = latticedPoint;
+        }
         /// <summary>
-        /// 使用已有的栅格化坐标创建
+        /// 使用真实坐标创建格元
         /// </summary>
-        public LatticeCell(LatticedPoint point)
+        /// <param name="realPoint"></param>
+        public LatticeCell(Point realPoint)
         {
-            LatticedPoint = point;
+            var widthDiff = realPoint.X - LatticeGrid.GridData.OriginX;
+            var heightDiff = realPoint.Y - LatticeGrid.GridData.OriginY;
+            var col = widthDiff / CellData.EdgeLength;
+            var raw = heightDiff / CellData.EdgeLength;
+            if (widthDiff < 0) { col--; }
+            if (heightDiff < 0) { raw--; }
+            LatticedPoint = new(col, raw);
         }
-
-        #endregion
-
-        #region ==== 格元区域 ====
 
         /// <summary>
         /// 格元的部分
@@ -138,53 +108,68 @@ namespace FocusTree.Model.Lattice
             /// <summary>
             /// 节点区域
             /// </summary>
-
             Node
         }
         /// <summary>
         /// 格元各个部分的真实坐标矩形
         /// </summary>
-        public Dictionary<Parts, Rectangle> CellPartsRealRect
+        /// <param name="part"></param>
+        /// <returns></returns>
+        public Rectangle CellPartsRealRect(Parts part)
         {
-            get
+            var cellRect = CellRealRect();
+            var nodePadding = NodePadding();
+            var nodeRect = NodeRealRect();
+            switch (part)
             {
-                var cellRect = CellRealRect;
-                var nodePadding = NodePadding;
-                var nodeRect = NodeRealRect;
-                return new()
-                {
-                    [Parts.Leave] = Rectangle.Empty,
-                    [Parts.Left] = new(cellRect.Left, nodeRect.Top, nodePadding.Width, nodeRect.Height),
-                    [Parts.Top] = new(nodeRect.Left, cellRect.Top, nodeRect.Width, nodePadding.Height),
-                    [Parts.Right] = new(nodeRect.Right, nodeRect.Top, nodePadding.Width, nodeRect.Height),
-                    [Parts.Bottom] = new(nodeRect.Left, nodeRect.Bottom, nodeRect.Width, nodePadding.Height),
-                    [Parts.LeftTop] = new(cellRect.Left, cellRect.Top, nodePadding.Width, nodePadding.Height),
-                    [Parts.TopRight] = new(nodeRect.Right, cellRect.Top, nodePadding.Width, nodePadding.Height),
-                    [Parts.LeftBottom] = new(cellRect.Left, nodeRect.Bottom, nodePadding.Width, nodePadding.Height),
-                    [Parts.BottomRight] = new(nodeRect.Right, nodeRect.Bottom, nodePadding.Width, nodePadding.Height),
-                    [Parts.Node] = nodeRect
-                };
+                case Parts.Node:
+                    return nodeRect;
+                case Parts.Left:
+                    return new(cellRect.Left, nodeRect.Top, nodePadding.Width, nodeRect.Height);
+                case Parts.Top:
+                    return new(nodeRect.Left, cellRect.Top, nodeRect.Width, nodePadding.Height);
+                case Parts.Right:
+                    return new(nodeRect.Right, nodeRect.Top, nodePadding.Width, nodeRect.Height);
+                case Parts.Bottom:
+                    return new(nodeRect.Left, nodeRect.Bottom, nodeRect.Width, nodePadding.Height);
+                case Parts.LeftTop:
+                    return new(cellRect.Left, cellRect.Top, nodePadding.Width, nodePadding.Height);
+                case Parts.TopRight:
+                    return new(nodeRect.Right, cellRect.Top, nodePadding.Width, nodePadding.Height);
+                case Parts.BottomRight:
+                    return new(nodeRect.Right, nodeRect.Bottom, nodePadding.Width, nodePadding.Height);
+                case Parts.LeftBottom:
+                    return new(cellRect.Left, nodeRect.Bottom, nodePadding.Width, nodePadding.Height);
+                default:
+                    return Rectangle.Empty;
             }
         }
-            
-
         /// <summary>
         /// 获取坐标在格元上所处的部分
         /// </summary>
         /// <param name="point">坐标</param>
         /// <returns></returns>
-        public Parts GetPartPointOn(Point point)
+        public Parts PointOnCellPart(Point point)
         {
-            foreach (var (key, rect) in CellPartsRealRect)
-            {
-                if (rect.Contains(point))
-                {
-                    return key;
-                }
-            }
+            if (CellPartsRealRect(Parts.Node).Contains(point))
+                return Parts.Node;
+            if (CellPartsRealRect(Parts.Left).Contains(point))
+                return Parts.Left;
+            if (CellPartsRealRect(Parts.Top).Contains(point))
+                return Parts.Top;
+            if (CellPartsRealRect(Parts.Right).Contains(point))
+                return Parts.Right;
+            if (CellPartsRealRect(Parts.Bottom).Contains(point))
+                return Parts.Bottom;
+            if (CellPartsRealRect(Parts.LeftTop).Contains(point))
+                return Parts.LeftTop;
+            if (CellPartsRealRect(Parts.TopRight).Contains(point))
+                return Parts.TopRight;
+            if (CellPartsRealRect(Parts.BottomRight).Contains(point))
+                return Parts.BottomRight;
+            if (CellPartsRealRect(Parts.LeftBottom).Contains(point))
+                return Parts.LeftBottom;
             return Parts.Leave;
         }
-
-        #endregion
     }
 }

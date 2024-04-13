@@ -8,15 +8,14 @@ using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO;
 
-[XmlRoot(nameof(EffectSentence))]
-public class EffectSentenceXmlSerialization : XmlSerialization<EffectSentence>
+public class EffectSentenceXmlSerialization() : XmlSerialization<EffectSentence>(new())
 {
-    protected const string LocalNameType = "Type";
-    protected const string LocalNameValue = "Value";
+    protected static string LocalNameType => "Type";
 
-    public EffectSentenceXmlSerialization() : base(nameof(EffectSentence))
-    {
-    }
+    protected static string LocalNameValue => "Value";
+
+    public override string LocalName => nameof(EffectSentence);
+
 
     public override void ReadXml(XmlReader reader)
     {
@@ -28,13 +27,11 @@ public class EffectSentenceXmlSerialization : XmlSerialization<EffectSentence>
         var (value, triggers) = valuePair.ToPair("", Array.Empty<string>(), str => str, StringSimpleTypeConverter.ToArray);
         Source = new(motion, valueType, value, triggerType, triggers);
 
-        Source.SubSentences.ReadXmlCollection(reader, LocalRootName, new EffectSentenceXmlSerialization());
+        Source.SubSentences.ReadXmlCollection(reader, LocalName, new EffectSentenceXmlSerialization());
     }
 
     public override void WriteXml(XmlWriter writer)
     {
-        if (Source is null)
-            return;
         writer.WriteAttributeString(nameof(Source.Motion), Source.Motion.ToString());
         writer.WriteAttributeString(LocalNameType,
             StringSimpleTypeConverter.ToArrayString(Source.Type, Source.TriggerType));

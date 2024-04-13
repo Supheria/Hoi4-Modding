@@ -23,17 +23,10 @@ namespace FocusTree.Model.Lattice
             Row = 0;
         }
 
-        /// <summary>
-        /// 使用真实坐标创建，将坐标转换为栅格化坐标
-        /// </summary>
-        public LatticedPoint(Point realPoint)
+        public LatticedPoint(int col, int row)
         {
-            var widthDiff = realPoint.X - LatticeGrid.OriginX;
-            var heightDiff = realPoint.Y - LatticeGrid.OriginY;
-            Col = widthDiff / LatticeCell.Length;
-            Row = heightDiff / LatticeCell.Length;
-            if (widthDiff < 0) { Col--; }
-            if (heightDiff < 0) { Row--; }
+            Col = col;
+            Row = row;
         }
         /// <summary>
         /// 行列数是否都相等

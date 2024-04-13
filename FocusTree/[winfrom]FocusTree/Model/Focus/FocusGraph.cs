@@ -157,23 +157,28 @@ namespace FocusTree.Model.Focus
 
         public string ToHashString()
         {
-            this.SaveToXml(HashCachePath, new FocusGraphXmlSerialization());
+            new FocusGraphXmlSerialization() { Source = this }.SaveToXml(HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             var hashString = data.ToMd5HashString(); ;
             if (!File.Exists(hashString))
-                this.SaveToXml(this.GetCacheFilePath(hashString), new FocusGraphXmlSerialization());
+                new FocusGraphXmlSerialization() { Source = this }.SaveToXml(this.GetCacheFilePath(hashString));
             return new(hashString);
         }
 
         public string ToHashString(string filePath)
         {
-            new FocusGraphXmlSerialization().LoadFromXml(filePath)
-                ?.SaveToXml(HashCachePath, new FocusGraphXmlSerialization());
+            var focusGraph = new FocusGraphXmlSerialization().LoadFromXml(out _, filePath);
+            new FocusGraphXmlSerialization() { Source = focusGraph }.SaveToXml(HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             return data.ToMd5HashString();
         }
 
-        public void FromHashString(string data) => _focusNodesMap =
-            new FocusGraphXmlSerialization().LoadFromXml(this.GetCacheFilePath(data))?._focusNodesMap ?? [];
+        public void FromHashString(string data)
+        {
+            _focusNodesMap = new FocusGraphXmlSerialization().LoadFromXml(
+                out _, this.GetCacheFilePath(data)
+                )?._focusNodesMap
+                ?? [];
+        }
     }
 }

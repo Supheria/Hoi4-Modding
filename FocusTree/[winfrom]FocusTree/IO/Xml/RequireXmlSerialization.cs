@@ -5,12 +5,9 @@ using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
-[XmlRoot("Require")]
-public class RequireXmlSerialization : XmlSerialization<HashSet<int>>
+public class RequireXmlSerialization() : XmlSerialization<HashSet<int>>([])
 {
-    public RequireXmlSerialization() : base("Require")
-    {
-    }
+    public override string LocalName => "Require";
 
     public override void ReadXml(XmlReader reader)
     {
@@ -21,8 +18,6 @@ public class RequireXmlSerialization : XmlSerialization<HashSet<int>>
 
     public override void WriteXml(XmlWriter writer)
     {
-        if (Source is null)
-            return;
         writer.WriteValue(Source.ToArrayString());
     }
 }
