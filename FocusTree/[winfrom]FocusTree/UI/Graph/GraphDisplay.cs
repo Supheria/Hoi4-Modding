@@ -385,7 +385,7 @@ namespace FocusTree.UI.Graph
                 return;
             }
             _nodeInfoTip.BackColor = Color.FromArgb(0, Color.AliceBlue);
-            _nodeInfoTip.Show($"{focus?.Name}\nID: {focus?.Id}", this, location.X + 10, location.Y);
+            _nodeInfoTip.Show($"{focus?.Name}\nID: {focus?.Signature}", this, location.X + 10, location.Y);
         }
 
         //---- OnMouseUp ----//

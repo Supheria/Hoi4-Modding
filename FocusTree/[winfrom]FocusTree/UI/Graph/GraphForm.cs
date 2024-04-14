@@ -11,10 +11,10 @@ using System.IO.Compression;
 
 namespace FocusTree.UI.Graph;
 
-public partial class GraphForm : ResizeableForm
+public partial class GraphForm : ResizeableForm<GraphFormData>
 {
     private readonly GraphDisplay _display;
-    public GraphForm() : base("graph form")
+    public GraphForm() : base(new(), new GraphFormDataXmlSerialization())
     {
         _display = new GraphDisplay(this);
         UpdateText();
@@ -276,7 +276,7 @@ public partial class GraphForm : ResizeableForm
             try
             {
                 var graph = new FocusGraphXmlSerialization().LoadFromXml(out _, fileName);
-                graph.ReorderNodeIds();
+                graph.AutoSetAllNodesIdInOrder();
                 new FocusGraphXmlSerialization() { Source = graph }.SaveToXml(Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
                 suc++;
                 GraphFrom_ProgressBar.PerformStep();

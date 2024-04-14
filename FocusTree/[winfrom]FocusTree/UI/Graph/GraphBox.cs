@@ -37,7 +37,7 @@ public static class GraphBox
                 return "Focus Tree";
             else if (ReadOnly)
                 return Graph.Name + "（只读）";
-            else if (Graph.IsEdit())
+            else if (Graph.IsEditThanLastSavedHistory())
                 return Graph.Name + "（未保存）";
             else
                 return Graph.Name;
@@ -47,7 +47,7 @@ public static class GraphBox
     /// <summary>
     /// 是否已编辑
     /// </summary>
-    public static bool Edited => Graph?.IsEdit() ?? false;
+    public static bool Edited => Graph?.IsEditThanLastSavedHistory() ?? false;
 
     /// <summary>
     /// 是否有向前的历史记录
@@ -62,17 +62,17 @@ public static class GraphBox
     /// <summary>
     /// 元图的国策列表
     /// </summary>
-    public static FocusNode[] FocusList => Graph is null ? Array.Empty<FocusNode>() : Graph.FocusNodes;
+    public static FocusNode[] FocusList => Graph is null ? Array.Empty<FocusNode>() : Graph.RosterList;
 
     /// <summary>
     /// 元图节点数量
     /// </summary>
-    public static int NodeCount => Graph is null ? 0 : Graph.FocusNodes.Length;
+    public static int NodeCount => Graph is null ? 0 : Graph.RosterList.Length;
 
     /// <summary>
     /// 元图分支数量
     /// </summary>
-    public static int BranchCount => Graph?.BranchNumber ?? 0;
+    public static int BranchCount => Graph?.GetAllRootNodesBranches().Count ?? 0;
 
     /// <summary>
     /// 元图备份列表
@@ -83,7 +83,7 @@ public static class GraphBox
     /// <summary>
     /// 元图元坐标矩形
     /// </summary>
-    public static Rectangle MetaRect => Graph?.GetMetaRect() ?? new();
+    public static Rectangle MetaRect => Graph?.GetGraphLatticedRect() ?? new();
 
     /// <summary>
     /// 从文件路径加载元图，如果只读则封存文件路径
@@ -95,7 +95,7 @@ public static class GraphBox
         if (!ReadOnly)
             FilePath = filePath;
         FileCacheManager.ClearCache(Graph);
-        var message = FocusGraphUtilities.LoadFromFile(filePath, out var focusGraph);
+        var message = FocusGraph.LoadFromFile(filePath, out var focusGraph);
         if (message is not null)
         {
             Program.TestInfo.Append(message);
@@ -114,7 +114,7 @@ public static class GraphBox
         if (!File.Exists(FilePath)) { return; }
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
-        var message = FocusGraphUtilities.LoadFromFile(FilePath, out var focusGraph);
+        var message = FocusGraph.LoadFromFile(FilePath, out var focusGraph);
         if (message is not null)
         {
             Program.TestInfo.Append(message);
@@ -134,8 +134,8 @@ public static class GraphBox
             return;
         ReadOnly = false;
         Graph.Backup(FilePath);
-        Graph.SaveToFile(FilePath);
-        Graph.UpdateLatest();
+        new FocusGraphXmlSerialization() { Source = Graph }.SaveToXml(FilePath);
+        Graph.UpdateLastSavedHistoryIndex();
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public static class GraphBox
         }
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
-        Graph.SaveToFile(filePath);
+        new FocusGraphXmlSerialization() { Source = Graph}.SaveToXml(filePath);
         Graph.NewHistory();
         FilePath = filePath;
         Program.TestInfo.Renew();
@@ -183,13 +183,13 @@ public static class GraphBox
     public static void SetFocus(FocusNode focus)
     {
         if (Graph == null) { return; }
-        Graph[focus.Id] = focus;
+        Graph[focus.Signature] = focus;
         Graph.EnqueueHistory();
     }
 
     public static void RemoveFocusNode(FocusNode focus)
     {
-        Graph?.RemoveNode(focus.Id);
+        Graph?.Remove(focus.Signature);
         Graph?.EnqueueHistory();
     }
 
@@ -198,7 +198,7 @@ public static class GraphBox
     /// </summary>
     public static void ReorderFocusNodesId()
     {
-        Graph?.ReorderNodeIds();
+        Graph?.AutoSetAllNodesIdInOrder();
         Graph?.EnqueueHistory();
     }
 
@@ -207,7 +207,7 @@ public static class GraphBox
     /// </summary>
     public static void AutoLayoutAllFocusNodes()
     {
-        Graph?.AutoSetAllNodesPosition();
+        Graph?.AutoSetAllNodesLatticedPoint();
         Graph?.EnqueueHistory();
     }
 

@@ -15,12 +15,14 @@ public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
         var name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         var focusNodes = new List<FocusNode>();
         focusNodes.ReadXmlCollection(reader, LocalName, new FocusNodeXmlSerialization());
-        Source = new(name, focusNodes.ToArray());
+        Source = new(name) {
+            RosterList = focusNodes.ToArray()
+        };
     }
 
     public override void WriteXml(XmlWriter writer)
     {
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
-        Source.FocusNodes.WriteXmlCollection(writer, new FocusNodeXmlSerialization());
+        Source.RosterList.WriteXmlCollection(writer, new FocusNodeXmlSerialization());
     }
 }

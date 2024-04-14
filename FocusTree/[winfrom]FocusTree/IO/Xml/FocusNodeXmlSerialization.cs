@@ -18,7 +18,7 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
 
     public override void ReadXml(XmlReader reader)
     {
-        Source.Id = reader.GetAttribute(nameof(Source.Id)).ToInt() ?? 0;
+        Source.Signature = reader.GetAttribute(nameof(Source.Signature)).ToInt() ?? 0;
         Source.Name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         Source.BeginWithStar = reader.GetAttribute(nameof(Source.BeginWithStar)).ToBool() ?? false;
         Source.Duration = reader.GetAttribute(nameof(Source.Duration)).ToInt() ?? 0;
@@ -57,7 +57,7 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
 
     public override void WriteXml(XmlWriter writer)
     {
-        writer.WriteAttributeString(nameof(Source.Id), Source.Id.ToString());
+        writer.WriteAttributeString(nameof(Source.Signature), Source.Signature.ToString());
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
         writer.WriteAttributeString(nameof(Source.BeginWithStar), Source.BeginWithStar.ToString());
         writer.WriteAttributeString(nameof(Source.Duration), Source.Duration.ToString());
@@ -84,7 +84,7 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
             {
                 Program.TestInfo.Error++;
                 Program.TestInfo.Good = Program.TestInfo.Total - Program.TestInfo.Error;
-                Program.TestInfo.Append($"[{Source.Id}] {raw}");
+                Program.TestInfo.Append($"[{Source.Signature}] {raw}");
                 continue;
             }
             foreach (var formatted in formattedList)

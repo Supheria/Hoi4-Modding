@@ -67,12 +67,12 @@ namespace FocusTree.Utilities
             var g = Graphics.FromImage(canvas);
             g.Clear(Color.White);
 
-            _drawer = new(graph.FocusNodes.Length + 1);
-            foreach (var focus in graph.FocusNodes)
+            _drawer = new(graph.RosterList.Length + 1);
+            foreach (var focus in graph.RosterList)
             {
                 DrawNodeLinks(g, graph, focus);
             }
-            foreach (var focus in graph.FocusNodes)
+            foreach (var focus in graph.RosterList)
             {
                 var drawingRect = NodeDrawingRect(focus);
                 g.FillRectangle(
@@ -102,7 +102,7 @@ namespace FocusTree.Utilities
 
         private static Image GetCanvas(FocusGraph graph)
         {
-            var rect = graph.GetMetaRect();
+            var rect = graph.GetGraphLatticedRect();
             Point center = new(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
             var size = new Size(
                 (int)(center.X * ScalingUnit.X + Border * 2),

@@ -1,18 +1,18 @@
 ﻿using FocusTree.Model.Lattice;
 using FormatRawEffectSentence.Model;
+using LocalUtilities.Interface;
 
 namespace FocusTree.Model.Focus
 {
     /// <summary>
     /// 国策节点控制类
     /// </summary>
-    public class FocusNode
+    public class FocusNode(int signature) : RosterItem<int>(signature)
     {
-        /// <summary>
-        /// 节点ID
-        /// </summary>
-        public int Id { get; set; } = 0;
+        public FocusNode() : this(0)
+        {
 
+        }
         /// <summary>
         /// 国策名称
         /// </summary>

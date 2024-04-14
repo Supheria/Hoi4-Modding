@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LocalUtilities\LocalUtilities.csproj" />
+    <ProjectReference Include="..\LocalUtilities\LocalUtilities\LocalUtilities.csproj" />
   </ItemGroup>
 
 </Project>

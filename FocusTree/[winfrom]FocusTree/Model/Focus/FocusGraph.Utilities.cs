@@ -4,12 +4,12 @@ using LocalUtilities.FileUtilities;
 
 namespace FocusTree.Model.Focus;
 
-internal static class FocusGraphUtilities
+partial class FocusGraph
 {
-    internal static FocusNode CsvFocusDataConverter(CsvFocusData data) =>
-        new()
-        {
-            Id = data.Id,
+    private static FocusNode CsvFocusDataConverter(CsvFocusData data)
+    {
+        return new() {
+            Signature = data.Id,
             Name = data.Name,
             Duration = data.Duration,
             Description = data.Description,
@@ -17,18 +17,18 @@ internal static class FocusGraphUtilities
             BeginWithStar = data.BeginWithStar,
             RawEffects = data.RawEffects,
             Requires = data.Requires,
-
         };
+    }
 
     /// <summary>
     /// 获得整图元坐标矩形
     /// </summary>
     /// <returns></returns>
-    internal static Rectangle GetNodesLatticedRect(ref FocusNode[] focusNodes)
+    public Rectangle GetGraphLatticedRect()
     {
         int top, right, bottom;
         var left = top = right = bottom = 0;
-        foreach (var point in focusNodes.Select(focus => focus.LatticedPoint))
+        foreach (var point in RosterList.Select(focus => focus.LatticedPoint))
         {
             if (point.Col < left) { left = point.Col; }
             else if (point.Col > right) { right = point.Col; }
@@ -41,32 +41,31 @@ internal static class FocusGraphUtilities
     /// <summary>
     /// 所有节点的子链接（使用前调用 CreateNodeLinks ）
     /// </summary>
-    internal static Dictionary<int, List<int>> GetNodeLinksMap(ref FocusNode[] focusNodes)
+    public Dictionary<int, List<int>> GetNodeLinksMap()
     {
         var nodeLinksMap = new Dictionary<int, List<int>>();
-        foreach (var node in focusNodes)
+        foreach (var node in RosterList)
             foreach (var id in node.Requires.SelectMany(requires =>
-                         requires.Where(id => !nodeLinksMap.TryAdd(id, new() { node.Id }))))
-                nodeLinksMap[id].Add(node.Id);
+                         requires.Where(id => !nodeLinksMap.TryAdd(id, new() { node.Signature }))))
+                nodeLinksMap[id].Add(node.Signature);
         return nodeLinksMap;
     }
 
-    internal static List<int[]> GetAllRootNodesBranches(ref Dictionary<int, FocusNode> focusNodesMap)
+    public List<int[]> GetAllRootNodesBranches()
     {
-        var focusNodes = focusNodesMap.Values.ToArray();
-        var rootIds = GetRootNodeIds(ref focusNodes);
-        return GetBranches(ref focusNodes, ref rootIds, true, true);
+        var rootIds = GetRootNodeIds();
+        return GetBranches(rootIds, true, true);
     }
 
     /// <summary>
     /// 获取所有无任何依赖的节点（根节点）  O(n)
     /// </summary>
     /// <returns>根节点</returns>
-    private static int[] GetRootNodeIds(ref FocusNode[] focusNodes)
+    public int[] GetRootNodeIds()
     {
         var result = new HashSet<int>();
-        foreach (var focus in focusNodes.Where(focus => focus.Requires.Sum(x => x.Count) == 0))
-            result.Add(focus.Id);
+        foreach (var focus in RosterList.Where(focus => focus.Requires.Sum(x => x.Count) == 0))
+            result.Add(focus.Signature);
         return result.ToArray();
     }
 
@@ -78,19 +77,19 @@ internal static class FocusGraphUtilities
     /// <param name="sort">是否按照节点ID排序</param>
     /// <param name="reverse">是否从根节点向末节点排序</param>
     /// <returns></returns>
-    internal static List<int[]> GetBranches(ref FocusNode[] focusNodes, ref int[] ids, bool sort, bool reverse)
+    public List<int[]> GetBranches(int[] ids, bool sort, bool reverse)
     {
         var branches = new List<int[]>();
         var steps = new Stack<int>();
         foreach (var id in ids)
-            GetBranches(ref focusNodes, id, ref branches, ref steps, sort, reverse);
+            GetBranches(id, ref branches, ref steps, sort, reverse);
         return branches;
     }
 
-    private static void GetBranches(ref FocusNode[] focusNodes, int currentId, ref List<int[]> branches, ref Stack<int> steps, bool sort, bool reverse)
+    private void GetBranches(int currentId, ref List<int[]> branches, ref Stack<int> steps, bool sort, bool reverse)
     {
         steps.Push(currentId);
-        GetNodeLinksMap(ref focusNodes).TryGetValue(currentId, out var links);
+        GetNodeLinksMap().TryGetValue(currentId, out var links);
         // 当前节点是末节点
         if (links == null)
             branches.Add(reverse ? steps.Reverse().ToArray() : steps.ToArray());
@@ -101,7 +100,7 @@ internal static class FocusGraphUtilities
                 linkList.Sort();
             foreach (var id in linkList)
                 if (!steps.Contains(id))
-                    GetBranches(ref focusNodes, id, ref branches, ref steps, sort, reverse);
+                    GetBranches(id, ref branches, ref steps, sort, reverse);
         }
 
         steps.Pop();
@@ -112,9 +111,9 @@ internal static class FocusGraphUtilities
     /// 合并不同分支上的相同节点，并使节点在分支范围内尽量居中
     /// </summary>
     /// <returns></returns>
-    internal static void AutoSetAllNodesLatticedPoint(ref Dictionary<int, FocusNode> focusNodesMap)
+    public void AutoSetAllNodesLatticedPoint()
     {
-        var branches = GetAllRootNodesBranches(ref focusNodesMap);
+        var branches = GetAllRootNodesBranches();
         if (branches.Count == 0) { return; }
         var width = branches.Count;
         var height = branches.Max(x => x.Length);
@@ -169,7 +168,7 @@ internal static class FocusGraphUtilities
             if (xMetaPoints.TryGetValue(x, out var metaPoint))
             {
                 foreach (var nodePoint in metaPoint)
-                    focusNodesMap[nodePoint.Key].LatticedPoint = new()
+                    RosterMap[nodePoint.Key].LatticedPoint = new()
                     {
                         Col = nodePoint.Value.X - blank,
                         Row = nodePoint.Value.Y
@@ -182,9 +181,9 @@ internal static class FocusGraphUtilities
     /// <summary>
     /// 按分支顺序从左到右、从上到下重排节点ID
     /// </summary>
-    internal static void AutoSetAllNodesIdInOrder(ref Dictionary<int, FocusNode> focusNodesMap)
+    public void AutoSetAllNodesIdInOrder()
     {
-        var branches = GetAllRootNodesBranches(ref focusNodesMap);
+        var branches = GetAllRootNodesBranches();
         if (branches.Count is 0)
             return;
         Dictionary<int, FocusNode> tempFocusCatalog = new();
@@ -192,13 +191,13 @@ internal static class FocusGraphUtilities
         var newId = 1;
         foreach (var id in from branch in branches from id in branch where !visited.Contains(id) select id)
         {
-            UpdateLinkNodesRequiresWithNewId(ref focusNodesMap, id, newId);
+            UpdateLinkNodesRequiresWithNewId(id, newId);
             visited.Add(id);
-            focusNodesMap[id].Id = newId;
-            tempFocusCatalog.Add(newId, focusNodesMap[id]);
+            RosterMap[id].Signature = newId;
+            tempFocusCatalog.Add(newId, RosterMap[id]);
             newId++;
         }
-        focusNodesMap = tempFocusCatalog;
+        RosterMap = tempFocusCatalog;
     }
 
     /// <summary>
@@ -208,15 +207,14 @@ internal static class FocusGraphUtilities
     /// <param name="id"></param>
     /// <param name="newId"></param>
     /// <returns></returns>
-    private static void UpdateLinkNodesRequiresWithNewId(ref Dictionary<int, FocusNode> focusNodesMap, int id, int newId)
+    private void UpdateLinkNodesRequiresWithNewId(int id, int newId)
     {
-        var focusNodes = focusNodesMap.Values.ToArray();
-        if (!GetNodeLinksMap(ref focusNodes).TryGetValue(id, out var links))
+        if (!GetNodeLinksMap().TryGetValue(id, out var links))
             return;
         foreach (var linkId in links)
         {
             List<HashSet<int>> newRequires = new();
-            foreach (var require in focusNodesMap[linkId].Requires)
+            foreach (var require in RosterMap[linkId].Requires)
             {
                 HashSet<int> newRequire = new();
                 foreach (var requireId in require)
@@ -225,13 +223,13 @@ internal static class FocusGraphUtilities
                 }
                 newRequires.Add(newRequire);
             }
-            var focus = focusNodesMap[linkId];
+            var focus = RosterMap[linkId];
             focus.Requires = newRequires;
-            focusNodesMap[linkId] = focus;
+            RosterMap[linkId] = focus;
         }
     }
 
-    internal static string? LoadFromFile(string filePath, out FocusGraph? focusGraph)
+    public static string? LoadFromFile(string filePath, out FocusGraph? focusGraph)
     {
         var extension = Path.GetExtension(filePath).ToLower();
         switch (extension)
@@ -242,10 +240,5 @@ internal static class FocusGraphUtilities
                 focusGraph = new FocusGraphXmlSerialization().LoadFromXml(out var message, filePath);
                 return message;
         }
-    }
-
-    internal static void SaveToFile(this FocusGraph focusGraph, string filePath)
-    {
-        new FocusGraphXmlSerialization() { Source = focusGraph }.SaveToXml(Path.ChangeExtension(filePath, ".xml"));
     }
 }

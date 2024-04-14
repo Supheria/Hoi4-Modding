@@ -47,7 +47,7 @@ namespace FocusTree.UI.NodeToolDialogs
             if (Display.SelectedNode is null)
                 return;
             var focus = Display.SelectedNode;
-            Text = $"id: {focus.Id}";
+            Text = $"id: {focus.Signature}";
             FocusName.Text = focus.Name;
             Duration.Text = $"{focus.Duration}";
             Descript.Text = focus.Description;
@@ -75,7 +75,7 @@ namespace FocusTree.UI.NodeToolDialogs
                 return;
             }
             this.EnqueueHistory();
-            if (this.IsEdit())
+            if (this.IsEditThanLastSavedHistory())
             {
                 ButtonEvent.BackColor = Color.Yellow;
             }
@@ -414,10 +414,10 @@ namespace FocusTree.UI.NodeToolDialogs
 
         #region ==== 历史工具 ====
 
-        public int HistoryIndex { get; set; } = 0;
+        public int CurrentHistoryIndex { get; set; } = 0;
         public int CurrentHistoryLength { get; set; } = 0;
-        public string[] History { get; set; } = new string[50];
-        public int LatestIndex { get; set; } = 0;
+        public string[] HistoryCache { get; set; } = new string[50];
+        public int LastSavedIndex { get; set; } = 0;
 
         public string HashCachePath => this.GetCacheFilePath("hash test");
 
