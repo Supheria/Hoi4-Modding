@@ -13,10 +13,11 @@ namespace FocusTree.UI.Graph;
 
 public partial class GraphForm : ResizeableForm<GraphFormData>
 {
-    private readonly GraphDisplay _display;
+    GraphDisplay Display { get; }
+
     public GraphForm() : base(new(), new GraphFormDataXmlSerialization())
     {
-        _display = new GraphDisplay(this);
+        Display = new GraphDisplay(this);
         UpdateText();
 
         var size = Background.Size;
@@ -30,7 +31,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
 
         //Shown += GraphFrom_Shown;
 
-        foreach (var name in _display.ToolDialogs.Keys)
+        foreach (var name in Display.ToolDialogs.Keys)
         {
             ToolStripMenuItem item = new()
             {
@@ -70,7 +71,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         }
         GraphFrom_Openfile.InitialDirectory = Path.GetDirectoryName(GraphFrom_Openfile.FileName);
         GraphBox.Load(GraphFrom_Openfile.FileName);
-        _display.ResetDisplay();
+        Display.ResetDisplay();
         UpdateText();
     }
 
@@ -136,13 +137,13 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         }
 
         GraphBox.Load(item.Tag.ToString() ?? "");
-        _display.RefreshGraphBox();
+        Display.RefreshGraphBox();
     }
     private void GraphFrom_Menu_file_backup_delete_Click(object sender, EventArgs e)
     {
         GraphBox.DeleteBackup();
         GraphBox.Reload();
-        _display.ResetDisplay();
+        Display.ResetDisplay();
         GraphFrom_StatusStrip_status.Text = "已删除";
     }
     private void GraphFrom_Menu_file_backup_clear_Click(object sender, EventArgs e)
@@ -182,7 +183,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
     private void GraphFrom_Menu_edit_undo_Click(object sender, EventArgs e)
     {
         GraphBox.Undo();
-        _display.RefreshGraphBox();
+        Display.RefreshGraphBox();
         GraphFrom_Menu_edit_status_check();
         UpdateText();
     }
@@ -190,7 +191,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
     private void GraphFrom_Menu_edit_redo_Click(object sender, EventArgs e)
     {
         GraphBox.Redo();
-        _display.RefreshGraphBox();
+        Display.RefreshGraphBox();
         GraphFrom_Menu_edit_status_check();
         UpdateText();
     }
@@ -219,11 +220,11 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
 
     private void GraphFrom_Menu_camLoc_panorama_Click(object sender, EventArgs e)
     {
-        _display.CameraLocatePanorama();
+        Display.CameraLocatePanorama();
     }
     private void GraphFrom_Menu_camLoc_focus_Click(object sender, EventArgs e)
     {
-        _display.CameraLocateSelectedNode(true);
+        Display.CameraLocateSelectedNode(true);
     }
 
     #endregion
@@ -232,7 +233,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
     private void GraphFrom_Menu_window_display_toolDialog_Click(object sender, EventArgs e)
     {
         var item = (ToolStripMenuItem)sender;
-        _display.ToolDialogs[item.Text].Show();
+        Display.ToolDialogs[item.Text].Show();
     }
 
     #endregion
@@ -250,7 +251,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
     private void GraphFrom_Menu_graph_autoLayout_Click(object sender, EventArgs e)
     {
         GraphBox.AutoLayoutAllFocusNodes();
-        _display.RefreshGraphBox();
+        Display.RefreshGraphBox();
     }
 
     #endregion
@@ -349,8 +350,8 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
             GraphFrom_Menu_setting_backImage_show.CheckState = CheckState.Checked;
             Background.Show = true;
         }
-        Background.DrawNew(_display.Image);
-        _display.Refresh();
+        Display.Image.DrawNewBackGround();
+        Display.Refresh();
     }
 
     #endregion
@@ -425,7 +426,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
     private void GraphFrom_Menu_file_reopen_Click(object sender, EventArgs e)
     {
         GraphBox.Reload();
-        _display.ResetDisplay();
+        Display.ResetDisplay();
         UpdateText();
     }
 
@@ -442,16 +443,18 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
 
     protected override void DrawClient()
     {
-        if (_display is null || Math.Min(ClientRectangle.Width, ClientRectangle.Height) <= 0)
+        if (Display is null || Math.Min(ClientRectangle.Width, ClientRectangle.Height) <= 0)
             return;
-        _display.Bounds = new(
+        Display.Bounds = new(
             ClientRectangle.Left,
             ClientRectangle.Top + GraphFrom_Menu.Height,
             ClientRectangle.Width,
             ClientRectangle.Height - GraphFrom_Menu.Height - GraphFrom_StatusStrip.Height
             );
-        Background.DrawNew(_display.Image);
-        LatticeGrid.GridData.DrawRect = _display.LatticeBound;
-        _display.Refresh();
+        Display.Image?.Dispose();
+        Display.Image = new Bitmap(Display.Width, Display.Height);
+        Display.Image.DrawNewBackGround();
+        LatticeGrid.GridData.DrawRect = Display.GetLatticeBound();
+        Display.Refresh();
     }
 }

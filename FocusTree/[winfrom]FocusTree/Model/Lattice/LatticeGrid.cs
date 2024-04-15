@@ -10,12 +10,16 @@ namespace FocusTree.Model.Lattice;
 public static class LatticeGrid
 {
     public static GridData GridData { get; set; } = new GridDataXmlSerialization().LoadFromXml(out _);
+
+    public static bool DoDraw { get; set; }
     /// <summary>
     /// 绘制无限制栅格，并调用绘制委托列表
     /// </summary>
     /// <param name="image"></param>
     public static void DrawLatticeGrid(this Image image)
     {
+        if (DoDraw is not true)
+            return;
         var g = Graphics.FromImage(image);
         DrawLatticeCells(g);
         //

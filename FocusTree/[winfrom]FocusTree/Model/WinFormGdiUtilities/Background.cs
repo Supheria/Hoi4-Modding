@@ -36,17 +36,17 @@ namespace FocusTree.Model.WinFormGdiUtilities
         /// 新键背景缓存，并重绘背景
         /// </summary>
         /// <param name="image"></param>
-        public static void DrawNew(Image image)
+        public static void DrawNewBackGround(this Image image)
         {
             SetImage(image.Size);
-            Redraw(image);
+            image.RedrawBackGround();
         }
 
         /// <summary>
         /// 重绘背景（首次重绘应该使用 DrawNew）
         /// </summary>
         /// <param name="image"></param>
-        public static void Redraw(Image image)
+        public static void RedrawBackGround(this Image image)
         {
             var g = Graphics.FromImage(image);
             g.CompositingMode = CompositingMode.SourceCopy;
