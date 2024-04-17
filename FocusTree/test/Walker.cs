@@ -10,13 +10,31 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace test;
 
-public class Walker
+public class Walker(int x, int y)
 {
     public static Rectangle MapBounds { get; set; } = new();
 
-    public int X { get; private set; } = new Random().Next(MapBounds.Left, MapBounds.Right + 1);
+    public int X { get; private set; } = x;
 
-    public int Y { get; private set; } = new Random().Next(MapBounds.Top, MapBounds.Bottom + 1);
+    public int Y { get; private set; } = y;
+
+    public (int X, int Y)? Left { get; set; } = null;
+
+    public (int X, int Y)? Top { get; set; } = null;
+
+    public (int X, int Y)? Right { get; set; } = null;
+
+    public (int X, int Y)? Bottom { get; set; } = null;
+
+    public int Level { get; set; } = 0;
+
+    public Walker() : this(
+        new Random().Next(MapBounds.Left, MapBounds.Right + 1), 
+        new Random().Next(MapBounds.Top, MapBounds.Bottom + 1)
+        )
+    {
+
+    }
 
     public (int Left, int Top, int Right, int Bottom) Surround()
     {
@@ -31,18 +49,49 @@ public class Walker
         return new(left, top, right, bottom);
     }
 
-    public bool CheckStuck(Point[] stuckedPoint)
+    public bool CheckStuck(Dictionary<(int, int), Walker> stuckedPoint)
     {
         var surround = Surround();
-        foreach (var point in stuckedPoint)
+        var done = false;
+        foreach (var pair in stuckedPoint)
         {
-            if (point.X < surround.Left || point.X > surround.Right ||
-                point.Y < surround.Top || point.Y > surround.Bottom)
-                continue;
-            if (point.X == X ||  point.Y == Y)
-                return true;
+            var stucked = pair.Value;
+            if (stucked.Y == Y)
+            {
+                if (stucked.X == X)
+                    return true;
+                if (stucked.X == surround.Left)
+                {
+                    Left = pair.Key;
+                    stucked.Right = (X, Y);
+                    done = true;
+                }
+                else if (stucked.X == surround.Right)
+                {
+                    Right = pair.Key;
+                    stucked.Left = (X, Y);
+                    done = true;
+                }
+            }
+            if (stucked.X == X)
+            {
+                if (stucked.Y == Y)
+                    return true;
+                if (stucked.Y == surround.Top)
+                {
+                    Top = pair.Key;
+                    stucked.Bottom = (X, Y);
+                    done = true;
+                }
+                else if (stucked.Y == surround.Bottom)
+                {
+                    Bottom = pair.Key;
+                    stucked.Top = (X, Y);
+                    done = true;
+                }
+            }
         }
-        return false;
+        return done;
     }
 
     public void Walk()

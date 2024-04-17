@@ -9,35 +9,35 @@ namespace test;
 
 public class Tree
 {
-    public List<Point> StuckedList { get; set; } = new();
+    public Dictionary<(int X, int Y), Walker> Roster { get; set; } = new();
 
-    public int MaxWalkerNumber { get; set; } = 10000;
+    public int MaxWalkerNumber { get; set; } = 100;
 
-    public Rectangle Bounds { get; set; } = new(0, 0, 100, 100);
+    public Rectangle Bounds { get; set; } = new(0, 0, 50, 50);
 
-    public Point[] Roots { get; set; } = [new(70, 33), new(25, 60) ];
+    public (int X, int Y)[] Roots { get; set; } = [];
 
     public int RootNumber { get; set; } = 1;
 
     public Tree()
     {
-        for (int i = 0; i < RootNumber; i++)
-        {
-            StuckedList.Add(new(
-                new Random().Next(Bounds.Left, Bounds.Right + 1),
-                new Random().Next(Bounds.Top, Bounds.Bottom + 1)
-                ));
-        }
-        //StuckedList.AddRange(Roots);
+        //for (int i = 0; i < RootNumber; i++)
+        //{
+        //    var x = new Random().Next(Bounds.Left, Bounds.Right + 1);
+        //    var y = new Random().Next(Bounds.Top, Bounds.Bottom + 1);
+        //    Roster[(x, y)] = new(x, y);
+        //}
     }
 
     public void Generate()
     {
+        foreach (var item in Roots)
+            Roster[item] = new(item.X, item.Y);
         Walker.MapBounds = Bounds;
-        while (StuckedList.Count < MaxWalkerNumber)
+        for (int i = 0; i < MaxWalkerNumber; i++)
         {
             AddWalker(out var walker);
-            StuckedList.Add(new(walker.X, walker.Y));
+            Roster[(walker.X, walker.Y)] = walker;
 
         }
     }
@@ -48,6 +48,40 @@ public class Tree
         do
         {
             walker.Walk();
-        } while (!walker.CheckStuck(StuckedList.ToArray()));
+        } while (!walker.CheckStuck(Roster));
+    }
+
+    public void ComputeLevel()
+    {
+        var number = Roster.Count;
+        var read = false;
+        for (int level = 1; number > 0; level++)
+        {
+            read = false;
+            foreach (var pair in Roster)
+            {
+                var walker = pair.Value;
+                if (walker.Level is not 0)
+                    continue;
+                if ((walker.Left is null || walker.Right is null) &&
+                    (walker.Top is null || walker.Bottom is null))
+                {
+                    walker.Level = level;
+                    if (walker.Left is not null)
+                        Roster[walker.Left.Value].Right = null;
+                    if (walker.Right is not null)
+                        Roster[walker.Right.Value].Left = null;
+                    if (walker.Top is not null)
+                        Roster[walker.Top.Value].Bottom = null;
+                    if (walker.Bottom is not null)
+                        Roster[walker.Bottom.Value].Top = null;
+                    number--;
+                    read = true;
+                }
+            }
+            if (read == false)
+                break;
+        }
+            
     }
 }
