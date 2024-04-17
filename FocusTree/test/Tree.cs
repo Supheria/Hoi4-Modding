@@ -12,6 +12,8 @@ public class Tree(int width, int height, (int, int)[] roots, int rollTimes)
 {
     public Dictionary<(int X, int Y), Walker> Roster { get; set; } = new();
 
+    public Dictionary<(int X, int Y), Walker> StuckRoster { get; set; } = new();
+
     public int RollTimes { get; set; } = rollTimes;
 
     public Rectangle Bounds { get; set; } = new(0, 0, width, height);
@@ -21,12 +23,16 @@ public class Tree(int width, int height, (int, int)[] roots, int rollTimes)
     public void Generate()
     {
         foreach (var item in Roots)
+        {
             Roster[item] = new(item.X, item.Y);
+            StuckRoster[item] = new(item.X, item.Y);
+        }
         Walker.MapBounds = Bounds;
         for (int i = 0; Roster.Count < RollTimes; i++)
         {
             AddWalker(out var walker);
             Roster[(walker.X, walker.Y)] = walker;
+            StuckRoster[(walker.X, walker.Y)] = walker;
         }
     }
 
@@ -48,7 +54,7 @@ public class Tree(int width, int height, (int, int)[] roots, int rollTimes)
         do
         {
             walker.Walk();
-        } while (!walker.CheckStuck(Roster));
+        } while (!walker.CheckStuck(StuckRoster));
     }
 
     public void ComputeDirectionLevel()
@@ -67,58 +73,57 @@ public class Tree(int width, int height, (int, int)[] roots, int rollTimes)
     {
         if (walker.ConnetNumber[direction] < 0)
         {
-            var neighbor = walker.Neighbor[direction];
-            if (neighbor is null)
-                walker.ConnetNumber[direction] = 0;
+            if (walker.Neighbor.TryGetValue(direction, out var neighbor))
+                walker.ConnetNumber[direction] = CheckDirection(direction, Roster[neighbor]) + 1;
             else
-                walker.ConnetNumber[direction] = CheckDirection(direction, Roster[neighbor.Value]) + 1;
+                walker.ConnetNumber[direction] = 0;
         }
         return walker.ConnetNumber[direction];
     }
 
-    public void ResetRelations()
-    {
-        foreach (var walker in Roster.Values)
-        {
-            walker.Neighbor[Direction.Left] = null;
-            walker.Neighbor[Direction.Top] = null;
-            walker.Neighbor[Direction.Right] = null;
-            walker.Neighbor[Direction.Bottom] = null;
-            walker.ConnetNumber[Direction.Left] = -1;
-            walker.ConnetNumber[Direction.Top] = -1;
-            walker.ConnetNumber[Direction.Right] = -1;
-            walker.ConnetNumber[Direction.Bottom] = -1;
-            var surround = walker.Surround();
-            foreach (var pair in Roster)
-            {
-                var stucked = pair.Value;
-                if (stucked.Y == walker.Y)
-                {
-                    if (walker.Neighbor[Direction.Left] is null && stucked.X == surround.Left)
-                    {
-                        walker.Neighbor[Direction.Left] = pair.Key;
-                        stucked.Neighbor[Direction.Right] = (walker.X, walker.Y);
-                    }
-                    else if (walker.Neighbor[Direction.Right] is null && stucked.X == surround.Right)
-                    {
-                        walker.Neighbor[Direction.Right] = pair.Key;
-                        stucked.Neighbor[Direction.Left] = (walker.X, walker.Y);
-                    }
-                }
-                if (stucked.X == walker.X)
-                {
-                    if (walker.Neighbor[Direction.Top] is null && stucked.Y == surround.Top)
-                    {
-                        walker.Neighbor[Direction.Top] = pair.Key;
-                        stucked.Neighbor[Direction.Bottom] = (walker.X, walker.Y);
-                    }
-                    else if (walker.Neighbor[Direction.Bottom] is null && stucked.Y == surround.Bottom)
-                    {
-                        walker.Neighbor[Direction.Bottom] = pair.Key;
-                        stucked.Neighbor[Direction.Top] = (walker.X, walker.Y);
-                    }
-                }
-            }
-        }
-    }
+    //public void ResetRelations()
+    //{
+    //    foreach (var walker in Roster.Values)
+    //    {
+    //        walker.Neighbor[Direction.Left] = null;
+    //        walker.Neighbor[Direction.Top] = null;
+    //        walker.Neighbor[Direction.Right] = null;
+    //        walker.Neighbor[Direction.Bottom] = null;
+    //        walker.ConnetNumber[Direction.Left] = -1;
+    //        walker.ConnetNumber[Direction.Top] = -1;
+    //        walker.ConnetNumber[Direction.Right] = -1;
+    //        walker.ConnetNumber[Direction.Bottom] = -1;
+    //        var surround = walker.Surround();
+    //        foreach (var pair in Roster)
+    //        {
+    //            var stucked = pair.Value;
+    //            if (stucked.Y == walker.Y)
+    //            {
+    //                if (walker.Neighbor[Direction.Left] is null && stucked.X == surround.Left)
+    //                {
+    //                    walker.Neighbor[Direction.Left] = pair.Key;
+    //                    stucked.Neighbor[Direction.Right] = (walker.X, walker.Y);
+    //                }
+    //                else if (walker.Neighbor[Direction.Right] is null && stucked.X == surround.Right)
+    //                {
+    //                    walker.Neighbor[Direction.Right] = pair.Key;
+    //                    stucked.Neighbor[Direction.Left] = (walker.X, walker.Y);
+    //                }
+    //            }
+    //            if (stucked.X == walker.X)
+    //            {
+    //                if (walker.Neighbor[Direction.Top] is null && stucked.Y == surround.Top)
+    //                {
+    //                    walker.Neighbor[Direction.Top] = pair.Key;
+    //                    stucked.Neighbor[Direction.Bottom] = (walker.X, walker.Y);
+    //                }
+    //                else if (walker.Neighbor[Direction.Bottom] is null && stucked.Y == surround.Bottom)
+    //                {
+    //                    walker.Neighbor[Direction.Bottom] = pair.Key;
+    //                    stucked.Neighbor[Direction.Top] = (walker.X, walker.Y);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 }

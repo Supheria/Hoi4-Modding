@@ -96,12 +96,12 @@ public class Program
     {
         //TestBelin();
 
-        var tree = new Tree(200, 200, [(100, 100)], 15000);
+        var tree = new Tree(100, 100, [(100, 100)], 5000);
         tree.Generate();
         //tree = new Tree(100, 100, tree.Roster.Keys.ToArray(), 1000);
         //tree.Generate();
         //tree.Generate();
-        tree.ResetRelations();
+        //tree.ResetRelations();
         tree.ComputeDirectionLevel();
         ////Rolling(new(100, 100, [(50, 50)], 5000), (100, 100), 0, out var tree);
         //var image = GetDlaImage(tree);

@@ -26,11 +26,11 @@ public class Walker(int x, int y)
 
     public int Y { get; private set; } = y;
 
-    public Dictionary<Direction, (int X, int Y)?> Neighbor { get; } = new() {
-        [Direction.Left] = null,
-        [Direction.Top] = null,
-        [Direction.Right] = null,
-        [Direction.Bottom] = null,
+    public Dictionary<Direction, (int X, int Y)> Neighbor { get; } = new() {
+        //[Direction.Left] = null,
+        //[Direction.Top] = null,
+        //[Direction.Right] = null,
+        //[Direction.Bottom] = null,
     };
 
     public Dictionary<Direction, int> ConnetNumber { get; } = new() {
@@ -73,15 +73,52 @@ public class Walker(int x, int y)
     public bool CheckStuck(Dictionary<(int, int), Walker> stuckedPoint)
     {
         var surround = Surround();
+        bool isStucked = false;
         foreach (var pair in stuckedPoint)
         {
             var stucked = pair.Value;
+            if (stucked.Neighbor.Count is 4)
+            {
+                stuckedPoint.Remove(pair.Key);
+                continue;
+            }
             if (stucked.X < surround.Left || stucked.X > surround.Right ||
                 stucked.Y < surround.Top || stucked.Y > surround.Bottom)
                 continue;
-            return true;
+            if (stucked.Y == Y)
+            {
+                if (stucked.X == X)
+                    return false;
+                if (stucked.X == surround.Left)
+                {
+                    Neighbor[Direction.Left] = pair.Key;
+                    stucked.Neighbor[Direction.Right] = (X, Y);
+                    isStucked = true;
+                }
+                else if (stucked.X == surround.Right)
+                {
+                    Neighbor[Direction.Right] = pair.Key;
+                    stucked.Neighbor[Direction.Left] = (X, Y);
+                    isStucked = true;
+                }
+            }
+            if (stucked.X == X)
+            {
+                if (stucked.Y == surround.Top)
+                {
+                    Neighbor[Direction.Top] = pair.Key;
+                    stucked.Neighbor[Direction.Bottom] = (X, Y);
+                    isStucked = true;
+                }
+                else if (stucked.Y == surround.Bottom)
+                {
+                    Neighbor[Direction.Bottom] = pair.Key;
+                    stucked.Neighbor[Direction.Top] = (X, Y);
+                    isStucked = true;
+                }
+            }
         }
-        return false;
+        return isStucked;
     }
 
     public void Walk()
