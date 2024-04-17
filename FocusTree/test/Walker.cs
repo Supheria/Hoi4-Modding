@@ -10,6 +10,14 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace test;
 
+public enum Direction
+{
+    Left,
+    Top,
+    Right,
+    Bottom,
+}
+
 public class Walker(int x, int y)
 {
     public static Rectangle MapBounds { get; set; } = new();
@@ -18,22 +26,35 @@ public class Walker(int x, int y)
 
     public int Y { get; private set; } = y;
 
-    public (int X, int Y)? Left { get; set; } = null;
+    public Dictionary<Direction, (int X, int Y)?> Neighbor { get; } = new() {
+        [Direction.Left] = null,
+        [Direction.Top] = null,
+        [Direction.Right] = null,
+        [Direction.Bottom] = null,
+    };
 
-    public (int X, int Y)? Top { get; set; } = null;
-
-    public (int X, int Y)? Right { get; set; } = null;
-
-    public (int X, int Y)? Bottom { get; set; } = null;
-
-    public int Level { get; set; } = 0;
+    public Dictionary<Direction, int> ConnetNumber { get; } = new() {
+        [Direction.Left] = -1,
+        [Direction.Top] = -1,
+        [Direction.Right] = -1,
+        [Direction.Bottom] = -1,
+    };
 
     public Walker() : this(
-        new Random().Next(MapBounds.Left, MapBounds.Right + 1), 
+        new Random().Next(MapBounds.Left, MapBounds.Right + 1),
         new Random().Next(MapBounds.Top, MapBounds.Bottom + 1)
         )
     {
 
+    }
+
+    public int Height()
+    {
+        var verticalHeight = ConnetNumber[Direction.Top] + ConnetNumber[Direction.Bottom] - 
+            Math.Abs(ConnetNumber[Direction.Top] - ConnetNumber[Direction.Bottom]);
+        var horizontalHeight = ConnetNumber[Direction.Left] + ConnetNumber[Direction.Right] -
+            Math.Abs(ConnetNumber[Direction.Left] - ConnetNumber[Direction.Right]);
+        return Math.Max(verticalHeight, horizontalHeight);
     }
 
     public (int Left, int Top, int Right, int Bottom) Surround()
@@ -52,46 +73,15 @@ public class Walker(int x, int y)
     public bool CheckStuck(Dictionary<(int, int), Walker> stuckedPoint)
     {
         var surround = Surround();
-        var done = false;
         foreach (var pair in stuckedPoint)
         {
             var stucked = pair.Value;
-            if (stucked.Y == Y)
-            {
-                if (stucked.X == X)
-                    return true;
-                if (stucked.X == surround.Left)
-                {
-                    Left = pair.Key;
-                    stucked.Right = (X, Y);
-                    done = true;
-                }
-                else if (stucked.X == surround.Right)
-                {
-                    Right = pair.Key;
-                    stucked.Left = (X, Y);
-                    done = true;
-                }
-            }
-            if (stucked.X == X)
-            {
-                if (stucked.Y == Y)
-                    return true;
-                if (stucked.Y == surround.Top)
-                {
-                    Top = pair.Key;
-                    stucked.Bottom = (X, Y);
-                    done = true;
-                }
-                else if (stucked.Y == surround.Bottom)
-                {
-                    Bottom = pair.Key;
-                    stucked.Top = (X, Y);
-                    done = true;
-                }
-            }
+            if (stucked.X < surround.Left || stucked.X > surround.Right ||
+                stucked.Y < surround.Top || stucked.Y > surround.Bottom)
+                continue;
+            return true;
         }
-        return done;
+        return false;
     }
 
     public void Walk()
