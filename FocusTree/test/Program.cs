@@ -35,7 +35,7 @@ public class Program
         image.Save("Perlin.bmp");
     }
 
-    public static Tree GetScaledRoots(Bitmap source, (int Width, int Height) scaleAdd, int rollTimes)
+    public static DlaMap GetScaledRoots(Bitmap source, (int Width, int Height) scaleAdd, int rollTimes)
     {
         var scale = new Bitmap((int)(source.Width + scaleAdd.Width), (int)(source.Height + scaleAdd.Height));
         var g = Graphics.FromImage(scale);
@@ -58,12 +58,12 @@ public class Program
             }
         }
         pScale.UnlockBits();
-        var tree = new Tree(scale.Width, scale.Height, list.ToArray(), rollTimes);
+        var tree = new DlaMap(scale.Width, scale.Height, list.ToArray(), rollTimes);
         //tree.Generate();
         return tree;
     }
 
-    public static Bitmap GetDlaImage(Tree tree)
+    public static Bitmap GetDlaImage(DlaMap tree)
     {
         //tree.ComputeDirectionLevel();
 
@@ -86,7 +86,7 @@ public class Program
         return image;
     }
 
-    public static void Rolling(Tree initial, (int, int) scaleAdd, int rollTimes, out Tree tree)
+    public static void Rolling(DlaMap initial, (int, int) scaleAdd, int rollTimes, out DlaMap tree)
     {
         var image = GetDlaImage(initial);
         tree = GetScaledRoots(image, scaleAdd, initial.WalkerNumber);
@@ -100,17 +100,29 @@ public class Program
     public static void Main()
     {
         //TestBelin();
-        var a = new TreeXmlSerialization().LoadFromXml(out _);
+        //var a = new TreeXmlSerialization().LoadFromXml(out _);
 
-        var tree = new Tree(200, 200, [(100, 100)], 18000);
-        tree.Generate((2, 1));
-        tree.ComputeDirectionLevel();
-        new TreeXmlSerialization() { Source = tree }.SaveToXml();
-        tree = new TreeXmlSerialization().LoadFromXml(out _);
-        tree.ResetRelations();
-        tree.ComputeDirectionLevel();
+        //var tree = new DlaMap(200, 200, [(100, 100)], 18000);
+        //tree.Generate((2, 1));
+        //tree.ComputeDirectionLevel();
+        //new TreeXmlSerialization() { Source = tree }.SaveToXml();
+        var tree = new TreeXmlSerialization() { IniFileName = "Tree" }.LoadFromXml(out _);
+        //tree.ResetRelation();
+        //tree.Bounds = new(150, 0, 150, 200);
+        //tree.WalkerNumber = 20000;
+        //tree.Generate();
+        //tree.Bounds = new(200, 0, 100, 200);
+        //tree.WalkerNumber = 22000;
+        //tree.Generate();
+        //tree.Bounds = new(150, 0, 150, 200);
+        //tree.WalkerNumber = 30000;
+        //tree.Generate();
+        //tree.ComputeDirectionLevel();
+        var a = new TreeXmlSerialization() { Source = tree, IniFileName = "Tree" }.SaveToXml();
+        tree = new TreeXmlSerialization().LoadFromXml(out a);
 
 
+        tree.Bounds = new(0, 0, 300, 200);
         var image = new Bitmap(tree.Bounds.Width, tree.Bounds.Height + 200);
         var g = Graphics.FromImage(image);
         g.Clear(Color.Black);
@@ -157,11 +169,13 @@ public class Program
     }
 }
 
-public class TreeXmlSerialization : RosterXmlSerialization<Tree, (int, int), Walker>
+public class TreeXmlSerialization(string localName) : RosterXmlSerialization<DlaMap, (int, int), DlaWalker>(new(), new WalkerXmlSerialization())
 {
+    public override string LocalName => localName;
+
     protected override string RosterName => "Items";
 
-    public TreeXmlSerialization() : base(new(), new WalkerXmlSerialization())
+    public TreeXmlSerialization() : this(nameof(DlaMap))
     {
         OnRead += TreeXmlSerialization_OnRead;
         OnWrite += TreeXmlSerialization_OnWrite;
@@ -185,26 +199,51 @@ public class TreeXmlSerialization : RosterXmlSerialization<Tree, (int, int), Wal
         writer.WriteAttributeString(nameof(Source.HeightMax), Source.HeightMax.ToString());
         new RectangleXmlSerialization(nameof(Source.Bounds)) { Source = Source.Bounds }.Serialize(writer);
     }
-
-    public override string LocalName => nameof(Tree);
 }
 
-public class WalkerXmlSerialization() : XmlSerialization<Walker>(new())
+public class WalkerXmlSerialization() : XmlSerialization<DlaWalker>(new())
 {
-    public override string LocalName => nameof(Walker);
+    public override string LocalName => nameof(DlaWalker);
 
     public override void ReadXml(XmlReader reader)
     {
         var x = reader.GetAttribute(nameof(Source.X)).ToInt() ?? Source.X;
         var y = reader.GetAttribute(nameof(Source.Y)).ToInt() ?? Source.Y;
         Source.SetSignature = (x, y);
-        Source.Height = reader.GetAttribute(nameof(Source.Height)).ToInt() ?? Source.Height;
+        //Source.Height = reader.GetAttribute(nameof(Source.Height)).ToInt() ?? Source.Height;
+        //while (reader.Read())
+        //{
+        //    if (reader.Name == LocalName && reader.NodeType is XmlNodeType.EndElement)
+        //        break;
+        //    if (reader.NodeType is not XmlNodeType.Element)
+        //        continue;
+        //    if (reader.Name == nameof(Source.Neighbor))
+        //        Source.Neighbor = new WalkerNeighborXmlSerialization().ReadXmlCollection(reader, nameof(Source.Neighbor));
+        //}
     }
 
     public override void WriteXml(XmlWriter writer)
     {
         writer.WriteAttributeString(nameof(Source.X), Source.X.ToString());
         writer.WriteAttributeString(nameof(Source.Y), Source.Y.ToString());
-        writer.WriteAttributeString(nameof(Source.Height), Source.Height.ToString());
+        //writer.WriteAttributeString(nameof(Source.Height), Source.Height.ToString());
+        //new WalkerNeighborXmlSerialization().WriteXmlCollection(Source.Neighbor, writer, nameof(Source.Neighbor));
     }
+}
+
+public class WalkerNeighborXmlSerialization : KeyValuePairXmlSerialization<Direction, (int X, int Y)>
+{
+    public override string LocalName => "Item";
+
+    protected override string KeyName => nameof(Direction);
+
+    protected override string ValueName => "Location";
+
+    protected override Func<string?, Direction> ReadKey => key => key.ToEnum<Direction>();
+
+    protected override Func<string?, (int X, int Y)> ReadValue => value => value.ToPair(0, 0, str => str.ToInt() ?? 0, str => str.ToInt() ?? 0);
+
+    protected override Func<Direction, string> WriteKey => key => key.ToString();
+
+    protected override Func<(int X, int Y), string> WriteValue => value => value.ToArrayString();
 }
