@@ -20,7 +20,7 @@ public class MotionXmlSerialization() : XmlSerialization<Motion>(new())
         if (partIndex is -1)
             Source.ConditionMap[""] = reader.GetAttribute(LocalName).ToEnum<Motions>();
         else
-            Source.ConditionMap.ReadXmlCollection(reader, LocalName, new MotionConditionXmlSerialization());
+            Source.ConditionMap = new MotionConditionXmlSerialization().ReadXmlCollection(reader, LocalName);
     }
 
     public override void WriteXml(XmlWriter writer)

@@ -1,6 +1,11 @@
-﻿using System.Drawing;
+using LocalUtilities.FileUtilities;
+using LocalUtilities.Serializations;
+using LocalUtilities.SerializeUtilities;
+using LocalUtilities.StringUtilities;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace test;
 
@@ -69,7 +74,7 @@ public class Program
 
         var pImage = new PointBitmap(image);
         pImage.LockBits();
-        foreach (var point in tree.Roster.Keys)
+        foreach (var point in tree.RosterList)
         {
             //var bright = pair.Value.Height() * 30;
             //var a = (2 + 1) - Math.Abs(1 - 2);
@@ -84,103 +89,122 @@ public class Program
     public static void Rolling(Tree initial, (int, int) scaleAdd, int rollTimes, out Tree tree)
     {
         var image = GetDlaImage(initial);
-        tree = GetScaledRoots(image, scaleAdd, initial.RollTimes);
+        tree = GetScaledRoots(image, scaleAdd, initial.WalkerNumber);
         for (int i = 0; i < rollTimes; i++)
         {
             image = GetDlaImage(tree);
-            tree = GetScaledRoots(image, scaleAdd, tree.RollTimes);
+            tree = GetScaledRoots(image, scaleAdd, tree.WalkerNumber);
         }
     }
 
     public static void Main()
     {
         //TestBelin();
+        var a = new TreeXmlSerialization().LoadFromXml(out _);
 
-        var tree = new Tree(100, 100, [(100, 100)], 5000);
-        tree.Generate();
-        //tree = new Tree(100, 100, tree.Roster.Keys.ToArray(), 1000);
-        //tree.Generate();
-        //tree.Generate();
-        //tree.ResetRelations();
+        var tree = new Tree(200, 200, [(100, 100)], 18000);
+        tree.Generate((2, 1));
         tree.ComputeDirectionLevel();
-        ////Rolling(new(100, 100, [(50, 50)], 5000), (100, 100), 0, out var tree);
-        //var image = GetDlaImage(tree);
-        //tree = GetScaledRoots(image, (0, 0), 1000);
-        //tree.Generate();
-        //image = GetDlaImage(tree);
-        //tree = GetScaledRoots(image, (0, 0), 1000);
-        //tree.Generate();
-        //image = GetDlaImage(tree);
-        //tree.ResetRelations();
-        //tree.ComputeDirectionLevel();
-        var image = new Bitmap(tree.Bounds.Width, tree.Bounds.Height);
+        new TreeXmlSerialization() { Source = tree }.SaveToXml();
+        tree = new TreeXmlSerialization().LoadFromXml(out _);
+        tree.ResetRelations();
+        tree.ComputeDirectionLevel();
+
+
+        var image = new Bitmap(tree.Bounds.Width, tree.Bounds.Height + 200);
         var g = Graphics.FromImage(image);
         g.Clear(Color.Black);
-        g.Flush(); g.Dispose();
+        g.FillRectangle(new SolidBrush(Color.LightYellow), tree.Bounds);
         var pImage = new PointBitmap(image);
         pImage.LockBits();
-        foreach (var pair in tree.Roster)
+        var forestRatio = 0.0835f; // 1/12
+        var mountainRatio = 0.2505f; // 3/12
+        // waterRatio                // 8/12
+        double mountain = 0, water = 0, forest = 0;
+        foreach (var walker in tree.RosterList)
         {
-            var bright = pair.Value.Height() * 30;
-            pImage.SetPixel(pair.Key.X, pair.Key.Y, (Color.FromArgb(((int)bright) > 255 ? 255 : (int)bright, Color.White)));
-        }
-        pImage.UnlockBits();
-        image.Save("_scale_gen.bmp");
-
-
-        double[,] kernel = new double[3, 3] {
-            { 1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
-            { 1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
-            { 1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
-        };
-        var a = image.Convolution_calculation(kernel);
-        a.Save("_gaussian.bmp");
-
-        //image = (Bitmap)Bitmap.FromFile("_gaussian.bmp");
-
-        
-
-        
-
-        var result = new Bitmap(image.Width, image.Height + 200);
-
-        g = Graphics.FromImage(result);
-        g.Clear(Color.Black);
-        pImage = new(image);
-        pImage.LockBits();
-        var pResult = new PointBitmap(result);
-        pResult.LockBits();
-        for (var i = 0; i < image.Width; i++)
-        {
-            for (var j = 0; j < image.Height; j++)
+            float heightRatio = (float)walker.Height / (float)tree.HeightMax;
+            if (heightRatio <= forestRatio)
             {
-                var pixel = pImage.GetPixel(i, j);
-                if (pixel.ToArgb() == Color.Black.ToArgb())
-                    pResult.SetPixel(i, j, Color.LightYellow);
-                else
-                {
-                    if (pixel.A < 50)
-                        pResult.SetPixel(i, j, Color.ForestGreen);
-                    else if (pixel.A > 50 && pixel.A <= 150)
-                        pResult.SetPixel(i, j, Color.Black);
-                    else
-                        pResult.SetPixel(i, j, Color.SkyBlue);
-                }
-                
-                
+                pImage.SetPixel(walker.X, walker.Y, Color.ForestGreen);
+                forest++;
+            }
+            else if (heightRatio > forestRatio && heightRatio <= forestRatio + mountainRatio)
+            {
+                pImage.SetPixel(walker.X, walker.Y, Color.Black);
+                mountain++;
+            }
+            else
+            {
+                pImage.SetPixel(walker.X, walker.Y, Color.SkyBlue);
+                water++;
             }
         }
         pImage.UnlockBits();
-        pResult.UnlockBits();
-        g.DrawString($"\n根数 {tree.Roots.Length}\n\n增点数 {tree.Roster.Count}\n\n范围 {tree.Bounds}", new("仿宋", 15, FontStyle.Bold, GraphicsUnit.Pixel), new SolidBrush(Color.White), new RectangleF(0, result.Height - 200, result.Width, 200));
+        var total = tree.Bounds.Width * tree.Bounds.Height;
+        mountain = Math.Round(mountain / total * 100, 2);
+        water = Math.Round(water / total * 100, 2);
+        forest = Math.Round(forest / total * 100, 2);
+        var plain = Math.Round(100 - (mountain + water + forest), 2);
+        g.DrawString($"\n根数 {tree.Roots.Length}\n\n增点数 {tree.RosterList.Length}\n\n范围 {tree.Bounds}\n\n山地{mountain}% 平原{plain}%\n河水{water}% 树林{forest}%",
+            new("仿宋", 15, FontStyle.Bold, GraphicsUnit.Pixel), new SolidBrush(Color.White), new RectangleF(0, image.Height - 200, image.Width, 200));
         g.Flush(); g.Dispose();
 
-        //result = result.Convolution_calculation(kernel);
 
-        result.Save(".\\a.bmp");
+        image.Save("_scale_gen.bmp");
 
         Console.WriteLine("OK");
+    }
+}
 
-        //Console.ReadKey();
+public class TreeXmlSerialization : RosterXmlSerialization<Tree, (int, int), Walker>
+{
+    protected override string RosterName => "Items";
+
+    public TreeXmlSerialization() : base(new(), new WalkerXmlSerialization())
+    {
+        OnRead += TreeXmlSerialization_OnRead;
+        OnWrite += TreeXmlSerialization_OnWrite;
+    }
+
+    private void TreeXmlSerialization_OnRead(XmlReader reader)
+    {
+        Source.HeightMax = reader.GetAttribute(nameof(Source.HeightMax)).ToInt() ?? Source.HeightMax;
+        while (reader.Read())
+        {
+            if (reader.Name == nameof(Source.Bounds))
+            {
+                Source.Bounds = new RectangleXmlSerialization(nameof(Source.Bounds)).Deserialize(reader);
+                break;
+            }
+        }
+    }
+
+    private void TreeXmlSerialization_OnWrite(XmlWriter writer)
+    {
+        writer.WriteAttributeString(nameof(Source.HeightMax), Source.HeightMax.ToString());
+        new RectangleXmlSerialization(nameof(Source.Bounds)) { Source = Source.Bounds }.Serialize(writer);
+    }
+
+    public override string LocalName => nameof(Tree);
+}
+
+public class WalkerXmlSerialization() : XmlSerialization<Walker>(new())
+{
+    public override string LocalName => nameof(Walker);
+
+    public override void ReadXml(XmlReader reader)
+    {
+        var x = reader.GetAttribute(nameof(Source.X)).ToInt() ?? Source.X;
+        var y = reader.GetAttribute(nameof(Source.Y)).ToInt() ?? Source.Y;
+        Source.SetSignature = (x, y);
+        Source.Height = reader.GetAttribute(nameof(Source.Height)).ToInt() ?? Source.Height;
+    }
+
+    public override void WriteXml(XmlWriter writer)
+    {
+        writer.WriteAttributeString(nameof(Source.X), Source.X.ToString());
+        writer.WriteAttributeString(nameof(Source.Y), Source.Y.ToString());
+        writer.WriteAttributeString(nameof(Source.Height), Source.Height.ToString());
     }
 }

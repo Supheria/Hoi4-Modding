@@ -15,4 +15,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\_lib\LocalUtilities\LocalUtilities\LocalUtilities.csproj" />
+  </ItemGroup>
+
 </Project>
