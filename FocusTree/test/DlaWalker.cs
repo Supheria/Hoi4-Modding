@@ -1,3 +1,4 @@
+using LocalUtilities.GdiUtilities;
 using LocalUtilities.Interface;
 using System;
 using System.Collections.Generic;
@@ -26,8 +27,6 @@ public enum Direction
 
 public class DlaWalker(int x, int y) : RosterItem<(int X, int Y)>((x, y))
 {
-    public static Rectangle MapBounds { get; set; } = new();
-
     public int X => Signature.X;
 
     public int Y => Signature.Y;
@@ -74,10 +73,7 @@ public class DlaWalker(int x, int y) : RosterItem<(int X, int Y)>((x, y))
 
     int _height = -1;
 
-    public DlaWalker() : this(
-        new Random().Next(MapBounds.Left, MapBounds.Right + 1),
-        new Random().Next(MapBounds.Top, MapBounds.Bottom + 1)
-        )
+    public DlaWalker() : this(0, 0)
     {
 
     }
@@ -176,12 +172,6 @@ public class DlaWalker(int x, int y) : RosterItem<(int X, int Y)>((x, y))
                 x--;
                 y++;
                 break;
-        }
-        if (x < MapBounds.Left || x > MapBounds.Right ||
-            y < MapBounds.Top || y > MapBounds.Bottom)
-        {
-            x = new Random().Next(MapBounds.Left, MapBounds.Right + 1);
-            y = new Random().Next(MapBounds.Top, MapBounds.Bottom + 1);
         }
         Signature = (x, y);
     }

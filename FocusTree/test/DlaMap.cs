@@ -1,3 +1,4 @@
+using LocalUtilities.GdiUtilities;
 using LocalUtilities.Interface;
 using System;
 using System.Collections.Generic;
@@ -9,64 +10,115 @@ using System.Threading.Tasks;
 
 namespace test;
 
-public class DlaMap(int width, int height, (int, int)[] roots, int walkerNumber) : Roster<(int, int), DlaWalker>
+public class DlaMap((int X, int Y)[] polygonRegion, (int, int) root, int walkerNumber) : Roster<(int, int), DlaWalker>
 {
     public int WalkerNumber { get; set; } = walkerNumber;
 
-    public Rectangle Bounds { get; set; } = new(0, 0, width, height);
+    public (int X, int Y)[] PolygonRegion { get; set; } = polygonRegion;
 
-    public (int X, int Y)[] Roots { get; set; } = roots;
+    public Rectangle Bounds { get; private set; }
+
+    public (int X, int Y) Root { get; set; } = root;
 
     public int HeightMax { get; set; } = 0;
 
-    public DlaMap() : this(0, 0, [], 0)
+    public DlaMap() : this([(0, 0), (0, 0)], (0, 0), 0)
     {
 
     }
 
-    public void Generate()
+    public bool Generate()
     {
-        foreach (var item in Roots)
-            RosterMap[item] = new(item.X, item.Y);
-        DlaWalker.MapBounds = Bounds;
+        Bounds = PolygonRegion.GetPolygonBounds();
+        if (!Root.PointInPolygon(PolygonRegion))
+            return false;
+        RosterMap[Root] = new(Root.X, Root.Y);
+        var testForm = new TestForm()
+        {
+            Total = WalkerNumber,
+        };
+        testForm.Show();
         for (int i = 0; RosterMap.Count < WalkerNumber; i++)
         {
             AddWalker(out var walker);
             RosterMap[(walker.X, walker.Y)] = walker;
+            testForm.Now = RosterMap.Count;
+            testForm.Progress();
         }
+        return true;
     }
 
-    public void Generate((int Width, int Height) rootNumber)
-    {
-        var widthUnit = Bounds.Width / rootNumber.Width;
-        var heightUnit = Bounds.Height / rootNumber.Height;
-        List<(int X, int Y)> list = new();
-        for (int i = 0; i < rootNumber.Width; i++)
-        {
-            for (int j = 0; j < rootNumber.Height; j++)
-            {
-                var left = Bounds.Left + widthUnit * i;
-                var top = Bounds.Top + heightUnit * j;
-                list.Add((
-                new Random().Next(left, left + widthUnit + 1),
-                new Random().Next(top, top + heightUnit + 1)
-                ));
-            }
-        }
-        Roots = list.ToArray();
-        Generate();
-    }
+    //public void Generate((int Width, int Height) rootNumber)
+    //{
+    //    var widthUnit = PolyBounds.Width / rootNumber.Width;
+    //    var heightUnit = PolyBounds.Height / rootNumber.Height;
+    //    List<(int X, int Y)> list = new();
+    //    for (int i = 0; i < rootNumber.Width; i++)
+    //    {
+    //        for (int j = 0; j < rootNumber.Height; j++)
+    //        {
+    //            var left = PolyBounds.Left + widthUnit * i;
+    //            var top = PolyBounds.Top + heightUnit * j;
+    //            list.Add((
+    //            new Random().Next(left, left + widthUnit + 1),
+    //            new Random().Next(top, top + heightUnit + 1)
+    //            ));
+    //        }
+    //    }
+    //    Roots = list.ToArray();
+    //    Generate();
+    //}
 
     private void AddWalker(out DlaWalker walker)
     {
-        walker = new DlaWalker();
-        do
+        walker = new DlaWalker(
+                new Random().Next(Bounds.Left, Bounds.Right + 1),
+                new Random().Next(Bounds.Top, Bounds.Bottom + 1)
+                );
+        while (!walker.CheckStuck(RosterMap))
         {
-            walker.Walk();
-        } while (!walker.CheckStuck(RosterMap));
+            int x = walker.X, y = walker.Y;
+            switch (new Random().Next(0, 8))
+            {
+                case 0: // left
+                    x--;
+                    break;
+                case 1: // right
+                    x++;
+                    break;
+                case 2: // up
+                    y--;
+                    break;
+                case 3: // down
+                    y++;
+                    break;
+                case 4: // left up
+                    x--;
+                    y--;
+                    break;
+                case 5: // up right
+                    x++;
+                    y--;
+                    break;
+                case 6: // bottom right
+                    x++;
+                    y++;
+                    break;
+                case 7: // left bottom
+                    x--;
+                    y++;
+                    break;
+            }
+            if (!(x, y).PointInPolygon(PolygonRegion))
+            {
+                x = new Random().Next(Bounds.Left, Bounds.Right + 1);
+                y = new Random().Next(Bounds.Top, Bounds.Bottom + 1);
+            }
+            walker.SetSignature = (x, y);
+        } 
     }
 
-    public void ComputeDirectionLevel()
+    public void ComputeHeight()
     {
         foreach (var pair in RosterMap)
         {

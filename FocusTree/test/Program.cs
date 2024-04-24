@@ -35,37 +35,37 @@ public class Program
         image.Save("Perlin.bmp");
     }
 
-    public static DlaMap GetScaledRoots(Bitmap source, (int Width, int Height) scaleAdd, int rollTimes)
-    {
-        var scale = new Bitmap((int)(source.Width + scaleAdd.Width), (int)(source.Height + scaleAdd.Height));
-        var g = Graphics.FromImage(scale);
-        g.Clear(Color.Black);
-        g.InterpolationMode = InterpolationMode.NearestNeighbor;
-        g.DrawImage(source, 0, 0, scale.Width, scale.Height);
-        g.Flush(); g.Dispose();
-        scale.Save("_scale.bmp");
+    //public static DlaMap GetScaledBitmap(Bitmap source, int addWidth, int addHeight, int maxWalkerNumber)
+    //{
+    //    var scale = new Bitmap((int)(source.Width + addWidth), (int)(source.Height + addHeight));
+    //    var g = Graphics.FromImage(scale);
+    //    g.Clear(Color.Black);
+    //    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+    //    g.DrawImage(source, 0, 0, scale.Width, scale.Height);
+    //    g.Flush(); g.Dispose();
+    //    scale.Save("_scale.bmp");
 
-        var list = new List<(int X, int Y)>();
-        var pScale = new PointBitmap(scale);
-        pScale.LockBits();
-        for (var i = 0; i < scale.Width; i++)
-        {
-            for (var j = 0; j < scale.Height; j++)
-            {
-                var color = pScale.GetPixel(i, j);
-                if (color.ToArgb() == Color.White.ToArgb())
-                    list.Add((i, j));
-            }
-        }
-        pScale.UnlockBits();
-        var tree = new DlaMap(scale.Width, scale.Height, list.ToArray(), rollTimes);
-        //tree.Generate();
-        return tree;
-    }
+    //    var list = new List<(int X, int Y)>();
+    //    var pScale = new PointBitmap(scale);
+    //    pScale.LockBits();
+    //    for (var i = 0; i < scale.Width; i++)
+    //    {
+    //        for (var j = 0; j < scale.Height; j++)
+    //        {
+    //            var color = pScale.GetPixel(i, j);
+    //            if (color.ToArgb() == Color.White.ToArgb())
+    //                list.Add((i, j));
+    //        }
+    //    }
+    //    pScale.UnlockBits();
+    //    var tree = new DlaMap(new(0, 0, scale.Width, scale.Height), [], maxWalkerNumber);
+    //    //bigMap.Generate();
+    //    return tree;
+    //}
 
     public static Bitmap GetDlaImage(DlaMap tree)
     {
-        //tree.ComputeDirectionLevel();
+        //bigMap.ComputeHeight();
 
         var image = new Bitmap(tree.Bounds.Width, tree.Bounds.Height);
         var g = Graphics.FromImage(image);
@@ -86,56 +86,52 @@ public class Program
         return image;
     }
 
-    public static void Rolling(DlaMap initial, (int, int) scaleAdd, int rollTimes, out DlaMap tree)
-    {
-        var image = GetDlaImage(initial);
-        tree = GetScaledRoots(image, scaleAdd, initial.WalkerNumber);
-        for (int i = 0; i < rollTimes; i++)
-        {
-            image = GetDlaImage(tree);
-            tree = GetScaledRoots(image, scaleAdd, tree.WalkerNumber);
-        }
-    }
-
     public static void Main()
     {
-        //TestBelin();
-        //var a = new TreeXmlSerialization().LoadFromXml(out _);
-
-        //var tree = new DlaMap(200, 200, [(100, 100)], 18000);
-        //tree.Generate((2, 1));
-        //tree.ComputeDirectionLevel();
-        //new TreeXmlSerialization() { Source = tree }.SaveToXml();
-        var tree = new TreeXmlSerialization() { IniFileName = "Tree" }.LoadFromXml(out _);
-        //tree.ResetRelation();
-        //tree.Bounds = new(150, 0, 150, 200);
-        //tree.WalkerNumber = 20000;
-        //tree.Generate();
-        //tree.Bounds = new(200, 0, 100, 200);
-        //tree.WalkerNumber = 22000;
-        //tree.Generate();
-        //tree.Bounds = new(150, 0, 150, 200);
-        //tree.WalkerNumber = 30000;
-        //tree.Generate();
-        //tree.ComputeDirectionLevel();
-        var a = new TreeXmlSerialization() { Source = tree, IniFileName = "Tree" }.SaveToXml();
-        tree = new TreeXmlSerialization().LoadFromXml(out a);
+        //var bigMap = new DlaMap(new(0, 0, 1000, 1000), [], 370000);
+        //var bigMap = new TreeXmlSerialization() { IniFileName = "bigmap_476s" }.LoadFromXml(out var mess);
+        var bigMap = new DlaMap([
+            (50, 50),
+            (66, 25),
+            (101, 56),
+            (22, 66),
+            (10, 20)], (73, 43), 500);
+        //bigMap.WalkerNumber = bigMap.RosterList.Length + 330000;
+        //bigMap.ResetRelation();
+        var a = bigMap.Generate();
+        //new TreeXmlSerialization() { Source = bigMap, IniFileName = "bigmap" }.SaveToXml();
+        new TreeXmlSerialization() { Source = bigMap, IniFileName = "smallmap" }.SaveToXml();
+        //bigMap.ComputeHeight();
+        
+        bigMap.ComputeHeight();
 
 
-        tree.Bounds = new(0, 0, 300, 200);
-        var image = new Bitmap(tree.Bounds.Width, tree.Bounds.Height + 200);
+
+        //bigMap.Bounds = new(0, 0, 300, 200);
+        Bitmap image;
+        try
+        {
+            image = new Bitmap(bigMap.Bounds.Left + bigMap.Bounds.Width, bigMap.Bounds.Top + bigMap.Bounds.Height + 200);
+        }
+        catch(Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+            return;
+        }
         var g = Graphics.FromImage(image);
         g.Clear(Color.Black);
-        g.FillRectangle(new SolidBrush(Color.LightYellow), tree.Bounds);
+        g.FillRectangle(new SolidBrush(Color.LightYellow), bigMap.Bounds);
+        //g.DrawPolygon(Pens.Black, bigMap.PolygonRegion.Select(p => new PointF(p.X, p.Y)).ToArray());
+        //image.Save("test.bmp");
         var pImage = new PointBitmap(image);
         pImage.LockBits();
         var forestRatio = 0.0835f; // 1/12
         var mountainRatio = 0.2505f; // 3/12
         // waterRatio                // 8/12
         double mountain = 0, water = 0, forest = 0;
-        foreach (var walker in tree.RosterList)
+        foreach (var walker in bigMap.RosterList)
         {
-            float heightRatio = (float)walker.Height / (float)tree.HeightMax;
+            float heightRatio = (float)walker.Height / (float)bigMap.HeightMax;
             if (heightRatio <= forestRatio)
             {
                 pImage.SetPixel(walker.X, walker.Y, Color.ForestGreen);
@@ -153,13 +149,14 @@ public class Program
             }
         }
         pImage.UnlockBits();
-        var total = tree.Bounds.Width * tree.Bounds.Height;
+        var total = bigMap.Bounds.Width * bigMap.Bounds.Height;
         mountain = Math.Round(mountain / total * 100, 2);
         water = Math.Round(water / total * 100, 2);
         forest = Math.Round(forest / total * 100, 2);
         var plain = Math.Round(100 - (mountain + water + forest), 2);
-        g.DrawString($"\n根数 {tree.Roots.Length}\n\n增点数 {tree.RosterList.Length}\n\n范围 {tree.Bounds}\n\n山地{mountain}% 平原{plain}%\n河水{water}% 树林{forest}%",
+        g.DrawString($"\n根 {bigMap.Root}\n\n增点数 {bigMap.RosterList.Length}\n\n范围 {bigMap.Bounds}\n\n山地{mountain}% 平原{plain}%\n河水{water}% 树林{forest}%",
             new("仿宋", 15, FontStyle.Bold, GraphicsUnit.Pixel), new SolidBrush(Color.White), new RectangleF(0, image.Height - 200, image.Width, 200));
+        g.DrawPolygon(Pens.Black, bigMap.PolygonRegion.Select(p=>new PointF(p.X, p.Y)).ToArray());
         g.Flush(); g.Dispose();
 
 
@@ -188,7 +185,7 @@ public class TreeXmlSerialization(string localName) : RosterXmlSerialization<Dla
         {
             if (reader.Name == nameof(Source.Bounds))
             {
-                Source.Bounds = new RectangleXmlSerialization(nameof(Source.Bounds)).Deserialize(reader);
+                //Source.RectangleBoundary = new RectangleXmlSerialization(nameof(Source.Bounds)).Deserialize(reader);
                 break;
             }
         }
