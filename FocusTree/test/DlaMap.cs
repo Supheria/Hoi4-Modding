@@ -30,7 +30,7 @@ public class DlaMap((int X, int Y)[] polygonRegion, (int, int) root, int walkerN
     public bool Generate()
     {
         Bounds = PolygonRegion.GetPolygonBounds();
-        if (!Root.PointInPolygon(PolygonRegion))
+        if (!PolygonRegion.PolygonContainsPoint(Root))
             return false;
         RosterMap[Root] = new(Root.X, Root.Y);
         var testForm = new TestForm()
@@ -109,7 +109,7 @@ public class DlaMap((int X, int Y)[] polygonRegion, (int, int) root, int walkerN
                     y++;
                     break;
             }
-            if (!(x, y).PointInPolygon(PolygonRegion))
+            if (!PolygonRegion.PolygonContainsPoint((x, y)))
             {
                 x = new Random().Next(Bounds.Left, Bounds.Right + 1);
                 y = new Random().Next(Bounds.Top, Bounds.Bottom + 1);
