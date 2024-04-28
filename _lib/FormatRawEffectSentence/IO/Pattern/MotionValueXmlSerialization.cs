@@ -16,13 +16,12 @@ public class MotionValueXmlSerialization() : XmlSerialization<MotionValue>(new()
     {
         var valueType = reader.GetAttribute(nameof(Source.Type)).ToEnum<Types>();
         Source = new(valueType);
-        Source.PartIndexOrder.ReadXmlCollection(reader, LocalName, new MotionValuePartIndexOrderXmlSerialization());
+        Source.PartIndexOrder.ReadXmlCollection(reader, new MotionValuePartIndexOrderXmlSerialization(), LocalName);
     }
 
     public override void WriteXml(XmlWriter writer)
     {
         writer.WriteAttributeString(nameof(Source.Type), Source.Type.ToString());
-        Source.PartIndexOrder.WriteXmlCollection(writer, nameof(Source.PartIndexOrder),
-            new MotionValuePartIndexOrderXmlSerialization());
+        Source.PartIndexOrder.WriteXmlCollection(writer, new MotionValuePartIndexOrderXmlSerialization(), nameof(Source.PartIndexOrder));
     }
 }

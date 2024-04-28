@@ -27,7 +27,7 @@ public class EffectSentenceXmlSerialization() : XmlSerialization<EffectSentence>
         var (value, triggers) = valuePair.ToPair("", Array.Empty<string>(), str => str, StringSimpleTypeConverter.ToArray);
         Source = new(motion, valueType, value, triggerType, triggers);
 
-        Source.SubSentences.ReadXmlCollection(reader, LocalName, new EffectSentenceXmlSerialization());
+        Source.SubSentences.ReadXmlCollection(reader, new EffectSentenceXmlSerialization(), LocalName);
     }
 
     public override void WriteXml(XmlWriter writer)
@@ -38,6 +38,6 @@ public class EffectSentenceXmlSerialization() : XmlSerialization<EffectSentence>
         writer.WriteAttributeString(LocalNameValue,
             StringSimpleTypeConverter.ToArrayString(Source.Value, Source.Triggers.ToArrayString()));
 
-        Source.SubSentences.WriteXmlCollection(writer, new EffectSentenceXmlSerialization());
+        Source.SubSentences.WriteXmlCollection(writer, new EffectSentenceXmlSerialization(), LocalName);
     }
 }

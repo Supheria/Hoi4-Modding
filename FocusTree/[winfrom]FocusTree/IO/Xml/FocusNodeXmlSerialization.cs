@@ -42,14 +42,13 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
             switch (reader.Name)
             {
                 case nameof(Source.RawEffects):
-                    Source.RawEffects.ReadXmlCollection(reader, nameof(Source.RawEffects),
-                        new RawEffectXmlSerialization());
+                    Source.RawEffects.ReadXmlCollection(reader, new RawEffectXmlSerialization(), nameof(Source.RawEffects));
                     break;
                 case nameof(Source.Effects):
-                    Source.Effects.ReadXmlCollection(reader, nameof(Source.Effects), new EffectSentenceXmlSerialization());
+                    Source.Effects.ReadXmlCollection(reader, new EffectSentenceXmlSerialization(), nameof(Source.Effects));
                     break;
                 case nameof(Source.Requires):
-                    Source.Requires.ReadXmlCollection(reader, nameof(Source.Requires), new RequireXmlSerialization());
+                    Source.Requires.ReadXmlCollection(reader, new RequireXmlSerialization(), nameof(Source.Requires));
                     break;
             }
         }
@@ -66,10 +65,10 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
         writer.WriteAttributeString(nameof(Source.LatticedPoint),
             StringSimpleTypeConverter.ToArrayString(Source.LatticedPoint.Col, Source.LatticedPoint.Row));
 
-        Source.RawEffects.WriteXmlCollection(writer, nameof(Source.RawEffects), new RawEffectXmlSerialization());
+        Source.RawEffects.WriteXmlCollection(writer, new RawEffectXmlSerialization(), nameof(Source.RawEffects));
         FormatRawEffects();
-        Source.Effects.WriteXmlCollection(writer, nameof(Source.Effects), new EffectSentenceXmlSerialization());
-        Source.Requires.WriteXmlCollection(writer, nameof(Source.Requires), new RequireXmlSerialization());
+        Source.Effects.WriteXmlCollection(writer, new EffectSentenceXmlSerialization(), nameof(Source.Effects));
+        Source.Requires.WriteXmlCollection(writer, new RequireXmlSerialization(), nameof(Source.Requires));
     }
 
     [Obsolete("临时使用，作为转换语句格式的过渡")]

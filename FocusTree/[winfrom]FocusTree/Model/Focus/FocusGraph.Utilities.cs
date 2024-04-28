@@ -9,7 +9,7 @@ partial class FocusGraph
     private static FocusNode CsvFocusDataConverter(CsvFocusData data)
     {
         return new() {
-            Signature = data.Id,
+            SetSignature = data.Id,
             Name = data.Name,
             Duration = data.Duration,
             Description = data.Description,
@@ -193,7 +193,7 @@ partial class FocusGraph
         {
             UpdateLinkNodesRequiresWithNewId(id, newId);
             visited.Add(id);
-            RosterMap[id].Signature = newId;
+            RosterMap[id].SetSignature = newId;
             tempFocusCatalog.Add(newId, RosterMap[id]);
             newId++;
         }

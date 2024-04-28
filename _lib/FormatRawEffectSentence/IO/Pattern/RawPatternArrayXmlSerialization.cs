@@ -13,12 +13,12 @@ public class RawPatternArrayXmlSerialization() : XmlSerialization<RawPattern[]>(
     public override void ReadXml(XmlReader reader)
     {
         var patterns = new List<RawPattern>();
-        patterns.ReadXmlCollection(reader, LocalName, new RawPatternXmlSerialization());
+        patterns.ReadXmlCollection(reader, new RawPatternXmlSerialization(), LocalName);
         Source = patterns.Count is 0 ? [] : patterns.ToArray();
     }
 
     public override void WriteXml(XmlWriter writer)
     {
-        Source.WriteXmlCollection(writer, new RawPatternXmlSerialization());
+        Source.WriteXmlCollection(writer, new RawPatternXmlSerialization(), LocalName);
     }
 }

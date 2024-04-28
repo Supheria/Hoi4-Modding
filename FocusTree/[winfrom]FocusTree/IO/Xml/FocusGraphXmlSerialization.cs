@@ -14,7 +14,7 @@ public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
         //Name
         var name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         var focusNodes = new List<FocusNode>();
-        focusNodes.ReadXmlCollection(reader, LocalName, new FocusNodeXmlSerialization());
+        focusNodes.ReadXmlCollection(reader, new FocusNodeXmlSerialization(), LocalName);
         Source = new(name) {
             RosterList = focusNodes.ToArray()
         };
@@ -23,6 +23,6 @@ public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
     public override void WriteXml(XmlWriter writer)
     {
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
-        Source.RosterList.WriteXmlCollection(writer, new FocusNodeXmlSerialization());
+        Source.RosterList.WriteXmlCollection(writer, new FocusNodeXmlSerialization(), LocalName);
     }
 }

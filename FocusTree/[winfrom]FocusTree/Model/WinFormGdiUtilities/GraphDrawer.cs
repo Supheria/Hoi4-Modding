@@ -1,6 +1,7 @@
 #define PointBmp
 using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
+using LocalUtilities.GdiUtilities;
 
 namespace FocusTree.Model.WinFormGdiUtilities
 {

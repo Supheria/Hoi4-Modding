@@ -15,7 +15,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
 {
     GraphDisplay Display { get; }
 
-    public GraphForm() : base(new(), new GraphFormDataXmlSerialization())
+    public GraphForm() : base(new(), new GraphFormDataXmlSerialization() { IniFileName = nameof(GraphForm) })
     {
         Display = new GraphDisplay(this);
         UpdateText();
