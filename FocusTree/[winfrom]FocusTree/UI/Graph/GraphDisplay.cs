@@ -5,6 +5,7 @@ using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.UI.Controls;
 using FocusTree.UI.NodeToolDialogs;
 using LocalUtilities.FileUtilities;
+using LocalUtilities.GdiUtilities;
 
 namespace FocusTree.UI.Graph
 {
@@ -339,8 +340,8 @@ namespace FocusTree.UI.Graph
             LatticedPointCursorOn = cell.LatticedPoint;
             var cellPart = cell.PointOnCellPart(newPoint);
             if (cellPart == LastCellPart) { return; }
-            ImageDrawer.DrawImageOn(_backgroundCache, (Bitmap)Image, LastPartRealRect, true);
-            ImageDrawer.DrawImageOn(_lineMapCache, (Bitmap)Image, LastPartRealRect, true);
+            _backgroundCache.DrawBitmapPartOn((Bitmap)Image, LastPartRealRect, true);
+            _lineMapCache.DrawBitmapPartOn((Bitmap)Image, LastPartRealRect, true);
             LastCellPart = cellPart;
             if (GraphBox.PointInAnyFocusNode(newPoint, out var focus))
             {
@@ -356,7 +357,7 @@ namespace FocusTree.UI.Graph
             {
                 GraphDrawer.DrawSelectedCellPart((Bitmap)Image, LatticedPointCursorOn, cellPart);
                 LastPartRealRect = cell.CellPartsRealRect(cellPart);
-                ImageDrawer.DrawImageOn(_lineMapCache, (Bitmap)Image, LastPartRealRect, true);
+                _lineMapCache.DrawBitmapPartOn((Bitmap)Image, LastPartRealRect, true);
             }
             Parent.Text = $"CellSideLength {LatticeCell.CellData.EdgeLengthMin}, o: {LatticeGrid.GridData.OriginX}, {LatticeGrid.GridData.OriginY}, cursor: {newPoint}, cellPart: {LastCellPart}";
             Invalidate();

@@ -18,7 +18,7 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
 
     public override void ReadXml(XmlReader reader)
     {
-        Source.Signature = reader.GetAttribute(nameof(Source.Signature)).ToInt() ?? 0;
+        Source.SetSignature = reader.GetAttribute(nameof(Source.Signature)).ToInt() ?? 0;
         Source.Name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         Source.BeginWithStar = reader.GetAttribute(nameof(Source.BeginWithStar)).ToBool() ?? false;
         Source.Duration = reader.GetAttribute(nameof(Source.Duration)).ToInt() ?? 0;
