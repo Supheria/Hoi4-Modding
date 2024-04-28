@@ -2,6 +2,8 @@ using LocalUtilities.FileUtilities;
 using LocalUtilities.Serializations;
 using LocalUtilities.SerializeUtilities;
 using LocalUtilities.StringUtilities;
+using LocalUtilities.VoronoiDiagram;
+using LocalUtilities.VoronoiDiagram.Model;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -90,12 +92,36 @@ public class Program
     {
         //var bigMap = new DlaMap(new(0, 0, 1000, 1000), [], 370000);
         //var bigMap = new TreeXmlSerialization() { IniFileName = "bigmap_476s" }.LoadFromXml(out var mess);
-        var bigMap = new DlaMap([
-            (50, 50),
-            (66, 25),
-            (101, 56),
-            (22, 66),
-            (10, 20)], (73, 43), 500);
+        var plane = new VoronoiPlane(0, 0, 1000, 1000);
+        plane.Generate([
+            (132, 22),
+            (187, 383),
+            (104, 470),
+            (66, 699),
+            (143, 802),
+            (233, 65),
+            (255, 299),
+            (224, 436),
+            (386, 785),
+            (327, 998),
+            (491, 77),
+            (409, 246),
+            (474, 426),
+            (460, 686),
+            (531, 972),
+            (623, 91),
+            (650, 397),
+            (624, 494),
+            (730, 765),
+            (615, 940),
+            (967, 192),
+            (908, 339),
+            (950, 562),
+            (922, 616),
+            (818, 944),
+            (616, 940)
+            ]);
+        var bigMap = new DlaMap(plane.Cells[1], 20000);
         //bigMap.WalkerNumber = bigMap.RosterList.Length + 330000;
         //bigMap.ResetRelation();
         var a = bigMap.Generate();
@@ -154,11 +180,10 @@ public class Program
         water = Math.Round(water / total * 100, 2);
         forest = Math.Round(forest / total * 100, 2);
         var plain = Math.Round(100 - (mountain + water + forest), 2);
-        g.DrawString($"\n根 {bigMap.Root}\n\n增点数 {bigMap.RosterList.Length}\n\n范围 {bigMap.Bounds}\n\n山地{mountain}% 平原{plain}%\n河水{water}% 树林{forest}%",
+        g.DrawString($"\n{bigMap.Region.GetArea()}面积\n\n增点数 {bigMap.RosterList.Length}\n\n范围 {bigMap.Bounds}\n\n山地{mountain}% 平原{plain}%\n河水{water}% 树林{forest}%",
             new("仿宋", 15, FontStyle.Bold, GraphicsUnit.Pixel), new SolidBrush(Color.White), new RectangleF(0, image.Height - 200, image.Width, 200));
-        g.DrawPolygon(Pens.Black, bigMap.PolygonRegion.Select(p=>new PointF(p.X, p.Y)).ToArray());
+        g.DrawPolygon(Pens.Black, bigMap.Region.CellVertices.Select(p=>new PointF((float)p.X, (float)p.Y)).ToArray());
         g.Flush(); g.Dispose();
-
 
         image.Save("_scale_gen.bmp");
 

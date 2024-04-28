@@ -1,5 +1,6 @@
 using LocalUtilities.GdiUtilities;
 using LocalUtilities.Interface;
+using LocalUtilities.VoronoiDiagram.Model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,34 +11,34 @@ using System.Threading.Tasks;
 
 namespace test;
 
-public class DlaMap((int X, int Y)[] polygonRegion, (int, int) root, int walkerNumber) : Roster<(int, int), DlaWalker>
+public class DlaMap(VoronoiCell region, int walkerNumber) : Roster<(int, int), DlaWalker>
 {
     public int WalkerNumber { get; set; } = walkerNumber;
 
-    public (int X, int Y)[] PolygonRegion { get; set; } = polygonRegion;
+    public VoronoiCell Region { get; set; } = region;
 
     public Rectangle Bounds { get; private set; }
 
-    public (int X, int Y) Root { get; set; } = root;
-
     public int HeightMax { get; set; } = 0;
 
-    public DlaMap() : this([(0, 0), (0, 0)], (0, 0), 0)
+    public DlaMap() : this(new(), 0)
     {
 
     }
 
     public bool Generate()
     {
-        Bounds = PolygonRegion.GetPolygonBounds();
-        if (!PolygonRegion.PolygonContainsPoint(Root))
-            return false;
-        RosterMap[Root] = new(Root.X, Root.Y);
+        Bounds = Region.GetBounds();
+        //var root = Region.GetCentroid();
+        var root = Region.Site;
+        RosterMap[root] = new(root);
+#if DEBUG
         var testForm = new TestForm()
         {
             Total = WalkerNumber,
         };
         testForm.Show();
+#endif
         for (int i = 0; RosterMap.Count < WalkerNumber; i++)
         {
             AddWalker(out var walker);
@@ -48,33 +49,12 @@ public class DlaMap((int X, int Y)[] polygonRegion, (int, int) root, int walkerN
         return true;
     }
 
-    //public void Generate((int Width, int Height) rootNumber)
-    //{
-    //    var widthUnit = PolyBounds.Width / rootNumber.Width;
-    //    var heightUnit = PolyBounds.Height / rootNumber.Height;
-    //    List<(int X, int Y)> list = new();
-    //    for (int i = 0; i < rootNumber.Width; i++)
-    //    {
-    //        for (int j = 0; j < rootNumber.Height; j++)
-    //        {
-    //            var left = PolyBounds.Left + widthUnit * i;
-    //            var top = PolyBounds.Top + heightUnit * j;
-    //            list.Add((
-    //            new Random().Next(left, left + widthUnit + 1),
-    //            new Random().Next(top, top + heightUnit + 1)
-    //            ));
-    //        }
-    //    }
-    //    Roots = list.ToArray();
-    //    Generate();
-    //}
-
     private void AddWalker(out DlaWalker walker)
     {
-        walker = new DlaWalker(
+        walker = new DlaWalker((
                 new Random().Next(Bounds.Left, Bounds.Right + 1),
                 new Random().Next(Bounds.Top, Bounds.Bottom + 1)
-                );
+                ));
         while (!walker.CheckStuck(RosterMap))
         {
             int x = walker.X, y = walker.Y;
@@ -109,7 +89,7 @@ public class DlaMap((int X, int Y)[] polygonRegion, (int, int) root, int walkerN
                     y++;
                     break;
             }
-            if (!PolygonRegion.PolygonContainsPoint((x, y)))
+            if (!Region.Contains(x, y))
             {
                 x = new Random().Next(Bounds.Left, Bounds.Right + 1);
                 y = new Random().Next(Bounds.Top, Bounds.Bottom + 1);

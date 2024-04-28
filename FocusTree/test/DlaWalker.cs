@@ -25,7 +25,7 @@ public enum Direction
     BottomRight,
 }
 
-public class DlaWalker(int x, int y) : RosterItem<(int X, int Y)>((x, y))
+public class DlaWalker((int x, int y) signature) : RosterItem<(int X, int Y)>(signature)
 {
     public int X => Signature.X;
 
@@ -73,7 +73,7 @@ public class DlaWalker(int x, int y) : RosterItem<(int X, int Y)>((x, y))
 
     int _height = -1;
 
-    public DlaWalker() : this(0, 0)
+    public DlaWalker() : this((0, 0))
     {
 
     }
