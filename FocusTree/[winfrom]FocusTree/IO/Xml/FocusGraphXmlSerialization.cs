@@ -15,7 +15,8 @@ public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
         var name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         var focusNodes = new List<FocusNode>();
         focusNodes.ReadXmlCollection(reader, new FocusNodeXmlSerialization(), LocalName);
-        Source = new(name) {
+        Source = new(name) 
+        {
             RosterList = focusNodes.ToArray()
         };
     }

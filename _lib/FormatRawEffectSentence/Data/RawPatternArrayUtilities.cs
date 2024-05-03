@@ -67,7 +67,8 @@ internal class RawPatternArrayUtilities
         return //new RawPatternArrayXmlSerialization().LoadFromXml(filePath) ?? new LocalRawPatternArray().Patterns;
             new LocalRawPatternArray().Patterns;
 #else
-         return new RawPatternArrayXmlSerialization().LoadFromXml(out _, filePath) ?? LocalRawPatternArray.Patterns;
+        var patterns = new RawPatternArrayXmlSerialization().LoadFromXml(out var message, filePath);
+        return message is null ? patterns : LocalRawPatternArray.Patterns;
 #endif
     }
 

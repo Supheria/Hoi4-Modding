@@ -5,7 +5,7 @@ using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.UI.Controls;
 using FocusTree.UI.NodeToolDialogs;
 using LocalUtilities.FileUtilities;
-using LocalUtilities.GdiUtilities;
+using LocalUtilities.GraphUtilities;
 
 namespace FocusTree.UI.Graph
 {

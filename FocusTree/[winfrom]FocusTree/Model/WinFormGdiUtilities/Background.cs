@@ -1,5 +1,5 @@
 ﻿using FocusTree.Properties;
-using LocalUtilities.GdiUtilities;
+using LocalUtilities.GraphUtilities;
 using System.Drawing.Drawing2D;
 
 namespace FocusTree.Model.WinFormGdiUtilities

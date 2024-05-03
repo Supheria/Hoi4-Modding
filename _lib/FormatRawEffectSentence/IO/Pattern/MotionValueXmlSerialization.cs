@@ -22,6 +22,6 @@ public class MotionValueXmlSerialization() : XmlSerialization<MotionValue>(new()
     public override void WriteXml(XmlWriter writer)
     {
         writer.WriteAttributeString(nameof(Source.Type), Source.Type.ToString());
-        Source.PartIndexOrder.WriteXmlCollection(writer, new MotionValuePartIndexOrderXmlSerialization(), nameof(Source.PartIndexOrder));
+        Source.PartIndexOrder.WriteXmlCollection(writer, new MotionValuePartIndexOrderXmlSerialization(), LocalName);
     }
 }

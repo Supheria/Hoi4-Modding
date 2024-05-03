@@ -32,25 +32,18 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
                 Row = latticedPoint[1].ToInt() ?? 0
             }
             : new();
-
         while (reader.Read())
         {
             if (reader.Name == LocalName && reader.NodeType is XmlNodeType.EndElement)
                 break;
             if (reader.NodeType is not XmlNodeType.Element)
                 continue;
-            switch (reader.Name)
-            {
-                case nameof(Source.RawEffects):
-                    Source.RawEffects.ReadXmlCollection(reader, new RawEffectXmlSerialization(), nameof(Source.RawEffects));
-                    break;
-                case nameof(Source.Effects):
-                    Source.Effects.ReadXmlCollection(reader, new EffectSentenceXmlSerialization(), nameof(Source.Effects));
-                    break;
-                case nameof(Source.Requires):
-                    Source.Requires.ReadXmlCollection(reader, new RequireXmlSerialization(), nameof(Source.Requires));
-                    break;
-            }
+            if (reader.Name is nameof(Source.RawEffects))
+                Source.RawEffects.ReadXmlCollection(reader, new RawEffectXmlSerialization(), nameof(Source.RawEffects));
+            else if (reader.Name is nameof(Source.Effects))
+                Source.Effects.ReadXmlCollection(reader, new EffectSentenceXmlSerialization(), nameof(Source.Effects));
+            else if (reader.Name is nameof(Source.Requires))
+                Source.Requires.ReadXmlCollection(reader, new RequireXmlSerialization(), nameof(Source.Requires));
         }
     }
 
@@ -62,9 +55,8 @@ public class FocusNodeXmlSerialization() : XmlSerialization<FocusNode>(new())
         writer.WriteAttributeString(nameof(Source.Duration), Source.Duration.ToString());
         writer.WriteAttributeString(nameof(Source.Description), Source.Description);
         writer.WriteAttributeString(nameof(Source.Ps), Source.Ps);
-        writer.WriteAttributeString(nameof(Source.LatticedPoint),
-            StringSimpleTypeConverter.ToArrayString(Source.LatticedPoint.Col, Source.LatticedPoint.Row));
-
+        writer.WriteAttributeString(nameof(Source.LatticedPoint), StringSimpleTypeConverter.ToArrayString(
+            Source.LatticedPoint.Col, Source.LatticedPoint.Row));
         Source.RawEffects.WriteXmlCollection(writer, new RawEffectXmlSerialization(), nameof(Source.RawEffects));
         FormatRawEffects();
         Source.Effects.WriteXmlCollection(writer, new EffectSentenceXmlSerialization(), nameof(Source.Effects));

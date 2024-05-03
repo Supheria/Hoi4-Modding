@@ -19,6 +19,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
     {
         Display = new GraphDisplay(this);
         UpdateText();
+        OnDrawingClient += DrawClient;
 
         var size = Background.Size;
         Size = new(
@@ -441,7 +442,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         test.Show();
     }
 
-    protected override void DrawClient()
+    private void DrawClient()
     {
         if (Display is null || Math.Min(ClientRectangle.Width, ClientRectangle.Height) <= 0)
             return;
