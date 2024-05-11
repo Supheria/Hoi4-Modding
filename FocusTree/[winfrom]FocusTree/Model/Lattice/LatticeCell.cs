@@ -8,7 +8,7 @@ namespace FocusTree.Model.Lattice
     /// </summary>
     public class LatticeCell
     {
-        public static CellData CellData { get; set; } = new CellDataXmlSerialization().LoadFromXml(out _);
+        public static CellData CellData { get; set; } = new CellDataSerialization().LoadFromFile(out _);
         /// <summary>
         /// 节点与格元的间隔
         /// </summary>
@@ -66,111 +66,55 @@ namespace FocusTree.Model.Lattice
         }
 
         /// <summary>
-        /// 格元的部分
-        /// </summary>
-        public enum Parts
-        {
-            /// <summary>
-            /// 离开格元
-            /// </summary>
-            Leave,
-            /// <summary>
-            /// 节点左侧区域
-            /// </summary>
-            Left,
-            /// <summary>
-            /// 节点上方区域
-            /// </summary>
-            Top,
-            /// <summary>
-            /// 节点右侧区域
-            /// </summary>
-            Right,
-            /// <summary>
-            /// 节点下方区域
-            /// </summary>
-            Bottom,
-            /// <summary>
-            /// 节点左上方区域
-            /// </summary>
-            LeftTop,
-            /// <summary>
-            /// 节点上右方区域
-            /// </summary>
-            TopRight,
-            /// <summary>
-            /// 节点左下方区域
-            /// </summary>
-            LeftBottom,
-            /// <summary>
-            /// 节点下右方区域
-            /// </summary>
-            BottomRight,
-            /// <summary>
-            /// 节点区域
-            /// </summary>
-            Node
-        }
-        /// <summary>
         /// 格元各个部分的真实坐标矩形
         /// </summary>
         /// <param name="part"></param>
         /// <returns></returns>
-        public Rectangle CellPartsRealRect(Parts part)
+        public Rectangle CellPartsRealRect(Direction part)
         {
             var cellRect = CellRealRect();
             var nodePadding = NodePadding();
             var nodeRect = NodeRealRect();
-            switch (part)
+            return part switch
             {
-                case Parts.Node:
-                    return nodeRect;
-                case Parts.Left:
-                    return new(cellRect.Left, nodeRect.Top, nodePadding.Width, nodeRect.Height);
-                case Parts.Top:
-                    return new(nodeRect.Left, cellRect.Top, nodeRect.Width, nodePadding.Height);
-                case Parts.Right:
-                    return new(nodeRect.Right, nodeRect.Top, nodePadding.Width, nodeRect.Height);
-                case Parts.Bottom:
-                    return new(nodeRect.Left, nodeRect.Bottom, nodeRect.Width, nodePadding.Height);
-                case Parts.LeftTop:
-                    return new(cellRect.Left, cellRect.Top, nodePadding.Width, nodePadding.Height);
-                case Parts.TopRight:
-                    return new(nodeRect.Right, cellRect.Top, nodePadding.Width, nodePadding.Height);
-                case Parts.BottomRight:
-                    return new(nodeRect.Right, nodeRect.Bottom, nodePadding.Width, nodePadding.Height);
-                case Parts.LeftBottom:
-                    return new(cellRect.Left, nodeRect.Bottom, nodePadding.Width, nodePadding.Height);
-                default:
-                    return Rectangle.Empty;
-            }
+                Direction.Center => nodeRect,
+                Direction.Left => new(cellRect.Left, nodeRect.Top, nodePadding.Width, nodeRect.Height),
+                Direction.Top => new(nodeRect.Left, cellRect.Top, nodeRect.Width, nodePadding.Height),
+                Direction.Right => new(nodeRect.Right, nodeRect.Top, nodePadding.Width, nodeRect.Height),
+                Direction.Bottom => new(nodeRect.Left, nodeRect.Bottom, nodeRect.Width, nodePadding.Height),
+                Direction.LeftTop => new(cellRect.Left, cellRect.Top, nodePadding.Width, nodePadding.Height),
+                Direction.TopRight => new(nodeRect.Right, cellRect.Top, nodePadding.Width, nodePadding.Height),
+                Direction.BottomRight => new(nodeRect.Right, nodeRect.Bottom, nodePadding.Width, nodePadding.Height),
+                Direction.LeftBottom => new(cellRect.Left, nodeRect.Bottom, nodePadding.Width, nodePadding.Height),
+                _ => Rectangle.Empty,
+            };
         }
         /// <summary>
         /// 获取坐标在格元上所处的部分
         /// </summary>
         /// <param name="point">坐标</param>
         /// <returns></returns>
-        public Parts PointOnCellPart(Point point)
+        public Direction PointOnCellPart(Point point)
         {
-            if (CellPartsRealRect(Parts.Node).Contains(point))
-                return Parts.Node;
-            if (CellPartsRealRect(Parts.Left).Contains(point))
-                return Parts.Left;
-            if (CellPartsRealRect(Parts.Top).Contains(point))
-                return Parts.Top;
-            if (CellPartsRealRect(Parts.Right).Contains(point))
-                return Parts.Right;
-            if (CellPartsRealRect(Parts.Bottom).Contains(point))
-                return Parts.Bottom;
-            if (CellPartsRealRect(Parts.LeftTop).Contains(point))
-                return Parts.LeftTop;
-            if (CellPartsRealRect(Parts.TopRight).Contains(point))
-                return Parts.TopRight;
-            if (CellPartsRealRect(Parts.BottomRight).Contains(point))
-                return Parts.BottomRight;
-            if (CellPartsRealRect(Parts.LeftBottom).Contains(point))
-                return Parts.LeftBottom;
-            return Parts.Leave;
+            if (CellPartsRealRect(Direction.Center).Contains(point))
+                return Direction.Center;
+            if (CellPartsRealRect(Direction.Left).Contains(point))
+                return Direction.Left;
+            if (CellPartsRealRect(Direction.Top).Contains(point))
+                return Direction.Top;
+            if (CellPartsRealRect(Direction.Right).Contains(point))
+                return Direction.Right;
+            if (CellPartsRealRect(Direction.Bottom).Contains(point))
+                return Direction.Bottom;
+            if (CellPartsRealRect(Direction.LeftTop).Contains(point))
+                return Direction.LeftTop;
+            if (CellPartsRealRect(Direction.TopRight).Contains(point))
+                return Direction.TopRight;
+            if (CellPartsRealRect(Direction.BottomRight).Contains(point))
+                return Direction.BottomRight;
+            if (CellPartsRealRect(Direction.LeftBottom).Contains(point))
+                return Direction.LeftBottom;
+            return Direction.None;
         }
     }
 }

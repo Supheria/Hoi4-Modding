@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FormatRawEffectSentence.IO;
 
-public class EffectSentenceStringSerialization : EffectSentenceXmlSerialization
+public class EffectSentenceStringSerialization() : EffectSentenceSerialization()
 {
     public override string ToString()
     {

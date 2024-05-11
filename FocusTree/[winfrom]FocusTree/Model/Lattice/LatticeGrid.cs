@@ -9,7 +9,7 @@ namespace FocusTree.Model.Lattice;
 /// </summary>
 public static class LatticeGrid
 {
-    public static GridData GridData { get; set; } = new GridDataXmlSerialization().LoadFromXml(out _);
+    public static GridData GridData { get; set; } = new GridDataSerialization().LoadFromFile(out _);
 
     public static bool DoDraw { get; set; }
     /// <summary>

@@ -328,7 +328,7 @@ namespace FocusTree.UI.Graph
         /// <summary>
         /// 上次光标所处的节点部分
         /// </summary>
-        LatticeCell.Parts LastCellPart = LatticeCell.Parts.Leave;
+        Direction LastCellPart = Direction.None;
         LatticedPoint LatticedPointCursorOn;
         FocusNode FocusNodeToDrag = new();
         Rectangle LastPartRealRect;
@@ -389,7 +389,7 @@ namespace FocusTree.UI.Graph
                 _backgroundCache?.Dispose();
                 FirstDrag = true;
                 _dragNodeFlag = false;
-                LastCellPart = LatticeCell.Parts.Leave;
+                LastCellPart = Direction.None;
                 LatticeGrid.DoDraw = false;
                 FocusNodeToDrag.LatticedPoint = LatticedPointCursorOn;
                 if (GraphBox.ContainLatticedPoint(LatticedPointCursorOn))

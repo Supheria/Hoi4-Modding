@@ -61,7 +61,7 @@ internal class RawPatternArrayUtilities
         return reverse;
     }
 
-    internal static RawPattern[] LoadRawPatternArray(string filePath)
+    internal static List<RawPattern> LoadRawPatternArray(string filePath)
     {
 #if DEBUG
         return //new RawPatternArrayXmlSerialization().LoadFromXml(filePath) ?? new LocalRawPatternArray().Patterns;
@@ -72,9 +72,9 @@ internal class RawPatternArrayUtilities
 #endif
     }
 
-    internal static void SaveRawPatternArray(string filePath, ref RawPattern[] patterns)
+    internal static void SaveRawPatternArray(string filePath, ref List<RawPattern> patterns)
     {
-        new RawPatternArrayXmlSerialization() { Source = patterns }.SaveToXml(filePath);
+        new RawPatternArrayXmlSerialization() { Source = patterns }.SaveToFile(true, filePath);
         //patterns.SaveToYaml(filePath);
     }
 }

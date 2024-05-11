@@ -52,17 +52,17 @@ namespace FocusTree.Model.WinFormGdiUtilities
         /// <summary>
         /// 非国策格元各个部分选中时的底色
         /// </summary>
-        public static Dictionary<LatticeCell.Parts, Color> CellSelectedPartsBg = new()
+        public static Dictionary<Direction, Color> CellSelectedPartsBg = new()
         {
-            [LatticeCell.Parts.Node] = Color.Orange,
-            [LatticeCell.Parts.Left] = Color.Gray,
-            [LatticeCell.Parts.Top] = Color.Gray,
-            [LatticeCell.Parts.Right] = Color.Gray,
-            [LatticeCell.Parts.Bottom] = Color.Gray,
-            [LatticeCell.Parts.LeftTop] = Color.Gray,
-            [LatticeCell.Parts.TopRight] = Color.Gray,
-            [LatticeCell.Parts.LeftBottom] = Color.Gray,
-            [LatticeCell.Parts.BottomRight] = Color.Gray,
+            [Direction.Center] = Color.Orange,
+            [Direction.Left] = Color.Gray,
+            [Direction.Top] = Color.Gray,
+            [Direction.Right] = Color.Gray,
+            [Direction.Bottom] = Color.Gray,
+            [Direction.LeftTop] = Color.Gray,
+            [Direction.TopRight] = Color.Gray,
+            [Direction.LeftBottom] = Color.Gray,
+            [Direction.BottomRight] = Color.Gray,
         };
 
         #endregion
@@ -340,7 +340,7 @@ namespace FocusTree.Model.WinFormGdiUtilities
         /// <param name="image"></param>
         /// <param name="point"></param>
         /// <param name="cellPart"></param>
-        public static void DrawSelectedCellPart(Bitmap image, LatticedPoint point, LatticeCell.Parts cellPart)
+        public static void DrawSelectedCellPart(Bitmap image, LatticedPoint point, Direction cellPart)
         {
             LatticeCell cell = new(point);
             if (!CellSelectedPartsBg.TryGetValue(cellPart, out var shading))

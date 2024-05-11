@@ -15,7 +15,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
 {
     GraphDisplay Display { get; }
 
-    public GraphForm() : base(new(), new GraphFormDataXmlSerialization() { IniFileName = nameof(GraphForm) })
+    public GraphForm() : base(new(), new GraphFormDataSerialization(nameof(GraphForm)))
     {
         Display = new GraphDisplay(this);
         UpdateText();
@@ -42,6 +42,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
             this.GraphFrom_Menu_window.DropDownItems.Add(item);
         }
 #if DEBUG
+        //GraphBox.Load("E:\\PhonixSupheria\\Desktop\\The_Road_to_Touhou\\_asset\\doc\\国策\\草原流亡者\\草原流亡者.ss");
         //Display.LoadGraph("C:\\Users\\Non_E\\Documents\\GitHub\\FocusTree\\FocusTree\\program\\FILES\\隐居村落_测试连线用.xml");
         //Display.LoadGraph("C:\\Users\\Non_E\\Documents\\GitHub\\FocusTree\\FocusTree\\program\\FILES\\神佑村落.xml");
 
@@ -65,7 +66,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
                 return;
             }
         }
-        GraphFrom_Openfile.Filter = "xml文件|*.xml|csv文件|*.csv|yml文件|*.yml";
+        GraphFrom_Openfile.Filter = "ss文件|*.ss|csv文件|*.csv";
         if (GraphFrom_Openfile.ShowDialog() == DialogResult.Cancel)
         {
             return;
@@ -277,9 +278,9 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         {
             try
             {
-                var graph = new FocusGraphXmlSerialization().LoadFromXml(out _, fileName);
+                var graph = new FocusGraphSerialization().LoadFromFile(out _, fileName);
                 graph.AutoSetAllNodesIdInOrder();
-                new FocusGraphXmlSerialization() { Source = graph }.SaveToXml(Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
+                new FocusGraphSerialization() { Source = graph }.SaveToFile(true, Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
                 suc++;
                 GraphFrom_ProgressBar.PerformStep();
             }
@@ -310,7 +311,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         {
             try
             {
-                var graph = new FocusGraphXmlSerialization().LoadFromXml(out _, fileName);
+                var graph = new FocusGraphSerialization().LoadFromFile(out _, fileName);
                 var savePath = Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName));
                 NodeMapDrawer.SaveImage(graph, savePath);
                 suc++;

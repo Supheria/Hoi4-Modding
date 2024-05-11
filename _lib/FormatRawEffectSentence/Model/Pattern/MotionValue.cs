@@ -6,7 +6,7 @@ public class MotionValue
 {
     internal Types Type { get; }
 
-    internal HashSet<int> PartIndexOrder { get; } = new() { 0 };
+    internal HashSet<int> PartIndexOrder { get; } = [0];
 
     public MotionValue(Types type)
     {

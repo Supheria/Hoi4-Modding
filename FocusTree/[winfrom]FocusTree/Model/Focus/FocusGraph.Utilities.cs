@@ -1,6 +1,7 @@
 ﻿using FocusTree.IO.Csv;
 using FocusTree.IO.Xml;
 using LocalUtilities.FileUtilities;
+using LocalUtilities.SimpleScript.Serialization;
 
 namespace FocusTree.Model.Focus;
 
@@ -237,7 +238,7 @@ partial class FocusGraph
             case ".csv":
                 return CsvLoader.LoadFromCsv(filePath, out focusGraph);
             default:
-                focusGraph = new FocusGraphXmlSerialization().LoadFromXml(out var message, filePath);
+                focusGraph = new FocusGraphSerialization().LoadFromFile(out var message, filePath);
                 return message;
         }
     }

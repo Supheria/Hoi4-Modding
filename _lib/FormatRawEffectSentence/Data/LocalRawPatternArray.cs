@@ -14,11 +14,12 @@ internal class LocalRawPatternArray
     /// patterns within () mean to retain as key word
     /// </summary>
 #if DEBUG
-    internal readonly RawPattern[] Patterns =
+    internal readonly List<RawPattern> Patterns =
+
 #else
     internal static RawPattern[] Patterns =
 #endif
-    {
+    [
         new(false, @$"（某国）触发事件", new[]
         {
             @$"触发事件“骑着青牛的老者？”。",
@@ -209,5 +210,5 @@ internal class LocalRawPatternArray
             Motion = new(Motions.Gain, $@"获得科技：(.+)"),
             Value = new(Types.Technology),
         },
-    };
+    ];
 }

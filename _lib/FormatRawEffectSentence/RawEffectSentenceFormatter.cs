@@ -18,7 +18,7 @@ namespace FormatRawEffectSentence
 
         private static string _rawSentence = "";
 
-        private static RawPattern[] _patterns = Array.Empty<RawPattern>();
+        private static List<RawPattern> _patterns = [];
 
         private record MotionCollect(Motions Motion, (Types Type, string Value) Value);
 

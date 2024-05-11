@@ -4,6 +4,7 @@ using FocusTree.Model.Lattice;
 using LocalUtilities.FileUtilities;
 using LocalUtilities.Interface;
 using LocalUtilities.MathBundle;
+using LocalUtilities.SimpleScript.Serialization;
 using LocalUtilities.StringUtilities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -85,28 +86,25 @@ namespace FocusTree.Model.Focus
 
         public string ToHashString()
         {
-            new FocusGraphXmlSerialization() { Source = this }.SaveToXml(HashCachePath);
+            new FocusGraphSerialization() { Source = this }.SaveToFile(false, HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             var hashString = data.ToMd5HashString(); ;
             if (!File.Exists(hashString))
-                new FocusGraphXmlSerialization() { Source = this }.SaveToXml(this.GetCacheFilePath(hashString));
+                new FocusGraphSerialization() { Source = this }.SaveToFile(false, this.GetCacheFilePath(hashString));
             return new(hashString);
         }
 
         public string ToHashString(string filePath)
         {
-            var focusGraph = new FocusGraphXmlSerialization().LoadFromXml(out _, filePath);
-            new FocusGraphXmlSerialization() { Source = focusGraph }.SaveToXml(HashCachePath);
+            var focusGraph = new FocusGraphSerialization().LoadFromFile(out _, filePath);
+            new FocusGraphSerialization() { Source = focusGraph }.SaveToFile(false, HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             return data.ToMd5HashString();
         }
 
         public void FromHashString(string data)
         {
-            RosterMap = new FocusGraphXmlSerialization().LoadFromXml(
-                out _, this.GetCacheFilePath(data)
-                )?.RosterMap
-                ?? [];
+            RosterMap = new FocusGraphSerialization().LoadFromFile(out _, this.GetCacheFilePath(data)).RosterMap;
         }
     }
 }

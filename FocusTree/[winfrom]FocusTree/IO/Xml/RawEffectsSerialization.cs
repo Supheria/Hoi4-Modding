@@ -8,22 +8,21 @@ namespace FocusTree.IO.Xml;
 
 public class RawEffectsSerialization : SsSerialization<List<string>>
 {
-    public override string LocalName { get; }
+    public override string LocalName => "RawEffect";
 
-    public RawEffectsSerialization(string localName) : base([])
+    public RawEffectsSerialization()
     {
-        LocalName = localName;
-        OnSerialize += RawEffects_Serialize;
-        OnDeserialize += RawEffects_Deserialize;
+        OnSerialize += Serialize;
+        OnDeserialize += Deserialize;
     }
 
-    private void RawEffects_Serialize()
+    private void Serialize()
     {
         foreach(var str in Source)
             WriteToken(str);
     }
 
-    private void RawEffects_Deserialize()
+    private void Deserialize()
     {
         Deserialize(typeof(Token), token =>
         {

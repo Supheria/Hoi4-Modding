@@ -9,16 +9,15 @@ namespace FocusTree.IO.Xml;
 
 public class RequiresSerialization : SsSerialization<List<HashSet<int>>>
 {
-    public override string LocalName { get; }
+    public override string LocalName => "Require";
 
-    public RequiresSerialization(string localName) : base([])
+    public RequiresSerialization()
     {
-        LocalName = localName;
-        OnSerialize += Requires_Serialize;
-        OnDeserialize += Requires_Deserialize;
+        OnSerialize += Serialize;
+        OnDeserialize += Deserialize;
     }
 
-    private void Requires_Serialize()
+    private void Serialize()
     {
         foreach (var sets in Source)
         {
@@ -27,7 +26,7 @@ public class RequiresSerialization : SsSerialization<List<HashSet<int>>>
         }
     }
 
-    private void Requires_Deserialize()
+    private void Deserialize()
     {
         Deserialize(typeof(Token), token =>
         {

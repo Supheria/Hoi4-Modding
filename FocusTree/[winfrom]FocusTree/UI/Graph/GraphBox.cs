@@ -2,6 +2,7 @@
 using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
 using LocalUtilities.FileUtilities;
+using LocalUtilities.MathBundle;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.UI.Graph;
@@ -134,7 +135,7 @@ public static class GraphBox
             return;
         ReadOnly = false;
         Graph.Backup(FilePath);
-        new FocusGraphXmlSerialization() { Source = Graph }.SaveToXml(FilePath);
+        new FocusGraphSerialization() { Source = Graph }.SaveToFile(true, FilePath);
         Graph.UpdateLastSavedHistoryIndex();
     }
 
@@ -153,7 +154,7 @@ public static class GraphBox
         }
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
-        new FocusGraphXmlSerialization() { Source = Graph}.SaveToXml(filePath);
+        new FocusGraphSerialization() { Source = Graph }.SaveToFile(true, filePath);
         Graph.NewHistory();
         FilePath = filePath;
         Program.TestInfo.Renew();
@@ -231,7 +232,7 @@ public static class GraphBox
         if (!Graph.ContainLatticedPoint(cell.LatticedPoint, out focus))
             return false;
         var part = cell.PointOnCellPart(point);
-        return part is LatticeCell.Parts.Node;
+        return part is Direction.Center;
     }
 
     /// <summary>
