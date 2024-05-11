@@ -12,7 +12,7 @@ public class EffectSentence
     /// <summary>
     /// 值类型
     /// </summary>
-    public Types Type { get; }
+    public Types ValueType { get; }
     /// <summary>
     /// 执行值
     /// </summary>
@@ -48,7 +48,7 @@ public class EffectSentence
     )
     {
         Motion = motion;
-        Type = valueType;
+        ValueType = valueType;
         Value = value;
         TriggerType = triggerType;
         Triggers = triggers;

@@ -2,6 +2,7 @@
 using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
 using LocalUtilities.GraphUtilities;
+using LocalUtilities.MathBundle;
 
 namespace FocusTree.Model.WinFormGdiUtilities
 {

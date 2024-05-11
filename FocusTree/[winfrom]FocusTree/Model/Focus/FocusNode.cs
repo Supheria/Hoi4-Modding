@@ -1,6 +1,7 @@
 ﻿using FocusTree.Model.Lattice;
 using FormatRawEffectSentence.Model;
 using LocalUtilities.Interface;
+using LocalUtilities.MathBundle;
 
 namespace FocusTree.Model.Focus
 {

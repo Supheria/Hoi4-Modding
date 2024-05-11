@@ -34,7 +34,7 @@ public class EffectSentenceStringSerialization : EffectSentenceXmlSerialization
         ? ""
         : $"{nameof(Source.Motion)}=\"{Source.Motion}\", {LocalNameType}=\"{TypePairToString()}\", {LocalNameValue}=\"{ValuePairToString()}\"";
 
-    private string TypePairToString() => Source is null ? "" : $"({Source.Type}),({Source.TriggerType})";
+    private string TypePairToString() => Source is null ? "" : $"({Source.ValueType}),({Source.TriggerType})";
 
     private string ValuePairToString() =>
         Source is null ? "" : $"({Source.Value}),({Source.Triggers.ToArrayString()})";

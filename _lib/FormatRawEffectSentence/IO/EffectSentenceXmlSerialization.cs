@@ -1,6 +1,7 @@
 ﻿using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model;
 using LocalUtilities.SerializeUtilities;
+using LocalUtilities.SimpleScript.Serialization;
 using LocalUtilities.StringUtilities;
 using System.Xml;
 using System.Xml.Schema;
@@ -8,36 +9,40 @@ using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO;
 
-public class EffectSentenceXmlSerialization() : XmlSerialization<EffectSentence>(new())
+public class EffectSentenceXmlSerialization : SsSerialization<EffectSentence>
 {
     protected static string LocalNameType => "Type";
 
     protected static string LocalNameValue => "Value";
 
-    public override string LocalName => nameof(EffectSentence);
+    const string SubSentence = "Sub";
 
+    public override string LocalName { get; }
 
-    public override void ReadXml(XmlReader reader)
+    public EffectSentenceXmlSerialization(string localName) : base((new()))
     {
-        var motion = reader.GetAttribute(nameof(Source.Motion)).ToEnum<Motions>();
-        var typePair = reader.GetAttribute(LocalNameType);
-        var valuePair = reader.GetAttribute(LocalNameValue);
-        var (valueType, triggerType) = typePair.ToPair(Types.None, Types.None, StringSimpleTypeConverter.ToEnum<Types>,
-            StringSimpleTypeConverter.ToEnum<Types>);
-        var (value, triggers) = valuePair.ToPair("", Array.Empty<string>(), str => str, StringSimpleTypeConverter.ToArray);
-        Source = new(motion, valueType, value, triggerType, triggers);
-
-        Source.SubSentences.ReadXmlCollection(reader, new EffectSentenceXmlSerialization(), LocalName);
+        LocalName = localName;
+        OnSerialize += EffectSentence_Serialize;
+        OnDeserialize += EffectSentence_Deserialize;
     }
 
-    public override void WriteXml(XmlWriter writer)
+    private void EffectSentence_Serialize()
     {
-        writer.WriteAttributeString(nameof(Source.Motion), Source.Motion.ToString());
-        writer.WriteAttributeString(LocalNameType,
-            StringSimpleTypeConverter.ToArrayString(Source.Type, Source.TriggerType));
-        writer.WriteAttributeString(LocalNameValue,
-            StringSimpleTypeConverter.ToArrayString(Source.Value, Source.Triggers.ToArrayString()));
+        WriteTag(nameof(Source.Motion), Source.Motion.ToString());
+        WriteTag(nameof(Source.ValueType), Source.ValueType.ToString());
+        WriteTag(nameof(Source.Value), Source.Value.ToArrayString());
+        WriteTag(nameof(Source.TriggerType), Source.TriggerType.ToString());
+        WriteTag(nameof(Source.Triggers), Source.Triggers.ToArrayString());
+        Serialize(Source.SubSentences, new EffectSentenceXmlSerialization(SubSentence));
+    }
 
-        Source.SubSentences.WriteXmlCollection(writer, new EffectSentenceXmlSerialization(), LocalName);
+    private void EffectSentence_Deserialize()
+    {
+        var motion = ReadTag(nameof(Source.Motion), s => s.ToEnum(Source.Motion));
+        var valueType = ReadTag(nameof(Source.ValueType), s => s.ToEnum(Source.ValueType));
+        var value = ReadTag(nameof(Source.Value), s => s ?? Source.Value);
+        var triggerType = ReadTag(nameof(Source.TriggerType), s=>s.ToEnum(Source.TriggerType));
+        var triggers = ReadTag(nameof(Source.Triggers), s => s ?? Source.Triggers.ToArrayString()).ToArray();
+        Source = new(motion, valueType, value, triggerType, triggers);
     }
 }

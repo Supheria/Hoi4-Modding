@@ -1,11 +1,12 @@
 ﻿using FocusTree.Model.Focus;
 using LocalUtilities.SerializeUtilities;
+using LocalUtilities.SimpleScript.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
-public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
+public class FocusGraphXmlSerialization() : SsSerialization<FocusGraph>(new())
 {
     public override string LocalName => "NationalFocuses";
 
@@ -14,7 +15,7 @@ public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
         //Name
         var name = reader.GetAttribute(nameof(Source.Name)) ?? "";
         var focusNodes = new List<FocusNode>();
-        focusNodes.ReadXmlCollection(reader, new FocusNodeXmlSerialization(), LocalName);
+        focusNodes.ReadXmlCollection(reader, new FocusNodeSerialization(), LocalName);
         Source = new(name) 
         {
             RosterList = focusNodes.ToArray()
@@ -24,6 +25,6 @@ public class FocusGraphXmlSerialization() : XmlSerialization<FocusGraph>(new())
     public override void WriteXml(XmlWriter writer)
     {
         writer.WriteAttributeString(nameof(Source.Name), Source.Name);
-        Source.RosterList.WriteXmlCollection(writer, new FocusNodeXmlSerialization(), LocalName);
+        Source.RosterList.WriteXmlCollection(writer, new FocusNodeSerialization(), LocalName);
     }
 }

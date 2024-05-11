@@ -3,6 +3,7 @@ using FocusTree.IO.Xml;
 using FocusTree.Model.Lattice;
 using LocalUtilities.FileUtilities;
 using LocalUtilities.Interface;
+using LocalUtilities.MathBundle;
 using LocalUtilities.StringUtilities;
 using System.Diagnostics.CodeAnalysis;
 

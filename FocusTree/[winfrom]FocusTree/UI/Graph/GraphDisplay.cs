@@ -6,6 +6,7 @@ using FocusTree.UI.Controls;
 using FocusTree.UI.NodeToolDialogs;
 using LocalUtilities.FileUtilities;
 using LocalUtilities.GraphUtilities;
+using LocalUtilities.MathBundle;
 
 namespace FocusTree.UI.Graph
 {
