@@ -1,5 +1,4 @@
-﻿using FocusTree.Model.Lattice;
-using FormatRawEffectSentence.Model;
+﻿using FormatRawEffectSentence.Model;
 using LocalUtilities.Interface;
 using LocalUtilities.MathBundle;
 

@@ -67,12 +67,12 @@ namespace FocusTree.Utilities
             var g = Graphics.FromImage(canvas);
             g.Clear(Color.White);
 
-            _drawer = new(graph.RosterList.Length + 1);
-            foreach (var focus in graph.RosterList)
+            _drawer = new(graph.GetRosterList().Count + 1);
+            foreach (var focus in graph.GetRosterList())
             {
                 DrawNodeLinks(g, graph, focus);
             }
-            foreach (var focus in graph.RosterList)
+            foreach (var focus in graph.GetRosterList())
             {
                 var drawingRect = NodeDrawingRect(focus);
                 g.FillRectangle(

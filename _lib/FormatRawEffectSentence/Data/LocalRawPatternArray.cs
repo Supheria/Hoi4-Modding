@@ -17,7 +17,7 @@ internal class LocalRawPatternArray
     internal readonly List<RawPattern> Patterns =
 
 #else
-    internal static RawPattern[] Patterns =
+    internal static List<RawPattern> Patterns =
 #endif
     [
         new(false, @$"（某国）触发事件", new[]

@@ -2,16 +2,10 @@
 #define test_format
 
 using FocusTree.Model.Focus;
-using FocusTree.Model.Lattice;
 using FormatRawEffectSentence;
 using FormatRawEffectSentence.IO;
-using LocalUtilities.SerializeUtilities;
-using LocalUtilities.SimpleScript.Data;
 using LocalUtilities.SimpleScript.Serialization;
 using LocalUtilities.StringUtilities;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
@@ -25,13 +19,7 @@ public class FocusNodeSerialization : SsSerialization<FocusNode>
 
     RequiresSerialization RequiresSerialization { get; } = new();
 
-    public FocusNodeSerialization()
-    {
-        OnSerialize += Serialize;
-        OnDeserialize += Deserialize;
-    }
-
-    private void Serialize()
+    protected override void Serialize()
     {
         WriteTag(nameof(Source.Signature), Source.Signature.ToString());
         WriteTag(nameof(Source.Name), Source.Name);
@@ -46,7 +34,7 @@ public class FocusNodeSerialization : SsSerialization<FocusNode>
         Serialize(Source.Requires, RequiresSerialization);
     }
 
-    private void Deserialize()
+    protected override void Deserialize()
     {
         Source.SetSignature = ReadTag(nameof(Source.Signature), s => s.ToInt(Source.Signature));
         Source.Name = ReadTag(nameof(Source.Name), s => s ?? Source.Name);
@@ -56,11 +44,7 @@ public class FocusNodeSerialization : SsSerialization<FocusNode>
         Source.Ps = ReadTag(nameof(Source.Ps), s => s ?? Source.Ps);
         Source.LatticedPoint = ReadTag(nameof(Source.LatticedPoint), s => s.ToLatticedPoint(Source.LatticedPoint));
         Source.RawEffects = Deserialize(Source.RawEffects, RawEffectsSerialization);
-        Deserialize(EffectSentenceSerialization.LocalName, token =>
-        {
-            if (EffectSentenceSerialization.Deserialize(token))
-                Source.Effects.Add(EffectSentenceSerialization.Source);
-        });
+        Deserialize(EffectSentenceSerialization, Source.Effects);
         Source.Requires = Deserialize(Source.Requires, RequiresSerialization);
     }
 

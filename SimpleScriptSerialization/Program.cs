@@ -30,7 +30,7 @@ namespace SimpleScriptSerialization
             var data = new TestFormDataSerialization("ShitForm").LoadFromFile(out m);
             watch.Stop();
             var time = watch.ElapsedMilliseconds;
-            new TestFormDataSerialization("ShitForm") { Source = data }.SaveToFile(false);
+            new TestFormDataSerialization("ShitForm") { Source = data }.SaveToFile(true);
 
             Application.Run(new Form1());
         }
@@ -58,25 +58,18 @@ namespace SimpleScriptSerialization
 
     public class TestFormDataSerialization : FormDataSerialization<TestFormData>
     {
-        public TestFormDataSerialization(string localName) : base(localName, new())
+        public TestFormDataSerialization(string localName) : base(localName)
         {
-            OnSerialize += FormData_Serialize;
-            OnDeserialize += FormData_Deserialize;
         }
 
-        private void FormData_Serialize()
+        protected override void SerializeFormData()
         {
             Serialize(Source.Datas, new TestFormDataSerialization(LocalName));
         }
 
-        private void FormData_Deserialize()
+        protected override void DeserializeFormData()
         {
-            Deserialize(LocalName, token =>
-            {
-                var itemSerialization = new TestFormDataSerialization(LocalName);
-                if (itemSerialization.Deserialize(token))
-                    Source.Datas.Add(itemSerialization.Source);
-            });
+            Deserialize(new TestFormDataSerialization(LocalName), Source.Datas);
         }
     }
 }

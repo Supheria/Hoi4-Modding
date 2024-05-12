@@ -1,10 +1,8 @@
 using FocusTree.IO.Csv;
 using FocusTree.IO.Xml;
-using FocusTree.Model.Lattice;
 using LocalUtilities.FileUtilities;
 using LocalUtilities.Interface;
 using LocalUtilities.MathBundle;
-using LocalUtilities.SimpleScript.Serialization;
 using LocalUtilities.StringUtilities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -24,7 +22,7 @@ namespace FocusTree.Model.Focus
 
         public FocusGraph(string name, List<CsvFocusData> focusData) : this(name)
         {
-            RosterList = focusData.Select(CsvFocusDataConverter).ToArray();
+            focusData.ForEach(x => Add(CsvFocusDataConverter(x)));
         }
 
         public FocusGraph() : this("")

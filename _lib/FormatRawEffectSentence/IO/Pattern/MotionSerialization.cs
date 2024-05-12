@@ -1,11 +1,6 @@
-﻿using FormatRawEffectSentence.LocalSign;
-using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.SerializeUtilities;
+﻿using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.SimpleScript.Serialization;
 using LocalUtilities.StringUtilities;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace FormatRawEffectSentence.IO.Pattern;
 
@@ -13,13 +8,7 @@ public class MotionSerialization : SsSerialization<Motion>
 {
     public override string LocalName => "Motion";
 
-    public MotionSerialization()
-    {
-        OnSerialize += Serialize;
-        OnDeserialize += Deserialize;
-    }
-
-    private void Serialize()
+    protected override void Serialize()
     {
         WriteTag(nameof(Source.Pattern), Source.Pattern);
         WriteTag(nameof(Source.PartIndex), Source.PartIndex.ToString());
@@ -29,7 +18,7 @@ public class MotionSerialization : SsSerialization<Motion>
             Serialize(Source.ConditionMap.ToList(), new MotionConditionSerialization());
     }
 
-    private void Deserialize()
+    protected override void Deserialize()
     {
         var partIndex = ReadTag(nameof(Source.PartIndex), s => s.ToInt(Source.PartIndex));
         var pattern = ReadTag(nameof(Source.Pattern), s => s ?? Source.Pattern);

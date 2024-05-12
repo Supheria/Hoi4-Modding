@@ -140,7 +140,7 @@ namespace FocusTree.UI.Graph
         private void UploadNodeMap()
         {
             OnRefresh.Clear();
-            
+
             foreach (var focus in GraphBox.FocusList)
             {
                 foreach (var require in focus.Requires.SelectMany(requires => requires.Select(GraphBox.GetFocus)))
@@ -527,7 +527,7 @@ namespace FocusTree.UI.Graph
         /// </summary>
         public new void Refresh()
         {
-            Image.RedrawBackGround(); 
+            Image.RedrawBackGround();
             Image.DrawLatticeGrid();
             OnRefresh.Invoke((Bitmap)Image);
             Invalidate();

@@ -1,6 +1,4 @@
-﻿using LocalUtilities.FileUtilities;
-using LocalUtilities.Interface;
-using LocalUtilities.MathBundle;
+﻿using LocalUtilities.MathBundle;
 namespace FocusTree.Model.Lattice
 {
     /// <summary>

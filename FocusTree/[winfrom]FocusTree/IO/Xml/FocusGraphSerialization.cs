@@ -1,9 +1,6 @@
 ﻿using FocusTree.Model.Focus;
 using LocalUtilities.Serializations;
-using LocalUtilities.SerializeUtilities;
 using LocalUtilities.SimpleScript.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
@@ -11,18 +8,14 @@ public class FocusGraphSerialization : RosterSerialization<FocusGraph, int, Focu
 {
     public override string LocalName => "NationalFocus";
 
-    public FocusGraphSerialization() : base(new(), new FocusNodeSerialization())
-    {
-        OnSerialize += Serialize;
-        OnDeserialize += Deserialize;
-    }
+    protected override SsSerialization<FocusNode> ItemSerialization => new FocusNodeSerialization();
 
-    private void Serialize()
+    protected override void SerializeRoster()
     {
         WriteTag(nameof(Source.Name), Source.Name);
     }
 
-    private void Deserialize()
+    protected override void DeserializeRoster()
     {
         var name = ReadTag(nameof(Source.Name), s => s ?? Source.Name);
         Source = new(name);

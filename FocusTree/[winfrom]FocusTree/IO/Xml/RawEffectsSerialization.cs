@@ -1,8 +1,5 @@
-﻿using LocalUtilities.SerializeUtilities;
-using LocalUtilities.SimpleScript.Data;
+﻿using LocalUtilities.SimpleScript.Data;
 using LocalUtilities.SimpleScript.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace FocusTree.IO.Xml;
 
@@ -10,19 +7,13 @@ public class RawEffectsSerialization : SsSerialization<List<string>>
 {
     public override string LocalName => "RawEffect";
 
-    public RawEffectsSerialization()
+    protected override void Serialize()
     {
-        OnSerialize += Serialize;
-        OnDeserialize += Deserialize;
-    }
-
-    private void Serialize()
-    {
-        foreach(var str in Source)
+        foreach (var str in Source)
             WriteToken(str);
     }
 
-    private void Deserialize()
+    protected override void Deserialize()
     {
         Deserialize(typeof(Token), token =>
         {

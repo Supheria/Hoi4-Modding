@@ -1,12 +1,4 @@
-﻿using LocalUtilities.FileUtilities;
-using LocalUtilities.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FocusTree.Model.Lattice;
+﻿namespace FocusTree.Model.Lattice;
 
 public class CellData
 {

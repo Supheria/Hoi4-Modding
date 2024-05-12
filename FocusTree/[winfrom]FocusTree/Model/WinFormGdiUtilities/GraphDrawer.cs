@@ -102,7 +102,7 @@ namespace FocusTree.Model.WinFormGdiUtilities
             LatticeCell cell = new(focus.LatticedPoint);
             var nodeRect = cell.NodeRealRect();
             _ = LatticeGrid.RectWithin(nodeRect, out var saveRect);
-            if (saveRect is null) 
+            if (saveRect is null)
                 return;
             if (LatticeCell.CellData.EdgeLength < ShowNodeNameCellLength)
             {

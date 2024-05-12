@@ -1,7 +1,5 @@
 ﻿using FocusTree.IO.Csv;
 using FocusTree.IO.Xml;
-using LocalUtilities.FileUtilities;
-using LocalUtilities.SimpleScript.Serialization;
 
 namespace FocusTree.Model.Focus;
 
@@ -9,7 +7,8 @@ partial class FocusGraph
 {
     private static FocusNode CsvFocusDataConverter(CsvFocusData data)
     {
-        return new() {
+        return new()
+        {
             SetSignature = data.Id,
             Name = data.Name,
             Duration = data.Duration,
@@ -29,7 +28,7 @@ partial class FocusGraph
     {
         int top, right, bottom;
         var left = top = right = bottom = 0;
-        foreach (var point in RosterList.Select(focus => focus.LatticedPoint))
+        foreach (var point in GetRosterList().Select(focus => focus.LatticedPoint))
         {
             if (point.Col < left) { left = point.Col; }
             else if (point.Col > right) { right = point.Col; }
@@ -45,7 +44,7 @@ partial class FocusGraph
     public Dictionary<int, List<int>> GetNodeLinksMap()
     {
         var nodeLinksMap = new Dictionary<int, List<int>>();
-        foreach (var node in RosterList)
+        foreach (var node in GetRosterList())
             foreach (var id in node.Requires.SelectMany(requires =>
                          requires.Where(id => !nodeLinksMap.TryAdd(id, new() { node.Signature }))))
                 nodeLinksMap[id].Add(node.Signature);
@@ -65,7 +64,7 @@ partial class FocusGraph
     public int[] GetRootNodeIds()
     {
         var result = new HashSet<int>();
-        foreach (var focus in RosterList.Where(focus => focus.Requires.Sum(x => x.Count) == 0))
+        foreach (var focus in GetRosterList().Where(focus => focus.Requires.Sum(x => x.Count) == 0))
             result.Add(focus.Signature);
         return result.ToArray();
     }

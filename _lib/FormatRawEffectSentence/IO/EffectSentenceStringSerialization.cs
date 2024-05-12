@@ -1,12 +1,14 @@
-﻿using FormatRawEffectSentence.Model;
-using LocalUtilities.SerializeUtilities;
-using LocalUtilities.StringUtilities;
+﻿using LocalUtilities.StringUtilities;
 using System.Text;
 
 namespace FormatRawEffectSentence.IO;
 
 public class EffectSentenceStringSerialization() : EffectSentenceSerialization()
 {
+    protected static string LocalNameType => "Type";
+
+    protected static string LocalNameValue => "Value";
+
     public override string ToString()
     {
         if (Source is null)
