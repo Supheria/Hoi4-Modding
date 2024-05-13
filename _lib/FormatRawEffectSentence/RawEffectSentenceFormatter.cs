@@ -2,7 +2,7 @@
 using FormatRawEffectSentence.LocalSign;
 using FormatRawEffectSentence.Model;
 using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.RegexUtilities;
+using LocalUtilities.TypeBundle;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -52,7 +52,7 @@ namespace FormatRawEffectSentence
             static Motions Motion(RawPattern p, IReadOnlyList<string> parts)
             {
                 var key = (uint)p.Motion.PartIndex < parts.Count ? parts[p.Motion.PartIndex] : "";
-                return p.Motion.ConditionMap.TryGetValue(key, out var value) ? value : p.Motion.ConditionMap[""];
+                return p.Motion.Conditions.Map.TryGetValue(key, out var value) ? value : p.Motion.Conditions.Map[""];
             }
 
             static (Types Type, string Value) Value(RawPattern p, IReadOnlyList<string> parts)

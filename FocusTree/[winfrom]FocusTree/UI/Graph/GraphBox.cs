@@ -1,9 +1,10 @@
-﻿using FocusTree.IO.Xml;
-using FocusTree.Model.Focus;
+﻿using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
 using LocalUtilities.FileUtilities;
 using LocalUtilities.MathBundle;
+using LocalUtilities.SimpleScript.Serialization;
 using System.Diagnostics.CodeAnalysis;
+using System.Windows.Forms;
 
 namespace FocusTree.UI.Graph;
 
@@ -96,13 +97,16 @@ public static class GraphBox
         if (!ReadOnly)
             FilePath = filePath;
         FileCacheManager.ClearCache(Graph);
-        var message = FocusGraph.LoadFromFile(filePath, out var focusGraph);
-        if (message is not null)
+        try
         {
-            Program.TestInfo.Append(message);
+            var focusGraph = FocusGraph.LoadFromFile(filePath);
+            Graph = focusGraph;
+        }
+        catch (Exception ex)
+        {
+            Program.TestInfo.Append(ex.Message);
             Program.TestInfo.Show();
         }
-        Graph = focusGraph;
         Graph?.NewHistory();
         Program.TestInfo.Renew();
     }
@@ -115,13 +119,16 @@ public static class GraphBox
         if (!File.Exists(FilePath)) { return; }
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
-        var message = FocusGraph.LoadFromFile(FilePath, out var focusGraph);
-        if (message is not null)
+        try
         {
-            Program.TestInfo.Append(message);
+            var focusGraph = FocusGraph.LoadFromFile(FilePath);
+            Graph = focusGraph;
+        }
+        catch (Exception ex)
+        {
+            Program.TestInfo.Append(ex.Message);
             Program.TestInfo.Show();
         }
-        Graph = focusGraph;
         Graph?.NewHistory();
         Program.TestInfo.Renew();
     }
@@ -135,7 +142,7 @@ public static class GraphBox
             return;
         ReadOnly = false;
         Graph.Backup(FilePath);
-        new FocusGraphSerialization() { Source = Graph }.SaveToFile(true, FilePath);
+        Graph.SaveToSimpleScript(true, FilePath);
         Graph.UpdateLastSavedHistoryIndex();
     }
 
@@ -154,7 +161,7 @@ public static class GraphBox
         }
         ReadOnly = false;
         FileCacheManager.ClearCache(Graph);
-        new FocusGraphSerialization() { Source = Graph }.SaveToFile(true, filePath);
+        Graph.SaveToSimpleScript(true, filePath);
         Graph.NewHistory();
         FilePath = filePath;
         Program.TestInfo.Renew();

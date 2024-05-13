@@ -1,11 +1,12 @@
 //#define DEBUG
 
-using FocusTree.IO.Xml;
+using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
 using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.Utilities;
 using FocusTree.Utilities.test;
 using LocalUtilities.FileUtilities;
+using LocalUtilities.SimpleScript.Serialization;
 using LocalUtilities.UIUtilities;
 using System.IO.Compression;
 
@@ -15,7 +16,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
 {
     GraphDisplay Display { get; }
 
-    public GraphForm() : base(new(), new GraphFormDataSerialization(nameof(GraphForm)))
+    public GraphForm() : base(new GraphFormData(nameof(GraphForm)))
     {
         Display = new GraphDisplay(this);
         UpdateText();
@@ -278,9 +279,9 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         {
             try
             {
-                var graph = new FocusGraphSerialization().LoadFromFile(out _, fileName);
+                var graph = new FocusGraph().LoadFromSimpleScript(fileName);
                 graph.AutoSetAllNodesIdInOrder();
-                new FocusGraphSerialization() { Source = graph }.SaveToFile(true, Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
+                graph.SaveToSimpleScript(true, Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName)));
                 suc++;
                 GraphFrom_ProgressBar.PerformStep();
             }
@@ -311,7 +312,7 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         {
             try
             {
-                var graph = new FocusGraphSerialization().LoadFromFile(out _, fileName);
+                var graph = new FocusGraph().LoadFromSimpleScript(fileName);
                 var savePath = Path.Combine(folderBrowser.SelectedPath, Path.GetFileName(fileName));
                 NodeMapDrawer.SaveImage(graph, savePath);
                 suc++;

@@ -1,34 +1,35 @@
-﻿using FormatRawEffectSentence.IO;
-using FormatRawEffectSentence.LocalSign;
+﻿using FormatRawEffectSentence.LocalSign;
+using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 
 namespace FormatRawEffectSentence.Model;
 
-public class EffectSentence
+public class EffectSentence : ISsSerializable
 {
     /// <summary>
     /// 执行动作
     /// </summary>
-    public Motions Motion { get; }
+    public Motions Motion { get; private set; }
     /// <summary>
     /// 值类型
     /// </summary>
-    public Types ValueType { get; }
+    public Types ValueType { get; private set; }
     /// <summary>
     /// 执行值
     /// </summary>
-    public string Value { get; }
+    public string Value { get; private set; }
     /// <summary>
     /// 触发者类型
     /// </summary>
-    public Types TriggerType { get; }
+    public Types TriggerType { get; private set; }
     /// <summary>
     /// 动作触发者
     /// </summary>
-    public string[] Triggers { get; }
+    public string[] Triggers { get; private set; }
     /// <summary>
     /// 子句
     /// </summary>
-    public List<EffectSentence> SubSentences { get; } = new();
+    public List<EffectSentence> SubSentences { get; private set; } = [];
 
     /// <summary>
     /// 
@@ -65,14 +66,38 @@ public class EffectSentence
     /// 转换为json字符串
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => new EffectSentenceStringSerialization { Source = this }.ToString();
-
-    /// <summary>
-    /// 用json字符串生成
-    /// </summary>
-    /// <param name="jsonString"></param>
-    public static EffectSentence FromString(string jsonString)
+    public override string ToString()
     {
-        throw new NotImplementedException();
+        var serializer = new SsSerializer(this, new(true));
+        return serializer.Serialize();
+    }
+
+    public static EffectSentence Parse(string str)
+    {
+        var sentence = new EffectSentence();
+        sentence.ParseSsString(str);
+        return sentence;
+    }
+
+    public string LocalName { get; set; } = "Effect";
+
+    public void Serialize(SsSerializer serializer)
+    {
+        serializer.WriteTag(nameof(Motion), Motion.ToString());
+        serializer.WriteTag(nameof(ValueType), ValueType.ToString());
+        serializer.WriteTag(nameof(Value), Value);
+        serializer.WriteTag(nameof(TriggerType), TriggerType.ToString());
+        serializer.WriteTag(nameof(Triggers), Triggers.ToArrayString());
+        serializer.Serialize(SubSentences);
+    }
+
+    public void Deserialize(SsDeserializer deserializer)
+    {
+        Motion = deserializer.ReadTag(nameof(Motion), s => s.ToEnum(Motion));
+        ValueType = deserializer.ReadTag(nameof(ValueType), s => s.ToEnum(ValueType));
+        Value = deserializer.ReadTag(nameof(Value), s => s ?? Value);
+        TriggerType = deserializer.ReadTag(nameof(TriggerType), s => s.ToEnum(TriggerType));
+        Triggers = deserializer.ReadTag(nameof(Triggers), s => s ?? Triggers.ToArrayString()).ToArray();
+        deserializer.Deserialize(new(), SubSentences);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using FocusTree.IO.Csv;
-using FocusTree.IO.Xml;
+using LocalUtilities.SimpleScript.Serialization;
 
 namespace FocusTree.Model.Focus;
 
@@ -15,8 +15,8 @@ partial class FocusGraph
             Description = data.Description,
             Ps = data.Ps,
             BeginWithStar = data.BeginWithStar,
-            RawEffects = data.RawEffects,
-            Requires = data.Requires,
+            RawEffect = data.RawEffects,
+            Require = data.Requires,
         };
     }
 
@@ -45,7 +45,7 @@ partial class FocusGraph
     {
         var nodeLinksMap = new Dictionary<int, List<int>>();
         foreach (var node in GetRosterList())
-            foreach (var id in node.Requires.SelectMany(requires =>
+            foreach (var id in node.Require.SelectMany(requires =>
                          requires.Where(id => !nodeLinksMap.TryAdd(id, new() { node.Signature }))))
                 nodeLinksMap[id].Add(node.Signature);
         return nodeLinksMap;
@@ -64,7 +64,7 @@ partial class FocusGraph
     public int[] GetRootNodeIds()
     {
         var result = new HashSet<int>();
-        foreach (var focus in GetRosterList().Where(focus => focus.Requires.Sum(x => x.Count) == 0))
+        foreach (var focus in GetRosterList().Where(focus => focus.Require.Sum(x => x.Count) == 0))
             result.Add(focus.Signature);
         return result.ToArray();
     }
@@ -214,7 +214,7 @@ partial class FocusGraph
         foreach (var linkId in links)
         {
             List<HashSet<int>> newRequires = new();
-            foreach (var require in RosterMap[linkId].Requires)
+            foreach (var require in RosterMap[linkId].Require)
             {
                 HashSet<int> newRequire = new();
                 foreach (var requireId in require)
@@ -224,21 +224,21 @@ partial class FocusGraph
                 newRequires.Add(newRequire);
             }
             var focus = RosterMap[linkId];
-            focus.Requires = newRequires;
+            focus.Require = newRequires;
             RosterMap[linkId] = focus;
         }
     }
 
-    public static string? LoadFromFile(string filePath, out FocusGraph? focusGraph)
+    public static FocusGraph LoadFromFile(string filePath)
     {
         var extension = Path.GetExtension(filePath).ToLower();
         switch (extension)
         {
             case ".csv":
-                return CsvLoader.LoadFromCsv(filePath, out focusGraph);
+                CsvLoader.LoadFromCsv(filePath, out var focusGraph);
+                return focusGraph;
             default:
-                focusGraph = new FocusGraphSerialization().LoadFromFile(out var message, filePath);
-                return message;
+                return new FocusGraph().LoadFromSimpleScript(filePath);
         }
     }
 }

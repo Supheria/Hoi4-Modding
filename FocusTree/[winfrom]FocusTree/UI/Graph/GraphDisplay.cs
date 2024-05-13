@@ -143,7 +143,7 @@ namespace FocusTree.UI.Graph
 
             foreach (var focus in GraphBox.FocusList)
             {
-                foreach (var require in focus.Requires.SelectMany(requires => requires.Select(GraphBox.GetFocus)))
+                foreach (var require in focus.Require.SelectMany(requires => requires.Select(GraphBox.GetFocus)))
                     OnRefresh += (1,
                         (image) => GraphDrawer.DrawRequireLine(image, focus.LatticedPoint, require.LatticedPoint));
 

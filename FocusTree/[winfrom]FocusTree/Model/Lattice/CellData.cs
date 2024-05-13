@@ -1,6 +1,9 @@
-﻿namespace FocusTree.Model.Lattice;
+﻿using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 
-public class CellData
+namespace FocusTree.Model.Lattice;
+
+public class CellData : ISsSerializable
 {
     /// <summary>
     /// 格元边长（限制最小值和最大值）
@@ -55,4 +58,28 @@ public class CellData
     /// 节点空隙系数最大值
     /// </summary>
     public float NodePaddingFactorMax { get; set; } = 0.4f;
+
+    public string LocalName { get; set; } = nameof(CellData);
+
+    public void Serialize(SsSerializer serializer)
+    {
+        serializer.WriteTag(nameof(EdgeLengthMin), EdgeLengthMin.ToString());
+        serializer.WriteTag(nameof(EdgeLengthMax), EdgeLengthMax.ToString());
+        serializer.WriteTag(nameof(EdgeLength), EdgeLength.ToString());
+        serializer.WriteTag(nameof(NodePaddingFactorMin), NodePaddingFactorMin.ToString());
+        serializer.WriteTag(nameof(NodePaddingFactorMax), NodePaddingFactorMax.ToString());
+        serializer.WriteTag(nameof(NodePaddingWidthFactor), NodePaddingWidthFactor.ToString());
+        serializer.WriteTag(nameof(NodePaddingHeightFactor), NodePaddingHeightFactor.ToString());
+    }
+
+    public void Deserialize(SsDeserializer deserializer)
+    {
+        EdgeLengthMin = deserializer.ReadTag(nameof(EdgeLengthMin), s => s.ToInt(EdgeLengthMin));
+        EdgeLengthMax = deserializer.ReadTag(nameof(EdgeLengthMax), s => s.ToInt(EdgeLengthMax));
+        EdgeLength = deserializer.ReadTag(nameof(EdgeLength), s => s.ToInt(EdgeLength));
+        NodePaddingFactorMin = deserializer.ReadTag(nameof(NodePaddingFactorMin), s => s.ToFloat(NodePaddingFactorMin));
+        NodePaddingFactorMax = deserializer.ReadTag(nameof(NodePaddingFactorMax), s => s.ToFloat(NodePaddingFactorMax));
+        NodePaddingWidthFactor = deserializer.ReadTag(nameof(NodePaddingWidthFactor), s => s.ToFloat(NodePaddingWidthFactor));
+        NodePaddingHeightFactor = deserializer.ReadTag(nameof(NodePaddingHeightFactor), s => s.ToFloat(NodePaddingHeightFactor));
+    }
 }

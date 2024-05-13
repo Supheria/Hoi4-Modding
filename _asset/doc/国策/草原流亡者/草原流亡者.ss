@@ -8,17 +8,20 @@
 		Description=人类复权运动失败之后，我们看似四散而逃，实则在为人类保留火种……
 		Ps=""
 		LatticedPoint="0,0"
-		RawEffect={
-			触发事件“曾经的约定”
-		}
+		RawEffect=触发事件“曾经的约定”
 		Effect={
 			Motion=Trigger
 			ValueType=Event
 			Value=曾经的约定
 			TriggerType=State
 			Triggers=""
-		}
-		Require={
+			Effect={
+				Motion=Trigger
+				ValueType=Event
+				Value=再看幻想乡
+				TriggerType=State
+				Triggers=""
+			}
 		}
 	}
 	FocusNode={
@@ -29,10 +32,8 @@
 		Description=不管我们怎么认为，人类的确失败了，但至少现在我们不需要再次白手起家
 		Ps=""
 		LatticedPoint="0,1"
-		RawEffect={
-			获得科技：147季无线电
-			触发事件“再看幻想乡”
-		}
+		RawEffect=获得科技：147季无线电
+		RawEffect=触发事件“再看幻想乡”
 		Effect={
 			Motion=Gain
 			ValueType=Technology
@@ -47,9 +48,7 @@
 			TriggerType=State
 			Triggers=""
 		}
-		Require={
-			1
-		}
+		Require=1
 	}
 	FocusNode={
 		Signature=3
@@ -59,11 +58,9 @@
 		Description=很巧的是，我们都选择了互帮互助，虽然这批援助不知道是否来自哪个土作坊
 		Ps=""
 		LatticedPoint="0,2"
-		RawEffect={
-			获得8个编制为人类流亡编制的部队，450单位的竹林流亡者产步枪，450单位的草原流亡者产步枪，54单位的竹林流亡者产迫击炮，54单位的草原流亡者产迫击炮，150单位的竹林流亡者产近战武器，150单位的草原流亡者产近战武器添加进国家储备
-			触发事件“流亡者归来”
-			获得志愿军，其效果为（志愿军部队数上限：+6，派遣志愿军需要的部队数量：-100%）
-		}
+		RawEffect=获得8个编制为人类流亡编制的部队，450单位的竹林流亡者产步枪，450单位的草原流亡者产步枪，54单位的竹林流亡者产迫击炮，54单位的草原流亡者产迫击炮，150单位的竹林流亡者产近战武器，150单位的草原流亡者产近战武器添加进国家储备
+		RawEffect=触发事件“流亡者归来”
+		RawEffect=获得志愿军，其效果为（志愿军部队数上限：+6，派遣志愿军需要的部队数量：-100%）
 		Effect={
 			Motion=Trigger
 			ValueType=Event
@@ -71,9 +68,7 @@
 			TriggerType=State
 			Triggers=""
 		}
-		Require={
-			2
-		}
+		Require=2
 	}
 	FocusNode={
 		Signature=4
@@ -83,9 +78,7 @@
 		Description=我们谁也不会说出去这是慷慧音政府之慨的
 		Ps=""
 		LatticedPoint="0,3"
-		RawEffect={
-			获得2个地图外民用工厂
-		}
+		RawEffect=获得2个地图外民用工厂
 		Effect={
 			Motion=Add
 			ValueType=Variable
@@ -93,9 +86,7 @@
 			TriggerType=None
 			Triggers=""
 		}
-		Require={
-			3
-		}
+		Require=3
 	}
 	FocusNode={
 		Signature=5
@@ -105,12 +96,8 @@
 		Description=我们用战争和牺牲换来了这一小片土地，但如果我们不想面临围歼的风险，我们总得突破一个口子
 		Ps=""
 		LatticedPoint="0,4"
-		RawEffect={
-			获得争取复权生机，其效果为（投降界限：+10%，战争支持度：+15%，科研速度：-5%，正当化战争目标所需时间：-30%，征兵法案花费：-25%（幻想风洞）我国对其进攻修正：+10%（妖精乐园）我国对其防御修正：+10%
-		}
-		Require={
-			4
-		}
+		RawEffect=获得争取复权生机，其效果为（投降界限：+10%，战争支持度：+15%，科研速度：-5%，正当化战争目标所需时间：-30%，征兵法案花费：-25%（幻想风洞）我国对其进攻修正：+10%（妖精乐园）我国对其防御修正：+10%
+		Require=4
 	}
 	FocusNode={
 		Signature=6
@@ -120,12 +107,8 @@
 		Description=我们向幻想风洞供奉重礼，请求她们帮助我们击败妖精乐园，而我们可以将妖精乐园的南部赠与她们
 		Ps=""
 		LatticedPoint="0,5"
-		RawEffect={
-			政治点数：-100，（幻想风洞）获得合纵（和草原流亡者的关系+500）（和妖精乐园的关系-500）
-		}
-		Require={
-			5
-		}
+		RawEffect=政治点数：-100，（幻想风洞）获得合纵（和草原流亡者的关系+500）（和妖精乐园的关系-500）
+		Require=5
 	}
 	FocusNode={
 		Signature=7
@@ -135,12 +118,8 @@
 		Description=我们向妖精乐园供奉重礼，请求她们帮助我们击败幻想风洞，而我们只需要幻想风洞的北部
 		Ps=""
 		LatticedPoint="0,6"
-		RawEffect={
-			政治点数：-100，（妖精乐园）获得连横（和草原流亡者的关系+500）（和幻想风洞的关系-500）
-		}
-		Require={
-			6
-		}
+		RawEffect=政治点数：-100，（妖精乐园）获得连横（和草原流亡者的关系+500）（和幻想风洞的关系-500）
+		Require=6
 	}
 	FocusNode={
 		Signature=8
@@ -150,13 +129,9 @@
 		Description=妖精的智力显然没法突破孩童，我们只需要派遣说客便能“借”下安身之地
 		Ps=""
 		LatticedPoint="0,7"
-		RawEffect={
-			（妖精乐园）通过草原流亡者的提供军事通行权，触发事件：“借地？”
-			成为地底走私通道、花丛东侧、妖精丘陵的所有者
-		}
-		Require={
-			7
-		}
+		RawEffect=（妖精乐园）通过草原流亡者的提供军事通行权，触发事件：“借地？”
+		RawEffect=成为地底走私通道、花丛东侧、妖精丘陵的所有者
+		Require=7
 	}
 	FocusNode={
 		Signature=9
@@ -166,13 +141,9 @@
 		Description=先前虽然幻想风洞和妖精乐园也并不对头，但如果面临人类复权的扩张可能，还是会联合起来对我们进行绞杀，但现在他们已经彻底决裂，如果幻想风洞不愿意让出土地，他就要面临两国的同时进攻
 		Ps=""
 		LatticedPoint="0,8"
-		RawEffect={
-			（幻想风洞）触发事件“上当了！”
-			如果他们同意，则成为风洞南侧的所有者
-		}
-		Require={
-			8
-		}
+		RawEffect=（幻想风洞）触发事件“上当了！”
+		RawEffect=如果他们同意，则成为风洞南侧的所有者
+		Require=8
 	}
 	FocusNode={
 		Signature=10
@@ -182,12 +153,8 @@
 		Description=此图穷而匕首见
 		Ps=（注：需要幻想风洞存在）
 		LatticedPoint="0,9"
-		RawEffect={
-			草原流亡者对幻想风洞宣战，获得为期365天的“图穷匕见”，其效果为（部队速度：+5%，部队攻击：+5%）
-		}
-		Require={
-			9
-		}
+		RawEffect=草原流亡者对幻想风洞宣战，获得为期365天的“图穷匕见”，其效果为（部队速度：+5%，部队攻击：+5%）
+		Require=9
 	}
 	FocusNode={
 		Signature=11
@@ -197,12 +164,8 @@
 		Description=太驰则虎狼之态尽显
 		Ps=（注：需要幻想风洞不存在）
 		LatticedPoint="0,10"
-		RawEffect={
-			成为幻想风洞的所有者，（妖精乐园）获得“？”（和草原流亡者的关系-100）
-		}
-		Require={
-			10
-		}
+		RawEffect=成为幻想风洞的所有者，（妖精乐园）获得“？”（和草原流亡者的关系-100）
+		Require=10
 	}
 	FocusNode={
 		Signature=12
@@ -212,10 +175,8 @@
 		Description=其实我们做的一切都有迹可循，是之前约定好的，所以其实是我们占理
 		Ps=""
 		LatticedPoint="0,11"
-		RawEffect={
-			（妖精乐园）触发事件：“解释”
-			失去“？”
-		}
+		RawEffect=（妖精乐园）触发事件：“解释”
+		RawEffect=失去“？”
 		Effect={
 			Motion=Trigger
 			ValueType=Event
@@ -223,9 +184,7 @@
 			TriggerType=State
 			Triggers=妖精乐园
 		}
-		Require={
-			11
-		}
+		Require=11
 	}
 	FocusNode={
 		Signature=13
@@ -235,12 +194,8 @@
 		Description=三军可夺气，将军可夺心。是故朝气锐，昼气惰，暮气归
 		Ps=""
 		LatticedPoint="0,12"
-		RawEffect={
-			获得庙算，其效果为（陆军夜战攻击：+100%，部队突破：+10%）
-		}
-		Require={
-			12
-		}
+		RawEffect=获得庙算，其效果为（陆军夜战攻击：+100%，部队突破：+10%）
+		Require=12
 	}
 	FocusNode={
 		Signature=14
@@ -250,12 +205,8 @@
 		Description=将有五危：必死，可杀也；必生，可虏也；忿速，可侮也；廉洁，可辱也；爱民，可烦也
 		Ps=""
 		LatticedPoint="0,13"
-		RawEffect={
-			庙算追加效果：新陆军指挥官初始等级：+2，新将领初始进攻技能等级：+2，新将领初始防御技能等级：+2，新将领初始计划技能等级：+2，新将领初始后勤技能等级：+2
-		}
-		Require={
-			13
-		}
+		RawEffect=庙算追加效果：新陆军指挥官初始等级：+2，新将领初始进攻技能等级：+2，新将领初始防御技能等级：+2，新将领初始计划技能等级：+2，新将领初始后勤技能等级：+2
+		Require=13
 	}
 	FocusNode={
 		Signature=15
@@ -265,12 +216,8 @@
 		Description=卒未亲附而罚之，则不服，不服则难用也。卒已亲附而罚不行，则不可用也。故令之以文，齐之以武，是谓必取。令素行以教其民，则民服；令不素行以教其民，则民不服。令素行者，与众相得也
 		Ps=""
 		LatticedPoint="0,14"
-		RawEffect={
-			庙算追加效果：部队组织度：+10%，部队组织度恢复：+10%），所有陆军指挥官：获得特质魅力非凡
-		}
-		Require={
-			14
-		}
+		RawEffect=庙算追加效果：部队组织度：+10%，部队组织度恢复：+10%），所有陆军指挥官：获得特质魅力非凡
+		Require=14
 	}
 	FocusNode={
 		Signature=16
@@ -280,12 +227,8 @@
 		Description=诛其罪，吊其民，如时雨降，民大悦
 		Ps=""
 		LatticedPoint="0,15"
-		RawEffect={
-			争取复权生机追加效果：（蜘蛛风洞）我国对其进攻修正：+10%，我国对其防御加成：+10%
-		}
-		Require={
-			15
-		}
+		RawEffect=争取复权生机追加效果：（蜘蛛风洞）我国对其进攻修正：+10%，我国对其防御加成：+10%
+		Require=15
 	}
 	FocusNode={
 		Signature=17
@@ -295,12 +238,8 @@
 		Description=强兵以足食为本，攘外以安内为先
 		Ps=""
 		LatticedPoint="0,16"
-		RawEffect={
-			草原流亡者对蜘蛛风洞宣战
-		}
-		Require={
-			16
-		}
+		RawEffect=草原流亡者对蜘蛛风洞宣战
+		Require=16
 	}
 	FocusNode={
 		Signature=18
@@ -310,11 +249,9 @@
 		Description=人类需要得到承认，在幻想乡真正站起来
 		Ps=（注：需要斯卡雷特帝国存在）
 		LatticedPoint="0,17"
-		RawEffect={
-			创建阵营：第二次人类复权运动——北线，（妖精乐园）加入第二次人类复权运动——北线，（斯卡雷特帝国）触发事件：“承认流亡者？”
-			如果他们同意，则获得幻想乡正规势力，其效果为（政治点数：+20%，部队组织度：+10%，制造战争的紧张度限制：+20%，正当化战争目标所需时间：+25%），获得内乱，其效果为（稳定度：-20%，战争支持度：-20%，政治点数：-20%）
-			开启解决内乱的决议
-		}
+		RawEffect=创建阵营：第二次人类复权运动——北线，（妖精乐园）加入第二次人类复权运动——北线，（斯卡雷特帝国）触发事件：“承认流亡者？”
+		RawEffect=如果他们同意，则获得幻想乡正规势力，其效果为（政治点数：+20%，部队组织度：+10%，制造战争的紧张度限制：+20%，正当化战争目标所需时间：+25%），获得内乱，其效果为（稳定度：-20%，战争支持度：-20%，政治点数：-20%）
+		RawEffect=开启解决内乱的决议
 		Effect={
 			Motion=Start
 			ValueType=Resolution
@@ -322,9 +259,7 @@
 			TriggerType=None
 			Triggers=""
 		}
-		Require={
-			17
-		}
+		Require=17
 	}
 	FocusNode={
 		Signature=19
@@ -334,12 +269,8 @@
 		Description=其实我们并不是真的在和她们商量……
 		Ps=（注：需要斯卡雷特帝国不同意）
 		LatticedPoint="0,18"
-		RawEffect={
-			草原流亡者对斯卡雷特帝国宣战，获得“我蛮夷也”，其效果为（政治点数：-20%，部队组织度：+20%，制造战争的紧张度限制：-20%，正当化战争目标时间：-25%）
-		}
-		Require={
-			18
-		}
+		RawEffect=草原流亡者对斯卡雷特帝国宣战，获得“我蛮夷也”，其效果为（政治点数：-20%，部队组织度：+20%，制造战争的紧张度限制：-20%，正当化战争目标时间：-25%）
+		Require=18
 	}
 	FocusNode={
 		Signature=20
@@ -349,12 +280,8 @@
 		Description=吸血鬼和我们化敌为友互利共赢，拥有如此庞大帝国支持的人类还能说没有复权吗？
 		Ps=（注：需要拥有民族精神幻想乡正规势力或“我蛮夷也”
 		LatticedPoint="0,19"
-		RawEffect={
-			，斯卡雷特帝国）加入第二次人类复权运动——北线，获得强大的威望，其效果为（每日获得的政治点数：+0.25，部队组织度：+15%，稳定度：+20%，战争支持度：+20%，建造速度：+10%，部队攻击：+5%，部队防御：+5%，科研速度：+10%，工厂产出：+10%），获得强大的威望，其效果为（每日获得的政治点数：+0.25，部队组织度：+15%，稳定度：+20%，战争支持度：+20%，建造速度：+10%，部队攻击：+5%，部队防御：+5%，科研速度：+10%，工厂产出：+10%）
-		}
-		Require={
-			19
-		}
+		RawEffect=，斯卡雷特帝国）加入第二次人类复权运动——北线，获得强大的威望，其效果为（每日获得的政治点数：+0.25，部队组织度：+15%，稳定度：+20%，战争支持度：+20%，建造速度：+10%，部队攻击：+5%，部队防御：+5%，科研速度：+10%，工厂产出：+10%），获得强大的威望，其效果为（每日获得的政治点数：+0.25，部队组织度：+15%，稳定度：+20%，战争支持度：+20%，建造速度：+10%，部队攻击：+5%，部队防御：+5%，科研速度：+10%，工厂产出：+10%）
+		Require=19
 	}
 	FocusNode={
 		Signature=21
@@ -364,12 +291,8 @@
 		Description=威名一方，霸业安稳
 		Ps=""
 		LatticedPoint="0,20"
-		RawEffect={
-			获得外交中立，其效果为（稳定度：+35%，训练时间：+5%，ai修正：加入或扩大一个阵营的意愿：-250，ai修正：专注防御：+50%，ai修正：专注进攻：-30%，ai修正：专注和平：+40%，ai修正：部署部队数量修正：-20%）
-		}
-		Require={
-			20
-		}
+		RawEffect=获得外交中立，其效果为（稳定度：+35%，训练时间：+5%，ai修正：加入或扩大一个阵营的意愿：-250，ai修正：专注防御：+50%，ai修正：专注进攻：-30%，ai修正：专注和平：+40%，ai修正：部署部队数量修正：-20%）
+		Require=20
 	}
 	FocusNode={
 		Signature=22
@@ -379,9 +302,7 @@
 		Description=当初为人类保留火种的任务我们已经超额完成了，我们又一次站在人类的岔路口上
 		Ps=""
 		LatticedPoint="0,21"
-		RawEffect={
-			触发事件：“人类复权运动的未来”
-		}
+		RawEffect=触发事件：“人类复权运动的未来”
 		Effect={
 			Motion=Trigger
 			ValueType=Event
@@ -389,8 +310,6 @@
 			TriggerType=State
 			Triggers=""
 		}
-		Require={
-			21
-		}
+		Require=21
 	}
 }

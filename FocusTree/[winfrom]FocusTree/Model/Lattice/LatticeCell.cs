@@ -1,4 +1,5 @@
 ﻿using LocalUtilities.MathBundle;
+using LocalUtilities.SimpleScript.Serialization;
 namespace FocusTree.Model.Lattice
 {
     /// <summary>
@@ -6,7 +7,7 @@ namespace FocusTree.Model.Lattice
     /// </summary>
     public class LatticeCell
     {
-        public static CellData CellData { get; set; } = new CellDataSerialization().LoadFromFile(out _);
+        public static CellData CellData { get; set; } = new CellData().LoadFromSimpleScript();
         /// <summary>
         /// 节点与格元的间隔
         /// </summary>

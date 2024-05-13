@@ -1,6 +1,8 @@
-﻿namespace FormatRawEffectSentence.Model.Pattern;
+﻿using LocalUtilities.SimpleScript.Serialization;
 
-public class RawPattern
+namespace FormatRawEffectSentence.Model.Pattern;
+
+public class RawPattern : ISsSerializable
 {
     internal bool IsComplex { get; }
 
@@ -23,5 +25,23 @@ public class RawPattern
 
     public RawPattern() : this(false, "", Array.Empty<string>())
     {
+    }
+    public string LocalName { get; set; } = nameof(RawPattern);
+
+    public void Serialize(SsSerializer serializer)
+    {
+        serializer.WriteComment($"{(IsComplex ? "complex" : "single")}: {Title}");
+        foreach (var sample in Samples)
+            serializer.WriteComment($"{sample}");
+        serializer.Serialize(Trigger);
+        serializer.Serialize(Motion);
+        serializer.Serialize(Value);
+    }
+
+    public void Deserialize(SsDeserializer deserializer)
+    {
+        Trigger = deserializer.Deserialize(Trigger);
+        Motion = deserializer.Deserialize(Motion);
+        Value = deserializer.Deserialize(Value);
     }
 }

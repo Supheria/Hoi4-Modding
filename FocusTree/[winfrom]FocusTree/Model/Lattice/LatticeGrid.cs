@@ -1,5 +1,7 @@
 ﻿#define DEBUG
 
+using LocalUtilities.SimpleScript.Serialization;
+
 namespace FocusTree.Model.Lattice;
 
 /// <summary>
@@ -7,7 +9,7 @@ namespace FocusTree.Model.Lattice;
 /// </summary>
 public static class LatticeGrid
 {
-    public static GridData GridData { get; set; } = new GridDataSerialization().LoadFromFile(out _);
+    public static GridData GridData { get; set; } = new GridData().LoadFromSimpleScript();
 
     public static bool DoDraw { get; set; }
     /// <summary>

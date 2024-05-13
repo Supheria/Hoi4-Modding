@@ -1,6 +1,10 @@
-﻿using FormatRawEffectSentence.Model;
-using LocalUtilities.Interface;
+﻿#define test_format
+
+using FormatRawEffectSentence;
+using FormatRawEffectSentence.Model;
 using LocalUtilities.MathBundle;
+using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 
 namespace FocusTree.Model.Focus
 {
@@ -46,16 +50,71 @@ namespace FocusTree.Model.Focus
         /// <summary>
         /// 原始效果语句
         /// </summary>
-        public List<string> RawEffects { get; set; } = new();
+        public List<string> RawEffect { get; set; } = new();
 
         /// <summary>
         /// 依赖组
         /// </summary>
-        public List<HashSet<int>> Requires { get; set; } = new();
+        public List<HashSet<int>> Require { get; set; } = new();
 
         /// <summary>
         /// 国策效果
         /// </summary>
         public List<EffectSentence> Effects { get; set; } = new();
+
+        public override string LocalName { get; set; } = nameof(FocusNode);
+
+        public override void Serialize(SsSerializer serializer)
+        {
+            serializer.WriteTag(nameof(Signature), Signature.ToString());
+            serializer.WriteTag(nameof(Name), Name);
+            serializer.WriteTag(nameof(BeginWithStar), BeginWithStar.ToString());
+            serializer.WriteTag(nameof(Duration), Duration.ToString());
+            serializer.WriteTag(nameof(Description), Description);
+            serializer.WriteTag(nameof(Ps), Ps);
+            serializer.WriteTag(nameof(LatticedPoint), LatticedPoint.ToString());
+            RawEffect.ForEach(x => serializer.WriteTag(nameof(RawEffect), x));
+            //FormatRawEffects();
+            serializer.Serialize(Effects);
+            Require.ForEach(x => serializer.WriteTag(nameof(Require), x.ToArrayString()));
+
+        }
+
+        public override void Deserialize(SsDeserializer deserializer)
+        {
+            SetSignature = deserializer.ReadTag(nameof(Signature), s => s.ToInt(Signature));
+            Name = deserializer.ReadTag(nameof(Name), s => s ?? Name);
+            BeginWithStar = deserializer.ReadTag(nameof(BeginWithStar), s => s.ToBool(BeginWithStar));
+            Duration = deserializer.ReadTag(nameof(Duration), s => s.ToInt(Duration));
+            Description = deserializer.ReadTag(nameof(Description), s => s ?? Description);
+            Ps = deserializer.ReadTag(nameof(Ps), s => s ?? Ps);
+            LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), s => s.ToLatticedPoint(LatticedPoint));
+            deserializer.ReadTags(nameof(RawEffect), RawEffect, s => s);
+            deserializer.Deserialize(new(), Effects);
+            deserializer.ReadTags(nameof(Require), Require, s => s.ToCollection(s => s.ToInt(null))?.ToHashSet());
+        }
+
+        [Obsolete("临时使用，作为转换语句格式的过渡")]
+        private void FormatRawEffects()
+        {
+#if test_format
+            Effects.Clear();
+            foreach (var raw in RawEffect)
+            {
+                Program.TestInfo.Total++;
+                if (!RawEffectSentenceFormatter.Format(raw, out var formattedList))
+                {
+                    Program.TestInfo.Error++;
+                    Program.TestInfo.Good = Program.TestInfo.Total - Program.TestInfo.Error;
+                    Program.TestInfo.Append($"[{Signature}] {raw}");
+                    continue;
+                }
+                foreach (var formatted in formattedList)
+                {
+                    Effects.Add(formatted);
+                }
+            }
+#endif
+        }
     }
 }

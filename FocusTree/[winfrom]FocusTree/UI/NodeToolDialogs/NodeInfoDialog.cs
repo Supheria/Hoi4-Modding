@@ -1,12 +1,13 @@
 using FocusTree.UI.Graph;
 using LocalUtilities.FileUtilities;
-using LocalUtilities.Interface;
-using LocalUtilities.StringUtilities;
+using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 using System.Drawing.Text;
+using System.Xml;
 
 namespace FocusTree.UI.NodeToolDialogs
 {
-    public partial class NodeInfoDialog : ToolDialog, IHistoryRecordable
+    public partial class NodeInfoDialog : ToolDialog, ISsSerializable, IHistoryRecordable
     {
         private bool _doFontScale = false;
         private bool _doTextEditCheck = false;
@@ -51,7 +52,7 @@ namespace FocusTree.UI.NodeToolDialogs
             FocusName.Text = focus.Name;
             Duration.Text = $"{focus.Duration}";
             Descript.Text = focus.Description;
-            Effects.Text = string.Join('\n', focus.RawEffects);
+            Effects.Text = string.Join('\n', focus.RawEffect);
 
             AllowDrop = !GraphBox.ReadOnly;
             FocusName.ReadOnly = GraphBox.ReadOnly;
@@ -425,33 +426,45 @@ namespace FocusTree.UI.NodeToolDialogs
 
         public string ToHashString()
         {
-            new NodeInfoDialogSerialization() { Source = this }.SaveToXml(HashCachePath);
+            this.SaveToSimpleScript(false, HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             var hashString = data.ToMd5HashString();
             if (!File.Exists(hashString))
-                new NodeInfoDialogSerialization() { Source = this }.SaveToXml(this.GetCacheFilePath(hashString));
+                this.SaveToSimpleScript(false, this.GetCacheFilePath(hashString));
             return hashString;
         }
 
         public string ToHashString(string filePath)
         {
-            var dialog = new NodeInfoDialogSerialization().LoadFromXml(out _, filePath);
-            new NodeInfoDialogSerialization() { Source = dialog }.SaveToXml(HashCachePath);
+            var dialog = new NodeInfoDialog().LoadFromSimpleScript();
+            dialog.SaveToSimpleScript(false, HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             return data.ToMd5HashString();
         }
 
         public void FromHashString(string data)
         {
-            var nodeInfoDlg = new NodeInfoDialogSerialization().LoadFromXml(out _, this.GetCacheFilePath(data));
-            if (nodeInfoDlg is null)
-                return;
-            FocusNameText = nodeInfoDlg.FocusNameText;
-            DurationText = nodeInfoDlg.DurationText;
-            DescriptText = nodeInfoDlg.DescriptText;
-            EffectsText = nodeInfoDlg.EffectsText;
+            this.LoadFromSimpleScript(this.GetCacheFilePath(data));
         }
 
         #endregion
+
+        string ISsSerializable.LocalName { get; set; } = nameof(NodeInfoDialog);
+
+        public void Serialize(SsSerializer serializer)
+        {
+            serializer.WriteTag(nameof(FocusNameText), FocusNameText);
+            serializer.WriteTag(nameof(DurationText), DurationText);
+            serializer.WriteTag(nameof(DescriptText), DescriptText);
+            serializer.WriteTag(nameof(EffectsText), EffectsText);
+        }
+
+        public void Deserialize(SsDeserializer deserializer)
+        {
+            FocusNameText = deserializer.ReadTag(nameof(FocusNameText), s => s ?? FocusNameText);
+            DurationText = deserializer.ReadTag(nameof(DurationText), s => s ?? DurationText);
+            DescriptText = deserializer.ReadTag(nameof(DescriptText), s => s ?? DescriptText);
+            EffectsText = deserializer.ReadTag(nameof(EffectsText), s => s ?? EffectsText);
+        }
     }
 }

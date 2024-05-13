@@ -1,6 +1,9 @@
-﻿namespace FocusTree.Model.Lattice;
+﻿using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 
-public class GridData
+namespace FocusTree.Model.Lattice;
+
+public class GridData : ISsSerializable
 {
     public float FloatComparisonTolerance { get; set; } = 0.1f;
     /// <summary>
@@ -35,4 +38,22 @@ public class GridData
     /// 坐标辅助线绘制用笔
     /// </summary>
     public Pen GuidePen { get; } = new(Color.FromArgb(200, Color.Red), 1.75f);
+
+    public string LocalName { get; set; } = nameof(GridData);
+
+    public void Serialize(SsSerializer serializer)
+    {
+        serializer.WriteTag(nameof(FloatComparisonTolerance), FloatComparisonTolerance.ToString());
+        serializer.WriteTag(nameof(OriginX), OriginX.ToString());
+        serializer.WriteTag(nameof(OriginY), OriginY.ToString());
+        serializer.WriteTag(nameof(DrawRect), DrawRect.ToArrayString());
+    }
+
+    public void Deserialize(SsDeserializer deserializer)
+    {
+        FloatComparisonTolerance = deserializer.ReadTag(nameof(FloatComparisonTolerance), s => s.ToFloat(FloatComparisonTolerance));
+        OriginX = deserializer.ReadTag(nameof(OriginX), s => s.ToInt(OriginX));
+        OriginY = deserializer.ReadTag(nameof(OriginY), s => s.ToInt(OriginY));
+        DrawRect = deserializer.ReadTag(nameof(DrawRect), s => s.ToRectangle(DrawRect));
+    }
 }

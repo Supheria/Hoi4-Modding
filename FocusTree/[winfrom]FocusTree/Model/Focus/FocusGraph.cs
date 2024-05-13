@@ -1,9 +1,8 @@
 using FocusTree.IO.Csv;
-using FocusTree.IO.Xml;
 using LocalUtilities.FileUtilities;
-using LocalUtilities.Interface;
 using LocalUtilities.MathBundle;
-using LocalUtilities.StringUtilities;
+using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FocusTree.Model.Focus
@@ -13,7 +12,7 @@ namespace FocusTree.Model.Focus
         /// <summary>
         /// 名称
         /// </summary>
-        public string Name { get; }
+        public string Name { get; private set; }
 
         public FocusGraph(string name)
         {
@@ -38,7 +37,7 @@ namespace FocusTree.Model.Focus
             if (!RosterMap.ContainsKey(id))
                 return;
             // 在所有的节点依赖组合中删除此节点
-            foreach (var require in RosterMap.Values.SelectMany(focus => focus.Requires))
+            foreach (var require in RosterMap.Values.SelectMany(focus => focus.Require))
                 require.Remove(id);
             // 从节点表中删除此节点
             RosterMap.Remove(id);
@@ -66,10 +65,6 @@ namespace FocusTree.Model.Focus
             return RosterMap.Values.Any(f => latticedPoint == f.LatticedPoint);
         }
 
-        //
-        // interface
-        //
-
         public string FileManageDirName => $"FG{Name.ToMd5HashString()}";
 
         public int CurrentHistoryIndex { get; set; }
@@ -84,25 +79,39 @@ namespace FocusTree.Model.Focus
 
         public string ToHashString()
         {
-            new FocusGraphSerialization() { Source = this }.SaveToFile(false, HashCachePath);
+            this.SaveToSimpleScript(false, HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             var hashString = data.ToMd5HashString(); ;
             if (!File.Exists(hashString))
-                new FocusGraphSerialization() { Source = this }.SaveToFile(false, this.GetCacheFilePath(hashString));
+                this.SaveToSimpleScript(false, this.GetCacheFilePath(hashString));
             return new(hashString);
         }
 
         public string ToHashString(string filePath)
         {
-            var focusGraph = new FocusGraphSerialization().LoadFromFile(out _, filePath);
-            new FocusGraphSerialization() { Source = focusGraph }.SaveToFile(false, HashCachePath);
+            var focusGraph = this.LoadFromSimpleScript();
+            focusGraph.SaveToSimpleScript(false, HashCachePath);
             using var data = new FileStream(HashCachePath, FileMode.Open);
             return data.ToMd5HashString();
         }
 
         public void FromHashString(string data)
         {
-            RosterMap = new FocusGraphSerialization().LoadFromFile(out _, this.GetCacheFilePath(data)).RosterMap;
+            this.LoadFromSimpleScript(this.GetCacheFilePath(data));
+        }
+
+        public override string LocalName { get; set; } = "NationalFocus";
+
+        public override FocusNode ItemSample => new();
+
+        protected override void SerializeRoster(SsSerializer serializer)
+        {
+            serializer.WriteTag(nameof(Name), Name);
+        }
+
+        protected override void DeserializeRoster(SsDeserializer deserializer)
+        {
+            Name = deserializer.ReadTag(nameof(Name), s => s ?? Name);
         }
     }
 }

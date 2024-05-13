@@ -127,7 +127,7 @@ namespace FocusTree.Utilities
         private static void DrawNodeLinks(Graphics g, FocusGraph graph, FocusNode focus)
         {
             var drawingRect = NodeDrawingRect(focus);
-            var requires = focus.Requires;
+            var requires = focus.Require;
             foreach (var requireGroup in requires)
             {
                 foreach (var require in requireGroup)
@@ -149,7 +149,7 @@ namespace FocusTree.Utilities
             var name = focus.Name;
             var duration = $"{focus.Duration}日";
             var descript = focus.Description;
-            var effects = string.Join("\n\n", focus.RawEffects);
+            var effects = string.Join("\n\n", focus.RawEffect);
             float padding = 10f;
 
             RectangleF nameRect = new(

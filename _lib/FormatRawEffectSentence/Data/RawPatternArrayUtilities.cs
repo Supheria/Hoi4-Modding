@@ -1,6 +1,6 @@
-﻿using FormatRawEffectSentence.IO.Pattern;
-using FormatRawEffectSentence.Model.Pattern;
-using LocalUtilities.StringUtilities;
+﻿using FormatRawEffectSentence.Model.Pattern;
+using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeBundle;
 using System.Text;
 
 namespace FormatRawEffectSentence.Data;
@@ -60,6 +60,8 @@ internal class RawPatternArrayUtilities
         return reverse;
     }
 
+
+
     internal static List<RawPattern> LoadRawPatternArray(string filePath)
     {
 #if DEBUG
@@ -73,7 +75,7 @@ internal class RawPatternArrayUtilities
 
     internal static void SaveRawPatternArray(string filePath, ref List<RawPattern> patterns)
     {
-        new RawPatternArraySerialization() { Source = patterns }.SaveToFile(true, filePath);
-        //patterns.SaveToYaml(filePath);
+        var collection = new SerializableCollection<RawPattern>("RawPatterns", patterns, new RawPattern());
+        collection.SaveToSimpleScript(true);
     }
 }

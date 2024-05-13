@@ -1,11 +1,7 @@
-using LocalUtilities.FileUtilities;
-using LocalUtilities.Serializations;
-using LocalUtilities.SimpleScript.Data;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.StringUtilities;
+using LocalUtilities.TypeBundle;
 using LocalUtilities.UIUtilities;
 using System.Diagnostics;
-using System.Text;
 
 namespace SimpleScriptSerialization
 {
@@ -20,25 +16,28 @@ namespace SimpleScriptSerialization
             var rect = new Point(1, 2);
             var s = rect.ToArrayString();
             rect = s.ToPoint(new());
-            //var dic = new Dictionary<string, string>() { ["a "] = "a"};
-            //new TestDictionarySerialization("test") { Source = dic.ToList()}.SaveToFile(true);
-            var a = new TestDictionarySerialization("test").LoadFromFile(out var m);
-            var dic = a.ToDictionary();
+            var dic = new Dictionary<string, string>() { ["a "] = "a", ["b , "] = "b" };
+            var d = new TestDictionary("test");
+            d.Pairs.AddRange(dic.ToList());
+            d.SaveToSimpleScript(true);
+
+            var a = new TestDictionary("test").LoadFromSimpleScript();
+            var newdic = a.Pairs.ToDictionary();
 
             var watch = new Stopwatch();
             watch.Start();
-            var data = new TestFormDataSerialization("ShitForm").LoadFromFile(out m);
+            var data = new TestFormData("ShitForm").LoadFromSimpleScript();
             watch.Stop();
             var time = watch.ElapsedMilliseconds;
-            new TestFormDataSerialization("ShitForm") { Source = data }.SaveToFile(true);
+            data.SaveToSimpleScript(true);
 
             Application.Run(new Form1());
         }
     }
 
-    public class TestDictionarySerialization(string localName) : KeyValuePairsSerialization<string, string>()
+    public class TestDictionary(string localName) : KeyValuePairs<string, string>()
     {
-        public override string LocalName => localName;
+        public override string LocalName { get; set; } = localName;
 
         protected override Func<string, string> ReadKey => str => str;
 
@@ -49,27 +48,25 @@ namespace SimpleScriptSerialization
         protected override Func<string, string> WriteValue => str => str;
     }
 
-    public class TestFormData : FormData
+    public class TestFormData(string localName) : FormData(localName)
     {
+        public TestFormData() : this(nameof(TestFormData))
+        {
+
+        }
+
         public override Size MinimumSize { get; set; }
 
         public List<TestFormData> Datas { get; set; } = [];
-    }
 
-    public class TestFormDataSerialization : FormDataSerialization<TestFormData>
-    {
-        public TestFormDataSerialization(string localName) : base(localName)
+        protected override void SerializeFormData(SsSerializer serializer)
         {
+            serializer.Serialize(Datas);
         }
 
-        protected override void SerializeFormData()
+        protected override void DeserializeFormData(SsDeserializer deserializer)
         {
-            Serialize(Source.Datas, new TestFormDataSerialization(LocalName));
-        }
-
-        protected override void DeserializeFormData()
-        {
-            Deserialize(new TestFormDataSerialization(LocalName), Source.Datas);
+            deserializer.Deserialize(new(LocalName), Datas);
         }
     }
 }
