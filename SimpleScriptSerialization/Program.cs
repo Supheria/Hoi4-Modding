@@ -18,15 +18,15 @@ namespace SimpleScriptSerialization
             rect = s.ToPoint(new());
             var dic = new Dictionary<string, string>() { ["a "] = "a", ["b , "] = "b" };
             var d = new TestDictionary("test");
-            d.Pairs.AddRange(dic.ToList());
+            d.SetMap = dic;
             d.SaveToSimpleScript(true);
 
             var a = new TestDictionary("test").LoadFromSimpleScript();
-            var newdic = a.Pairs.ToDictionary();
+            var newdic = a.Map.ToDictionary();
 
             var watch = new Stopwatch();
             watch.Start();
-            var data = new TestFormData("ShitForm").LoadFromSimpleScript();
+            var data = new TestFormData().LoadFromSimpleScript("ShitForm.ss");
             watch.Stop();
             var time = watch.ElapsedMilliseconds;
             data.SaveToSimpleScript(true);
@@ -35,7 +35,7 @@ namespace SimpleScriptSerialization
         }
     }
 
-    public class TestDictionary(string localName) : KeyValuePairs<string, string>()
+    public class TestDictionary(string localName) : SerializableDictionary<string, string>()
     {
         public override string LocalName { get; set; } = localName;
 
@@ -46,15 +46,15 @@ namespace SimpleScriptSerialization
         protected override Func<string, string> WriteKey => str => str;
 
         protected override Func<string, string> WriteValue => str => str;
+
+        public Dictionary<string, string> SetMap 
+        {
+            set => Map = value;
+        }
     }
 
-    public class TestFormData(string localName) : FormData(localName)
+    public class TestFormData() : FormData(nameof(TestFormData))
     {
-        public TestFormData() : this(nameof(TestFormData))
-        {
-
-        }
-
         public override Size MinimumSize { get; set; }
 
         public List<TestFormData> Datas { get; set; } = [];
@@ -66,7 +66,7 @@ namespace SimpleScriptSerialization
 
         protected override void DeserializeFormData(SsDeserializer deserializer)
         {
-            deserializer.Deserialize(new(LocalName), Datas);
+            deserializer.Deserialize(Datas);
         }
     }
 }

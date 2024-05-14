@@ -102,8 +102,6 @@ namespace FocusTree.Model.Focus
 
         public override string LocalName { get; set; } = "NationalFocus";
 
-        public override FocusNode ItemSample => new();
-
         protected override void SerializeRoster(SsSerializer serializer)
         {
             serializer.WriteTag(nameof(Name), Name);

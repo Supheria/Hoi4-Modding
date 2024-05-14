@@ -14,7 +14,7 @@ namespace FormatRawEffectSentence
     /// </summary>
     public class RawEffectSentenceFormatter
     {
-        private const string XmlFilePath = "raw effect format match patterns.xml";
+        private const string XmlFilePath = "raw effect format match patterns.ss";
 
         private static string _rawSentence = "";
 

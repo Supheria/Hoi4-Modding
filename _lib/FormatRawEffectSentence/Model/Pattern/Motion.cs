@@ -59,7 +59,7 @@ public class Motion : ISsSerializable
         Pattern = deserializer.ReadTag(nameof(Pattern), s => s ?? Pattern);
         PartIndex = deserializer.ReadTag(nameof(PartIndex), s => s.ToInt(PartIndex));
         if (PartIndex is -1)
-            Conditions.Map[""] = deserializer.ReadTag(LocalName, s => s.ToEnum(Conditions.Map[""]));
+            Conditions.Map[""] = deserializer.ReadTag(LocalName, s => s.ToEnum(Motions.None));
         else
             Conditions = deserializer.Deserialize(Conditions);
     }

@@ -64,12 +64,12 @@ public static class GraphBox
     /// <summary>
     /// 元图的国策列表
     /// </summary>
-    public static List<FocusNode> FocusList => Graph is null ? [] : Graph.GetRosterList();
+    public static ICollection<FocusNode> FocusList => Graph is null ? [] : Graph.RosterList;
 
     /// <summary>
     /// 元图节点数量
     /// </summary>
-    public static int NodeCount => Graph is null ? 0 : Graph.GetRosterList().Count;
+    public static int NodeCount => Graph is null ? 0 : Graph.RosterList.Count;
 
     /// <summary>
     /// 元图分支数量

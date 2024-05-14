@@ -98,6 +98,6 @@ public class EffectSentence : ISsSerializable
         Value = deserializer.ReadTag(nameof(Value), s => s ?? Value);
         TriggerType = deserializer.ReadTag(nameof(TriggerType), s => s.ToEnum(TriggerType));
         Triggers = deserializer.ReadTag(nameof(Triggers), s => s ?? Triggers.ToArrayString()).ToArray();
-        deserializer.Deserialize(new(), SubSentences);
+        deserializer.Deserialize(SubSentences);
     }
 }

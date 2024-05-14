@@ -68,14 +68,14 @@ internal class RawPatternArrayUtilities
         return //new RawPatternArrayXmlSerialization().LoadFromXml(filePath) ?? new LocalRawPatternArray().Patterns;
             new LocalRawPatternArray().Patterns;
 #else
-        var patterns = new RawPatternArraySerialization().LoadFromFile(out var message, filePath);
-        return message is null ? patterns : LocalRawPatternArray.Patterns;
+        var collection = new SerializableList<RawPattern>("RawPatterns").LoadFromSimpleScript(filePath).List;
+        return collection.Count is 0 ? LocalRawPatternArray.Patterns : collection.ToList();
 #endif
     }
 
     internal static void SaveRawPatternArray(string filePath, ref List<RawPattern> patterns)
     {
-        var collection = new SerializableCollection<RawPattern>("RawPatterns", patterns, new RawPattern());
-        collection.SaveToSimpleScript(true);
+        var collection = new SerializableList<RawPattern>("RawPatterns", patterns);
+        collection.SaveToSimpleScript(true, filePath);
     }
 }
