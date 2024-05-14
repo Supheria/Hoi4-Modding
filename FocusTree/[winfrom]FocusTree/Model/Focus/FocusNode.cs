@@ -74,8 +74,8 @@ namespace FocusTree.Model.Focus
             serializer.WriteTag(nameof(Ps), Ps);
             serializer.WriteTag(nameof(LatticedPoint), LatticedPoint.ToString());
             RawEffect.ForEach(x => serializer.WriteTag(nameof(RawEffect), x));
-            FormatRawEffects();
-            serializer.Serialize(Effects);
+            //FormatRawEffects();
+            serializer.WriteSerializableItems(Effects);
             Require.ForEach(x => serializer.WriteTag(nameof(Require), x.ToArrayString()));
         }
 
@@ -88,9 +88,9 @@ namespace FocusTree.Model.Focus
             Description = deserializer.ReadTag(nameof(Description), s => s ?? Description);
             Ps = deserializer.ReadTag(nameof(Ps), s => s ?? Ps);
             LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), s => s.ToLatticedPoint(LatticedPoint));
-            deserializer.ReadTags(nameof(RawEffect), RawEffect, s => s);
-            deserializer.Deserialize(Effects);
-            deserializer.ReadTags(nameof(Require), Require, s => s.ToCollection(s => s.ToInt(null))?.ToHashSet());
+            RawEffect = deserializer.ReadTags(nameof(RawEffect), s => s);
+            Effects = deserializer.ReadSerializableItems<EffectSentence>();
+            Require = deserializer.ReadTags(nameof(Require), s => s.ToArray().Select(s => s.ToInt(null))?.ToHashSet());
         }
 
         [Obsolete("临时使用，作为转换语句格式的过渡")]

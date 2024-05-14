@@ -52,7 +52,7 @@ namespace FormatRawEffectSentence
             static Motions Motion(RawPattern p, IReadOnlyList<string> parts)
             {
                 var key = (uint)p.Motion.PartIndex < parts.Count ? parts[p.Motion.PartIndex] : "";
-                return p.Motion.Conditions.Map.TryGetValue(key, out var value) ? value : p.Motion.Conditions.Map[""];
+                return p.Motion.Conditions.Map.TryGetValue(key, out var value) ? value.Count is not 0 ? value[0] : p.Motion.Conditions.Map[""][0] : p.Motion.Conditions.Map[""][0];
             }
 
             static (Types Type, string Value) Value(RawPattern p, IReadOnlyList<string> parts)

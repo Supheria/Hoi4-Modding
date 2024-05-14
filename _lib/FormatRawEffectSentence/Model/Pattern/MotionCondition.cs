@@ -3,9 +3,11 @@ using LocalUtilities.TypeBundle;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 
-public class MotionCondition : SerializableDictionary<string, Motions>
+public class MotionCondition : SerializableTagValues<string, Motions>
 {
     public override string LocalName { get; set; } = "Condition";
+
+    public override string KeyName { get; set; } = "Index";
 
     protected override Func<string?, string> ReadKey => key => key ?? "";
 

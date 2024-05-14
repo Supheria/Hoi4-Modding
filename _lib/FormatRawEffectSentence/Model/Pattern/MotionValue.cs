@@ -30,6 +30,6 @@ public class MotionValue : ISsSerializable
     public void Deserialize(SsDeserializer deserializer)
     {
         Type = deserializer.ReadTag(nameof(Type), s => s.ToEnum(Type));
-        PartIndexOrder = deserializer.ReadTag(nameof(PartIndexOrder), s => s.ToCollection(s => s.ToInt(null)))?.ToHashSet() ?? PartIndexOrder;
+        PartIndexOrder = deserializer.ReadTag(nameof(PartIndexOrder), s => s.ToArray().Select(s => s.ToInt(0))).ToHashSet();
     }
 }

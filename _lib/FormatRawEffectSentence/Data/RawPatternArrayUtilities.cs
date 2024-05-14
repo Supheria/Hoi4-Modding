@@ -45,7 +45,7 @@ internal class RawPatternArrayUtilities
     };
 
     private static string CombineStringArrays(params string[][] stringArrays) => new StringBuilder()
-        .AppendJoin('|', stringArrays, (sb, value) => sb
+        .AppendJoin("|", stringArrays, (sb, value) => sb
             .AppendJoin('|', value))
         .ToString();
 
