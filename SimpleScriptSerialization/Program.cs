@@ -19,7 +19,7 @@ namespace SimpleScriptSerialization
             var dic = new Dictionary<string, string>() { ["a "] = "a", ["b , "] = "b" };
             var d = new TestDictionary("test");
             d.SetMap = dic;
-            d.SaveToSimpleScript(true);
+            //d.SaveToSimpleScript(true);
 
             var a = new TestDictionary("test").LoadFromSimpleScript();
             var newdic = a.Map.ToDictionary();
