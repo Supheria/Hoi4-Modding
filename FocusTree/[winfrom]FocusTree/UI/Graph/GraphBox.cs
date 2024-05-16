@@ -140,9 +140,9 @@ public static class GraphBox
     {
         if (Graph is null)
             return;
-        ReadOnly = false;
-        Graph.Backup(FilePath);
-        Graph.SaveToSimpleScript(true, FilePath);
+        ReadOnly = false;   
+        //Graph.Backup(FilePath);
+        Graph.SaveToSimpleScript(false, FilePath);
         Graph.UpdateLastSavedHistoryIndex();
     }
 

@@ -30,12 +30,12 @@ public class Motion : ISsSerializable
     public Motion(int partIndex, string pattern, Dictionary<string, Motions> conditionMap) : this(partIndex, pattern)
     {
         foreach (var (condition, motion) in conditionMap)
-            Conditions.Map[condition][0] = motion;
+            Conditions.Map[condition] = [motion];
     }
 
     public Motion(Motions motion, string pattern) : this(-1, pattern)
     {
-        Conditions.Map[""][0] = motion;
+        Conditions.Map[""] = [motion];
     }
 
     public Motion() : this(-1, "")
@@ -51,7 +51,7 @@ public class Motion : ISsSerializable
         if (PartIndex is -1)
             serializer.WriteTag(LocalName, Conditions.Map[""][0].ToString());
         else
-            serializer.Serialize(Conditions);
+            serializer.WriteObject(Conditions);
     }
 
     public void Deserialize(SsDeserializer deserializer)
@@ -61,6 +61,6 @@ public class Motion : ISsSerializable
         if (PartIndex is -1)
             Conditions.Map[""][0] = deserializer.ReadTag(LocalName, s => s.ToEnum(Motions.None));
         else
-            Conditions = deserializer.Deserialize(Conditions);
+            Conditions = deserializer.ReadObject(Conditions);
     }
 }

@@ -33,15 +33,15 @@ public class RawPattern : ISsSerializable
         serializer.WriteComment($"{(IsComplex ? "complex" : "single")}: {Title}");
         foreach (var sample in Samples)
             serializer.WriteComment($"{sample}");
-        serializer.Serialize(Trigger);
-        serializer.Serialize(Motion);
-        serializer.Serialize(Value);
+        serializer.WriteObject(Trigger);
+        serializer.WriteObject(Motion);
+        serializer.WriteObject(Value);
     }
 
     public void Deserialize(SsDeserializer deserializer)
     {
-        Trigger = deserializer.Deserialize(Trigger);
-        Motion = deserializer.Deserialize(Motion);
-        Value = deserializer.Deserialize(Value);
+        Trigger = deserializer.ReadObject(Trigger);
+        Motion = deserializer.ReadObject(Motion);
+        Value = deserializer.ReadObject(Value);
     }
 }
