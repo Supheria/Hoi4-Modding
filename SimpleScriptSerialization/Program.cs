@@ -16,10 +16,10 @@ namespace SimpleScriptSerialization
             var rect = new Point(1, 2);
             var s = rect.ToArrayString();
             rect = s.ToPoint(new());
-            var dic = new Dictionary<string, List<string>>() { ["a "] = ["a"], ["b , "] = ["b"] };
+            var dic = new Dictionary<string, string>() { ["a "] = "a", ["b , "] = "b" };
             var d = new TestDictionary("test");
             d.SetMap = dic;
-            d.SaveToSimpleScript(true);
+            //d.SaveToSimpleScript(false);
 
             var a = new TestDictionary("test").LoadFromSimpleScript();
             var newdic = a.Map.ToDictionary();
@@ -42,19 +42,18 @@ namespace SimpleScriptSerialization
     {
         public override string LocalName { get; set; } = localName;
 
-        protected override Func<string, string> ReadKey => str => str;
-
-        protected override Func<string, string> ReadValue => str => str;
-
-        protected override Func<string, string> WriteKey => str => str;
-
-        protected override Func<string, string> WriteValue => str => str;
-
-        public Dictionary<string, List<string>> SetMap
+        public Dictionary<string, string> SetMap
         {
             set => Map = value;
         }
-        public override string KeyName { get; set; } = "key";
+
+        protected override Func<string, string> WriteTag => s=>s;
+
+        protected override Func<string, List<string>> WriteValue => s=>[s];
+
+        protected override Func<string, string> ReadTag => s=>s;
+
+        protected override Func<List<string>, string> ReadValue => s=>s[0];
     }
 
     public class TestFormData() : FormData(nameof(TestFormData))

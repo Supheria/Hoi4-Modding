@@ -7,13 +7,11 @@ public class MotionCondition : SerializableTagValues<string, Motions>
 {
     public override string LocalName { get; set; } = "Condition";
 
-    public override string KeyName { get; set; } = "Index";
+    protected override Func<string, string> WriteTag => tag => tag;
 
-    protected override Func<string?, string> ReadKey => key => key ?? "";
+    protected override Func<Motions, List<string>> WriteValue => value => [value.ToString()];
 
-    protected override Func<string?, Motions> ReadValue => value => value.ToEnum(Motions.None);
+    protected override Func<string, string> ReadTag => tag => tag ?? "";
 
-    protected override Func<string, string> WriteKey => key => key;
-
-    protected override Func<Motions, string> WriteValue => value => value.ToString();
+    protected override Func<List<string>, Motions> ReadValue => values => values[0].ToEnum(Motions.None);
 }
