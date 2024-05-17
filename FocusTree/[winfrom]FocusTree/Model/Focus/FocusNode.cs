@@ -2,9 +2,8 @@
 
 using FormatRawEffectSentence;
 using FormatRawEffectSentence.Model;
-using LocalUtilities.MathBundle;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeGeneral;
 
 namespace FocusTree.Model.Focus
 {
@@ -81,16 +80,16 @@ namespace FocusTree.Model.Focus
 
         public override void Deserialize(SsDeserializer deserializer)
         {
-            SetSignature = deserializer.ReadTag(nameof(Signature), s => s.ToInt(Signature));
-            Name = deserializer.ReadTag(nameof(Name), s => s ?? Name);
-            BeginWithStar = deserializer.ReadTag(nameof(BeginWithStar), s => s.ToBool(BeginWithStar));
-            Duration = deserializer.ReadTag(nameof(Duration), s => s.ToInt(Duration));
-            Description = deserializer.ReadTag(nameof(Description), s => s ?? Description);
-            Ps = deserializer.ReadTag(nameof(Ps), s => s ?? Ps);
-            LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), s => s.ToLatticedPoint(LatticedPoint));
-            RawEffect = deserializer.ReadValues(nameof(RawEffect), (string s) => s);
+            SetSignature = deserializer.ReadTag(nameof(Signature), int.Parse);
+            Name = deserializer.ReadTag(nameof(Name), s => s);
+            BeginWithStar = deserializer.ReadTag(nameof(BeginWithStar), bool.Parse);
+            Duration = deserializer.ReadTag(nameof(Duration), int.Parse);
+            Description = deserializer.ReadTag(nameof(Description), s => s);
+            Ps = deserializer.ReadTag(nameof(Ps), s => s);
+            LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), LatticedPoint.Parse);
+            RawEffect = deserializer.ReadValues(nameof(RawEffect), s => s);
             Effects = deserializer.ReadObjects<EffectSentence>();
-            Require = deserializer.ReadValues(nameof(Require), (string s) => s.ToArray().Select(s => s.ToInt(null)).ToHashSet());
+            Require = deserializer.ReadValues(nameof(Require), s => s.ToArray().Select(int.Parse).ToHashSet());
         }
 
         [Obsolete("临时使用，作为转换语句格式的过渡")]

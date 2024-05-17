@@ -1,6 +1,6 @@
 ﻿using FocusTree.Model.WinFormGdiUtilities;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.UIUtilities;
+using LocalUtilities.TypeGeneral;
 
 namespace FocusTree.UI.Graph;
 

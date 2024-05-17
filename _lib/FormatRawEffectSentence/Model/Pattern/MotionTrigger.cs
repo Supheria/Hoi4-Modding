@@ -1,6 +1,7 @@
 ﻿using FormatRawEffectSentence.LocalSign;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeGeneral.Convert;
+using LocalUtilities.TypeToolKit.Text;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 
@@ -34,7 +35,7 @@ public class MotionTrigger : ISsSerializable
 
     public void Deserialize(SsDeserializer deserializer)
     {
-        Type = deserializer.ReadTag(nameof(Type), s => s.ToEnum(Type));
+        Type = deserializer.ReadTag(nameof(Type), s => s.ToEnum<Types>());
         Pattern = deserializer.ReadTag(nameof(Pattern), s => s ?? Pattern);
     }
 }

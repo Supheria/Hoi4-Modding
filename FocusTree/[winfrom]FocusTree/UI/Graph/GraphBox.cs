@@ -1,10 +1,9 @@
 ﻿using FocusTree.Model.Focus;
 using FocusTree.Model.Lattice;
-using LocalUtilities.FileUtilities;
-using LocalUtilities.MathBundle;
+using LocalUtilities.FileHelper;
 using LocalUtilities.SimpleScript.Serialization;
+using LocalUtilities.TypeGeneral;
 using System.Diagnostics.CodeAnalysis;
-using System.Windows.Forms;
 
 namespace FocusTree.UI.Graph;
 
@@ -140,7 +139,7 @@ public static class GraphBox
     {
         if (Graph is null)
             return;
-        ReadOnly = false;   
+        ReadOnly = false;
         //Graph.Backup(FilePath);
         Graph.SaveToSimpleScript(false, FilePath);
         Graph.UpdateLastSavedHistoryIndex();

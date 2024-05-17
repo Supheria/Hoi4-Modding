@@ -1,6 +1,7 @@
 ﻿using FormatRawEffectSentence.LocalSign;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeGeneral.Convert;
+using LocalUtilities.TypeToolKit.Text;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 
@@ -56,10 +57,10 @@ public class Motion : ISsSerializable
 
     public void Deserialize(SsDeserializer deserializer)
     {
-        Pattern = deserializer.ReadTag(nameof(Pattern), s => s ?? Pattern);
-        PartIndex = deserializer.ReadTag(nameof(PartIndex), s => s.ToInt(PartIndex));
+        Pattern = deserializer.ReadTag(nameof(Pattern), s => s);
+        PartIndex = deserializer.ReadTag(nameof(PartIndex), int.Parse);
         if (PartIndex is -1)
-            Conditions.Map[""] = deserializer.ReadTag(LocalName, s => s.ToEnum(Motions.None));
+            Conditions.Map[""] = deserializer.ReadTag(LocalName, s => s.ToEnum<Motions>());
         else
             Conditions = deserializer.ReadObject(Conditions);
     }

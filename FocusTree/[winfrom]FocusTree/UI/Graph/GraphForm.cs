@@ -5,9 +5,9 @@ using FocusTree.Model.Lattice;
 using FocusTree.Model.WinFormGdiUtilities;
 using FocusTree.Utilities;
 using FocusTree.Utilities.test;
-using LocalUtilities.FileUtilities;
+using LocalUtilities.FileHelper;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.UIUtilities;
+using LocalUtilities.TypeGeneral;
 using System.IO.Compression;
 
 namespace FocusTree.UI.Graph;

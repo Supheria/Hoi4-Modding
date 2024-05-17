@@ -1,5 +1,4 @@
 ﻿using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
 
 namespace FocusTree.Model.Lattice;
 
@@ -74,12 +73,12 @@ public class CellData : ISsSerializable
 
     public void Deserialize(SsDeserializer deserializer)
     {
-        EdgeLengthMin = deserializer.ReadTag(nameof(EdgeLengthMin), s => s.ToInt(EdgeLengthMin));
-        EdgeLengthMax = deserializer.ReadTag(nameof(EdgeLengthMax), s => s.ToInt(EdgeLengthMax));
-        EdgeLength = deserializer.ReadTag(nameof(EdgeLength), s => s.ToInt(EdgeLength));
-        NodePaddingFactorMin = deserializer.ReadTag(nameof(NodePaddingFactorMin), s => s.ToFloat(NodePaddingFactorMin));
-        NodePaddingFactorMax = deserializer.ReadTag(nameof(NodePaddingFactorMax), s => s.ToFloat(NodePaddingFactorMax));
-        NodePaddingWidthFactor = deserializer.ReadTag(nameof(NodePaddingWidthFactor), s => s.ToFloat(NodePaddingWidthFactor));
-        NodePaddingHeightFactor = deserializer.ReadTag(nameof(NodePaddingHeightFactor), s => s.ToFloat(NodePaddingHeightFactor));
+        EdgeLengthMin = deserializer.ReadTag(nameof(EdgeLengthMin), int.Parse);
+        EdgeLengthMax = deserializer.ReadTag(nameof(EdgeLengthMax), int.Parse);
+        EdgeLength = deserializer.ReadTag(nameof(EdgeLength), int.Parse);
+        NodePaddingFactorMin = deserializer.ReadTag(nameof(NodePaddingFactorMin), float.Parse);
+        NodePaddingFactorMax = deserializer.ReadTag(nameof(NodePaddingFactorMax), float.Parse);
+        NodePaddingWidthFactor = deserializer.ReadTag(nameof(NodePaddingWidthFactor), float.Parse);
+        NodePaddingHeightFactor = deserializer.ReadTag(nameof(NodePaddingHeightFactor), float.Parse);
     }
 }

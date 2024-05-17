@@ -1,5 +1,5 @@
 ﻿using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeGeneral.Convert;
 
 namespace FocusTree.Model.Lattice;
 
@@ -51,9 +51,9 @@ public class GridData : ISsSerializable
 
     public void Deserialize(SsDeserializer deserializer)
     {
-        FloatComparisonTolerance = deserializer.ReadTag(nameof(FloatComparisonTolerance), s => s.ToFloat(FloatComparisonTolerance));
-        OriginX = deserializer.ReadTag(nameof(OriginX), s => s.ToInt(OriginX));
-        OriginY = deserializer.ReadTag(nameof(OriginY), s => s.ToInt(OriginY));
-        DrawRect = deserializer.ReadTag(nameof(DrawRect), s => s.ToRectangle(DrawRect));
+        FloatComparisonTolerance = deserializer.ReadTag(nameof(FloatComparisonTolerance), float.Parse);
+        OriginX = deserializer.ReadTag(nameof(OriginX), int.Parse);
+        OriginY = deserializer.ReadTag(nameof(OriginY), int.Parse);
+        DrawRect = deserializer.ReadTag(nameof(DrawRect), s => s.ToRectangle());
     }
 }

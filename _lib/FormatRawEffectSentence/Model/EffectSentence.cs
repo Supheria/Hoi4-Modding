@@ -1,6 +1,7 @@
 ﻿using FormatRawEffectSentence.LocalSign;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeGeneral;
+using LocalUtilities.TypeGeneral.Convert;
 
 namespace FormatRawEffectSentence.Model;
 
@@ -93,10 +94,10 @@ public class EffectSentence : ISsSerializable
 
     public void Deserialize(SsDeserializer deserializer)
     {
-        Motion = deserializer.ReadTag(nameof(Motion), s => s.ToEnum(Motion));
-        ValueType = deserializer.ReadTag(nameof(ValueType), s => s.ToEnum(ValueType));
+        Motion = deserializer.ReadTag(nameof(Motion), s => s.ToEnum<Motions>());
+        ValueType = deserializer.ReadTag(nameof(ValueType), s => s.ToEnum<Types>());
         Value = deserializer.ReadTag(nameof(Value), s => s ?? Value);
-        TriggerType = deserializer.ReadTag(nameof(TriggerType), s => s.ToEnum(TriggerType));
+        TriggerType = deserializer.ReadTag(nameof(TriggerType), s => s.ToEnum<Types>());
         Triggers = deserializer.ReadTag(nameof(Triggers), s => s ?? Triggers.ToArrayString()).ToArray();
         SubSentences = deserializer.ReadObjects<EffectSentence>();
     }

@@ -1,6 +1,6 @@
 ﻿using FormatRawEffectSentence.Model.Pattern;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeToolKit.Text;
 using System.Text;
 
 namespace FormatRawEffectSentence.Data;
@@ -44,10 +44,15 @@ internal class RawPatternArrayUtilities
         "否",
     };
 
-    private static string CombineStringArrays(params string[][] stringArrays) => new StringBuilder()
-        .AppendJoin("|", stringArrays, (sb, value) => sb
-            .AppendJoin('|', value))
-        .ToString();
+    private static string CombineStringArrays(params string[][] stringArrays)
+    {
+        return new StringBuilder()
+            .AppendJoin('|', stringArrays, (sb, value) =>
+            {
+                sb.AppendJoin('|', value);
+            })
+            .ToString();
+    }
 
     internal static Dictionary<TValueToKey, TKeyToValue> ReverseDictionary<TKeyToValue, TValueToKey>(
         Dictionary<TKeyToValue, TValueToKey[]> rawDictionary)
@@ -75,7 +80,6 @@ internal class RawPatternArrayUtilities
 
     internal static void SaveRawPatternArray(string filePath, ref List<RawPattern> patterns)
     {
-        var collection = new SerializableList<RawPattern>("RawPatterns", patterns);
-        collection.SaveToSimpleScript(true, filePath);
+        patterns.SaveToSimpleScript(true, filePath);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FormatRawEffectSentence.LocalSign;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeGeneral;
+using LocalUtilities.TypeGeneral.Convert;
 
 namespace FormatRawEffectSentence.Model.Pattern;
 
@@ -13,5 +14,5 @@ public class MotionCondition : SerializableTagValues<string, Motions>
 
     protected override Func<string, string> ReadTag => tag => tag ?? "";
 
-    protected override Func<List<string>, Motions> ReadValue => values => values[0].ToEnum(Motions.None);
+    protected override Func<List<string>, Motions> ReadValue => values => values[0].ToEnum<Motions>();
 }

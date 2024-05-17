@@ -1,9 +1,8 @@
 using FocusTree.UI.Graph;
-using LocalUtilities.FileUtilities;
+using LocalUtilities.FileHelper;
 using LocalUtilities.SimpleScript.Serialization;
-using LocalUtilities.TypeBundle;
+using LocalUtilities.TypeToolKit.Text;
 using System.Drawing.Text;
-using System.Xml;
 
 namespace FocusTree.UI.NodeToolDialogs
 {
