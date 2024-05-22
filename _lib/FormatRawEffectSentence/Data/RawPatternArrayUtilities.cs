@@ -80,6 +80,6 @@ internal class RawPatternArrayUtilities
 
     internal static void SaveRawPatternArray(string filePath, ref List<RawPattern> patterns)
     {
-        patterns.SaveToSimpleScript(true, filePath);
+        patterns.SaveToSimpleScript(nameof(RawPattern), true, filePath);
     }
 }

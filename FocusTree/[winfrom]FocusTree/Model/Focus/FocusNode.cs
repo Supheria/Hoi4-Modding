@@ -74,7 +74,7 @@ namespace FocusTree.Model.Focus
             serializer.WriteTag(nameof(LatticedPoint), LatticedPoint.ToString());
             serializer.WriteValues(nameof(RawEffect), RawEffect, s => s);
             //FormatRawEffects();
-            serializer.WriteObjects(Effects);
+            serializer.WriteObjects(nameof(Effects), Effects);
             serializer.WriteValues(nameof(Require), Require, x => x.ToArrayString());
         }
 
@@ -88,7 +88,7 @@ namespace FocusTree.Model.Focus
             Ps = deserializer.ReadTag(nameof(Ps), s => s);
             LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), LatticedPoint.Parse);
             RawEffect = deserializer.ReadValues(nameof(RawEffect), s => s);
-            Effects = deserializer.ReadObjects<EffectSentence>();
+            Effects = deserializer.ReadObjects<EffectSentence>(nameof(Effects));
             Require = deserializer.ReadValues(nameof(Require), s => s.ToArray().Select(int.Parse).ToHashSet());
         }
 

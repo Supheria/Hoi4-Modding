@@ -89,7 +89,7 @@ public class EffectSentence : ISsSerializable
         serializer.WriteTag(nameof(Value), Value);
         serializer.WriteTag(nameof(TriggerType), TriggerType.ToString());
         serializer.WriteTag(nameof(Triggers), Triggers.ToArrayString());
-        serializer.WriteObjects(SubSentences);
+        serializer.WriteObjects(LocalName, SubSentences);
     }
 
     public void Deserialize(SsDeserializer deserializer)
@@ -99,6 +99,6 @@ public class EffectSentence : ISsSerializable
         Value = deserializer.ReadTag(nameof(Value), s => s ?? Value);
         TriggerType = deserializer.ReadTag(nameof(TriggerType), s => s.ToEnum<Types>());
         Triggers = deserializer.ReadTag(nameof(Triggers), s => s ?? Triggers.ToArrayString()).ToArray();
-        SubSentences = deserializer.ReadObjects<EffectSentence>();
+        SubSentences = deserializer.ReadObjects<EffectSentence>(LocalName);
     }
 }

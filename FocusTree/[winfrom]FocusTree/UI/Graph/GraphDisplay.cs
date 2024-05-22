@@ -341,8 +341,8 @@ public class GraphDisplay : PictureBox
         LatticedPointCursorOn = cell.LatticedPoint;
         var cellPart = cell.PointOnCellPart(newPoint);
         if (cellPart == LastCellPart) { return; }
-        _backgroundCache.DrawBitmapPartOn((Bitmap)Image, LastPartRealRect, true);
-        _lineMapCache.DrawBitmapPartOn((Bitmap)Image, LastPartRealRect, true);
+        Image.DrawTemplateIntoRect(_backgroundCache, LastPartRealRect, true);
+        Image.DrawTemplateIntoRect(_lineMapCache, LastPartRealRect, true);
         LastCellPart = cellPart;
         if (GraphBox.PointInAnyFocusNode(newPoint, out var focus))
         {
@@ -358,7 +358,7 @@ public class GraphDisplay : PictureBox
         {
             GraphDrawer.DrawSelectedCellPart((Bitmap)Image, LatticedPointCursorOn, cellPart);
             LastPartRealRect = cell.CellPartsRealRect(cellPart);
-            _lineMapCache.DrawBitmapPartOn((Bitmap)Image, LastPartRealRect, true);
+            Image.DrawTemplateIntoRect(_lineMapCache, LastPartRealRect, true);
         }
         Parent.Text = $"CellSideLength {LatticeCell.CellData.EdgeLengthMin}, o: {LatticeGrid.GridData.OriginX}, {LatticeGrid.GridData.OriginY}, cursor: {newPoint}, cellPart: {LastCellPart}";
         Invalidate();

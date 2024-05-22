@@ -141,7 +141,7 @@ public static class GraphBox
             return;
         ReadOnly = false;
         //Graph.Backup(FilePath);
-        Graph.SaveToSimpleScript(false, FilePath);
+        Graph.SaveToSimpleScript(true, FilePath);
         Graph.UpdateLastSavedHistoryIndex();
     }
 

@@ -12,11 +12,13 @@ using System.IO.Compression;
 
 namespace FocusTree.UI.Graph;
 
-public partial class GraphForm : ResizeableForm<GraphFormData>
+public partial class GraphForm : ResizeableForm
 {
     GraphDisplay Display { get; }
 
-    public GraphForm() : base(new GraphFormData(nameof(GraphForm)))
+    public override string LocalName { get; set; } = nameof(GraphForm);
+
+    public GraphForm()
     {
         Display = new GraphDisplay(this);
         UpdateText();
@@ -26,7 +28,8 @@ public partial class GraphForm : ResizeableForm<GraphFormData>
         Size = new(
             size.Width + Width - ClientRectangle.Width,
             size.Height + Height - ClientRectangle.Height
-            ); Location = new(
+            );
+        Location = new(
         (Screen.GetBounds(this).Width / 2) - (this.Width / 2),
         (Screen.GetBounds(this).Height / 2) - (this.Height / 2)
         );
