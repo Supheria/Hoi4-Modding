@@ -38,14 +38,14 @@ public class LatticeCell
     /// <summary>
     /// 格元栅格化坐标
     /// </summary>
-    public LatticedPoint LatticedPoint { get; set; }
+    public LatticePoint LatticedPoint { get; set; }
 
-    public LatticeCell() : this(new LatticedPoint())
+    public LatticeCell() : this(new LatticePoint())
     {
 
     }
 
-    public LatticeCell(LatticedPoint latticedPoint)
+    public LatticeCell(LatticePoint latticedPoint)
     {
         LatticedPoint = latticedPoint;
     }

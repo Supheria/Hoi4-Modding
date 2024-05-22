@@ -44,7 +44,7 @@ namespace FocusTree.Model.Focus
         /// <summary>
         /// 栅格化坐标
         /// </summary>
-        public LatticedPoint LatticedPoint { get; set; } = new();
+        public LatticePoint LatticedPoint { get; set; } = new();
 
         /// <summary>
         /// 原始效果语句
@@ -86,7 +86,7 @@ namespace FocusTree.Model.Focus
             Duration = deserializer.ReadTag(nameof(Duration), int.Parse);
             Description = deserializer.ReadTag(nameof(Description), s => s);
             Ps = deserializer.ReadTag(nameof(Ps), s => s);
-            LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), LatticedPoint.Parse);
+            LatticedPoint = deserializer.ReadTag(nameof(LatticedPoint), LatticePoint.Parse);
             RawEffect = deserializer.ReadValues(nameof(RawEffect), s => s);
             Effects = deserializer.ReadObjects<EffectSentence>(nameof(Effects));
             Require = deserializer.ReadValues(nameof(Require), s => s.ToArray().Select(int.Parse).ToHashSet());

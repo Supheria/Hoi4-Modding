@@ -223,7 +223,7 @@ public static class GraphBox
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    public static bool ContainLatticedPoint(LatticedPoint point) => Graph != null && Graph.ContainLatticedPoint(point);
+    public static bool ContainLatticedPoint(LatticePoint point) => Graph != null && Graph.ContainLatticedPoint(point);
 
     /// <summary>
     /// 坐标是否处于任何国策节点的绘图区域中

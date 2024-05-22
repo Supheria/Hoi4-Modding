@@ -240,7 +240,7 @@ public static class GraphDrawer
     /// <param name="image"></param>
     /// <param name="startLoc"></param>
     /// <param name="endLoc"></param>
-    public static void DrawRequireLine(Bitmap image, LatticedPoint startLoc, LatticedPoint endLoc)
+    public static void DrawRequireLine(Bitmap image, LatticePoint startLoc, LatticePoint endLoc)
     {
         var colDiff = endLoc.Col - startLoc.Col;
         var rowDiff = endLoc.Row - startLoc.Row;
@@ -339,7 +339,7 @@ public static class GraphDrawer
     /// <param name="image"></param>
     /// <param name="point"></param>
     /// <param name="cellPart"></param>
-    public static void DrawSelectedCellPart(Bitmap image, LatticedPoint point, Direction cellPart)
+    public static void DrawSelectedCellPart(Bitmap image, LatticePoint point, Direction cellPart)
     {
         LatticeCell cell = new(point);
         if (!CellSelectedPartsBg.TryGetValue(cellPart, out var shading))

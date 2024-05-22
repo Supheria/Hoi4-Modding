@@ -329,7 +329,7 @@ public class GraphDisplay : PictureBox
     /// 上次光标所处的节点部分
     /// </summary>
     Direction LastCellPart = Direction.None;
-    LatticedPoint LatticedPointCursorOn;
+    LatticePoint LatticedPointCursorOn;
     FocusNode FocusNodeToDrag = new();
     Rectangle LastPartRealRect;
     bool FirstDrag = true;
@@ -341,8 +341,8 @@ public class GraphDisplay : PictureBox
         LatticedPointCursorOn = cell.LatticedPoint;
         var cellPart = cell.PointOnCellPart(newPoint);
         if (cellPart == LastCellPart) { return; }
-        Image.DrawTemplateIntoRect(_backgroundCache, LastPartRealRect, true);
-        Image.DrawTemplateIntoRect(_lineMapCache, LastPartRealRect, true);
+        _backgroundCache?.TemplateDrawPartOn((Bitmap)Image, LastPartRealRect, true);
+        _lineMapCache?.TemplateDrawPartOn((Bitmap)Image, LastPartRealRect, true);
         LastCellPart = cellPart;
         if (GraphBox.PointInAnyFocusNode(newPoint, out var focus))
         {
@@ -358,7 +358,7 @@ public class GraphDisplay : PictureBox
         {
             GraphDrawer.DrawSelectedCellPart((Bitmap)Image, LatticedPointCursorOn, cellPart);
             LastPartRealRect = cell.CellPartsRealRect(cellPart);
-            Image.DrawTemplateIntoRect(_lineMapCache, LastPartRealRect, true);
+            _lineMapCache?.TemplateDrawPartOn((Bitmap)Image, LastPartRealRect, true);
         }
         Parent.Text = $"CellSideLength {LatticeCell.CellData.EdgeLengthMin}, o: {LatticeGrid.GridData.OriginX}, {LatticeGrid.GridData.OriginY}, cursor: {newPoint}, cellPart: {LastCellPart}";
         Invalidate();

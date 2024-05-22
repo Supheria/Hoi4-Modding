@@ -49,7 +49,7 @@ namespace FocusTree.Model.Focus
         /// <param name="latticedPoint"></param>
         /// <param name="focus"></param>
         /// <returns>如果有则返回true，id为节点id；否则返回false，id为-1</returns>
-        public bool ContainLatticedPoint(LatticedPoint latticedPoint, [NotNullWhen(true)] out FocusNode? focus)
+        public bool ContainLatticedPoint(LatticePoint latticedPoint, [NotNullWhen(true)] out FocusNode? focus)
         {
             focus = null;
             foreach (var f in RosterMap.Values.Where(f => latticedPoint == f.LatticedPoint))
@@ -60,7 +60,7 @@ namespace FocusTree.Model.Focus
             return false;
         }
 
-        public bool ContainLatticedPoint(LatticedPoint latticedPoint)
+        public bool ContainLatticedPoint(LatticePoint latticedPoint)
         {
             return RosterMap.Values.Any(f => latticedPoint == f.LatticedPoint);
         }
